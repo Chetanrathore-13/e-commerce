@@ -40,7 +40,10 @@ function Header() {
           <i class="ri-whatsapp-line font-medium"></i>
           <i class="ri-search-line font-medium"></i>
           <i class="ri-heart-line font-medium"></i>
+          <NavLink to='/Login'>
           <i class="ri-user-line font-medium"></i>
+          </NavLink>
+          
           <i class="ri-handbag-line font-medium"></i>
           
         </div>
