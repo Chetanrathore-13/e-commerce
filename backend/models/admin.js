@@ -1,0 +1,27 @@
+import mongoose from "mongoose";
+
+const adminSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    refreshtoken: {
+        type: String,
+    },
+}, { timestamps: true });
+
+// isPasswordCorrect method
+adminSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+export default mongoose.model("Admin", adminSchema);
