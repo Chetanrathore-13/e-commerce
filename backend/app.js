@@ -57,5 +57,10 @@ app.get("/", (req, res) => {
     res.send("Welcome to our ecommerce API");
 });
 
+import adminRoutes from "./routes/admin.route.js";
+
+
+app.use("/api/v1/admin", adminRoutes);
+
 app.use(errorHandler);
 export { httpServer };

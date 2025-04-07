@@ -38,31 +38,5 @@ export const adminLogin = async (req, res) => {
         }
 }
 
-export const generatenewaccesstoken = async (req, res) => {
-    try {
-        const refreshToken = req.cookies.refreshToken;
-        if (!refreshToken) {
-            return res.status(401).json({ message: "Access Denied. No token provided." });
-        } else {
-            jwt.verify(refreshToken, process.env.JWT_SECRET, (err, user) => {
-                if (err) {
-                    return res.status(403).json({ message: "Invalid token" });
-                } else {
-                    const { accessToken, refreshToken } = generateaccessandrefreshtoken(user);
-                    res.cookie("accessToken", accessToken, {
-                        httpOnly: true,
-                        maxAge: 20 * 60 * 1000,
-                    })
-                    res.cookie("refreshToken", refreshToken, {
-                        httpOnly: true,
-                        maxAge: 24 * 60 * 60 * 1000,
-                    })
-                    res.status(200).json({ accessToken, refreshToken });
-                }
-            });
-        }
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-}
+
  
