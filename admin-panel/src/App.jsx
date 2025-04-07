@@ -8,7 +8,10 @@ import Orders from "./Pages/Order";
 import Login from "./Components/Login";
 
 function App() {
-  const [token, setToken] = useState("");
+  const token = localStorage.getItem("accessToken");
+ if (!token) {
+    return <Login />;
+  }
 
   return (
     <div className=" bg-gray-50  min-h-screen">

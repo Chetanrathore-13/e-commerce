@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const adminSchema = new mongoose.Schema({
     name: {
@@ -21,7 +22,7 @@ const adminSchema = new mongoose.Schema({
 
 // isPasswordCorrect method
 adminSchema.methods.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare(password, this.password);
+    return  password === this.password;
 };
 
 export default mongoose.model("Admin", adminSchema);
