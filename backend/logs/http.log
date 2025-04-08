@@ -120,3 +120,23 @@
 [07 Apr, 2025 - 12:11:06:116] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 123.748 ms[39m
 [07 Apr, 2025 - 12:13:23:1323] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 224.129 ms[39m
 [07 Apr, 2025 - 12:17:14:1714] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 113.103 ms[39m
+[08 Apr, 2025 - 14:25:14:2514] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[08 Apr, 2025 - 14:25:14:2514] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[08 Apr, 2025 - 14:25:14:2514] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[08 Apr, 2025 - 14:29:46:2946] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 113.735 ms[39m
+[08 Apr, 2025 - 14:29:47:2947] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 30.208 ms[39m
+[08 Apr, 2025 - 14:31:36:3136] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 37.400 ms[39m
+[08 Apr, 2025 - 14:33:27:3327] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 201.127 ms[39m
+[08 Apr, 2025 - 14:34:35:3435] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 101.506 ms[39m
+[08 Apr, 2025 - 14:34:59:3459] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 31.282 ms[39m
+[08 Apr, 2025 - 14:35:01:351] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 55.151 ms[39m
+[08 Apr, 2025 - 14:35:01:351] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 139.140 ms[39m
+[08 Apr, 2025 - 14:35:03:353] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 134.645 ms[39m
+[08 Apr, 2025 - 14:36:12:3612] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 36.736 ms[39m
+[08 Apr, 2025 - 14:36:13:3613] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 66.748 ms[39m
+[08 Apr, 2025 - 14:49:17:4917] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 62.280 ms[39m
+[08 Apr, 2025 - 14:53:07:537] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 63.915 ms[39m
+[08 Apr, 2025 - 15:21:55:2155] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 631.312 ms[39m
+[08 Apr, 2025 - 15:30:11:3011] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 147.536 ms[39m
