@@ -140,3 +140,103 @@
 [08 Apr, 2025 - 14:53:07:537] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 63.915 ms[39m
 [08 Apr, 2025 - 15:21:55:2155] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 631.312 ms[39m
 [08 Apr, 2025 - 15:30:11:3011] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 147.536 ms[39m
+[08 Apr, 2025 - 16:53:04:534] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 158.922 ms[39m
+[08 Apr, 2025 - 16:53:39:5339] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 33.730 ms[39m
+[08 Apr, 2025 - 16:54:14:5414] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 140.970 ms[39m
+[08 Apr, 2025 - 16:58:06:586] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 70.283 ms[39m
+[09 Apr, 2025 - 11:39:49:3949] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[09 Apr, 2025 - 11:39:49:3949] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[09 Apr, 2025 - 11:39:49:3949] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[09 Apr, 2025 - 11:40:57:4057] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 83.003 ms[39m
+[09 Apr, 2025 - 14:07:55:755] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 259.633 ms[39m
+[09 Apr, 2025 - 14:22:10:2210] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 199.256 ms[39m
+[09 Apr, 2025 - 15:05:49:549] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 167.076 ms[39m
+[09 Apr, 2025 - 15:06:22:622] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 77.416 ms[39m
+[09 Apr, 2025 - 15:06:47:647] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 81.304 ms[39m
+[09 Apr, 2025 - 15:08:00:80] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 327.130 ms[39m
+[09 Apr, 2025 - 15:20:18:2018] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 147.114 ms[39m
+[09 Apr, 2025 - 15:21:01:211] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 93.090 ms[39m
+[09 Apr, 2025 - 15:21:20:2120] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 42.590 ms[39m
+[09 Apr, 2025 - 15:22:23:2223] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 63.462 ms[39m
+[09 Apr, 2025 - 15:22:40:2240] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 46.422 ms[39m
+[09 Apr, 2025 - 15:23:02:232] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 70.745 ms[39m
+[09 Apr, 2025 - 15:27:39:2739] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 119.439 ms[39m
+[09 Apr, 2025 - 15:52:30:5230] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 107.210 ms[39m
+[09 Apr, 2025 - 16:53:19:5319] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 213.934 ms[39m
+[09 Apr, 2025 - 16:53:28:5328] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 38.817 ms[39m
+[09 Apr, 2025 - 16:58:17:5817] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 155.051 ms[39m
+[09 Apr, 2025 - 17:03:30:330] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 85.552 ms[39m
+[09 Apr, 2025 - 17:03:46:346] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 66.186 ms[39m
+[09 Apr, 2025 - 17:10:18:1018] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 49.362 ms[39m
+[09 Apr, 2025 - 17:12:10:1210] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 59.049 ms[39m
+[09 Apr, 2025 - 17:13:10:1310] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 43.195 ms[39m
+[09 Apr, 2025 - 17:13:17:1317] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 48.769 ms[39m
+[09 Apr, 2025 - 17:33:08:338] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 76.138 ms[39m
+[09 Apr, 2025 - 22:18:32:1832] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-01.ydut7g6.mongodb.net[39m
+[34m[39m
+[09 Apr, 2025 - 22:18:32:1832] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[09 Apr, 2025 - 22:18:32:1832] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[09 Apr, 2025 - 22:19:04:194] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 119.609 ms[39m
+[09 Apr, 2025 - 22:26:40:2640] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 103.328 ms[39m
+[09 Apr, 2025 - 22:27:05:275] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 70.237 ms[39m
+[09 Apr, 2025 - 22:29:46:2946] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 70.831 ms[39m
+[09 Apr, 2025 - 22:30:35:3035] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 70.895 ms[39m
+[09 Apr, 2025 - 22:44:01:441] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 87.608 ms[39m
+[10 Apr, 2025 - 11:11:10:1110] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[10 Apr, 2025 - 11:11:10:1110] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[10 Apr, 2025 - 11:11:10:1110] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[10 Apr, 2025 - 11:13:53:1353] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 93.351 ms[39m
+[10 Apr, 2025 - 11:21:55:2155] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 38.638 ms[39m
+[10 Apr, 2025 - 11:23:21:2321] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 38.850 ms[39m
+[10 Apr, 2025 - 11:23:45:2345] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 223.031 ms[39m
+[10 Apr, 2025 - 11:24:36:2436] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 48.484 ms[39m
+[10 Apr, 2025 - 11:31:13:3113] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 79.277 ms[39m
+[10 Apr, 2025 - 11:31:34:3134] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 47.884 ms[39m
+[10 Apr, 2025 - 11:35:07:357] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 119.591 ms[39m
+[10 Apr, 2025 - 11:36:57:3657] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 44.243 ms[39m
+[10 Apr, 2025 - 11:37:26:3726] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 48.076 ms[39m
+[10 Apr, 2025 - 11:40:14:4014] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 49.312 ms[39m
+[10 Apr, 2025 - 12:29:14:2914] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 187.115 ms[39m
+[10 Apr, 2025 - 12:30:40:3040] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 65.042 ms[39m
+[10 Apr, 2025 - 12:45:44:4544] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 188.577 ms[39m
+[10 Apr, 2025 - 12:46:55:4655] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 50.430 ms[39m
+[10 Apr, 2025 - 12:49:51:4951] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 64.910 ms[39m
+[10 Apr, 2025 - 12:59:48:5948] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 165.839 ms[39m
+[10 Apr, 2025 - 13:17:31:1731] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[10 Apr, 2025 - 13:17:31:1731] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[10 Apr, 2025 - 13:17:31:1731] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[10 Apr, 2025 - 13:17:41:1741] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 97.403 ms[39m
+[10 Apr, 2025 - 13:19:55:1955] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 57.675 ms[39m
+[10 Apr, 2025 - 13:20:09:209] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 40.300 ms[39m
+[10 Apr, 2025 - 13:20:20:2020] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 30.696 ms[39m
+[10 Apr, 2025 - 13:25:17:2517] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 65.749 ms[39m
+[10 Apr, 2025 - 13:29:48:2948] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 147.640 ms[39m
+[10 Apr, 2025 - 13:31:58:3158] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 52.845 ms[39m
+[10 Apr, 2025 - 13:32:38:3238] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 128.394 ms[39m
+[10 Apr, 2025 - 22:00:59:059] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-01.ydut7g6.mongodb.net[39m
+[34m[39m
+[10 Apr, 2025 - 22:00:59:059] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[10 Apr, 2025 - 22:00:59:059] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[10 Apr, 2025 - 22:01:32:132] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 182.719 ms[39m
+[10 Apr, 2025 - 22:05:14:514] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 89.872 ms[39m
+[10 Apr, 2025 - 22:05:44:544] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 64.925 ms[39m
+[10 Apr, 2025 - 22:08:31:831] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 78.950 ms[39m
+[10 Apr, 2025 - 22:17:06:176] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 93.583 ms[39m
+[10 Apr, 2025 - 22:40:41:4041] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 122.956 ms[39m
+[10 Apr, 2025 - 22:46:29:4629] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 77.624 ms[39m
+[10 Apr, 2025 - 22:47:36:4736] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 68.058 ms[39m
+[10 Apr, 2025 - 22:47:47:4747] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 97.517 ms[39m
+[10 Apr, 2025 - 22:48:35:4835] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 85.521 ms[39m
+[10 Apr, 2025 - 22:49:15:4915] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 87.366 ms[39m
+[10 Apr, 2025 - 22:53:16:5316] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 60.146 ms[39m
+[10 Apr, 2025 - 22:54:37:5437] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 98.850 ms[39m
+[10 Apr, 2025 - 22:57:15:5715] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 95.111 ms[39m
+[10 Apr, 2025 - 22:57:52:5752] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 126.637 ms[39m
