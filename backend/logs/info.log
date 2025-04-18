@@ -184,3 +184,8 @@
 [18 Apr, 2025 - 12:53:28:5328] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
 =======
 >>>>>>> 6371ee328902f95d5a7fee2527308f354218dfbd
+[18 Apr, 2025 - 12:56:34:5634] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[18 Apr, 2025 - 12:56:34:5634] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[18 Apr, 2025 - 12:56:34:5634] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
