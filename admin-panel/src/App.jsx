@@ -20,14 +20,16 @@ function App() {
 
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/add" element={<Add />} />
-        <Route path="/items" element={<Items />} />
-        <Route path="/order" element={<Order />} />
-        <Route path="/category" element={<Category />} />
-        <Route path="/review" element={<Review />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/blog" element={<Blog />} />
+        {/* Dashboard Layout Route */}
+        <Route path="/dashboard" element={<Dashboard />}>
+          <Route path="add" element={<Add />} />
+          <Route path="items" element={<Items />} />
+          <Route path="order" element={<Order />} />
+          <Route path="category" element={<Category />} />
+          <Route path="review" element={<Review />} />
+          <Route path="payment" element={<Payment />} />
+          <Route path="blog" element={<Blog />} />
+        </Route>
       </Route>
 
       {/* Catch-all */}

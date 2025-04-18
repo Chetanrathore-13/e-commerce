@@ -2,7 +2,7 @@
 E-commerce website for Attires
 
 # Admin ID PASSWORD 
-- EMAIL ID - admin@example.com
+- EMAIL ID - admin@example.comadmin@example.com
 - PASSWORD - admin@123
 
 
