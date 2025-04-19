@@ -3,7 +3,19 @@ import Category from "../../models/category.model.js";
 // Create a new category
 export const createCategory = async (req, res) => {
   try {
-    const newCategory = new Category(req.body);
+    const { name, parent_category_id } = req.body;
+    if (!name) {
+      return res.status(400).json({ error: "Category name is required" });
+    }
+    // Check if the category already exists
+    const existingCategory = await Category.findOne({ name });
+    if (existingCategory) {
+      return res.status(400).json({ error: "Category already exists" });
+    }
+    const newCategory = new Category({
+      name,
+      parent_category_id,
+    });
     const savedCategory = await newCategory.save();
     res.status(201).json(savedCategory);
   } catch (error) {

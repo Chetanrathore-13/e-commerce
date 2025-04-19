@@ -3,7 +3,11 @@ import Brand from "../../models/brand.model.js";
 // Create a new brand
 export const createBrand = async (req, res) => {
   try {
-    const brand = new Brand(req.body);
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: "Brand name is required" });
+    const existingBrand = await Brand.findOne({ name });
+    if (existingBrand) return res.status(400).json({ error: "Brand already exists" });
+    const brand = new Brand({ name });
     await brand.save();
     res.status(201).json(brand);
   } catch (error) {

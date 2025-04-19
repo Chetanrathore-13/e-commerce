@@ -58,9 +58,16 @@ app.get("/", (req, res) => {
 });
 
 import adminRoutes from "./routes/admin.route.js";
-
-
 app.use("/api/v1/admin", adminRoutes);
+
+import brandRoutes from "./routes/brand.route.js";
+app.use("/api/v1/brand", brandRoutes);
+
+import categoryRoutes from "./routes/category.route.js";
+app.use("/api/v1/category", categoryRoutes);
+
+import productRoutes from "./routes/product.route.js";
+app.use("/api/v1/product", productRoutes);
 
 app.use(errorHandler);
 export { httpServer };
