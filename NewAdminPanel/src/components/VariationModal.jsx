@@ -4,7 +4,8 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
 import { toast } from 'sonner';
 
-const VariationModal = ({ onAddVariation }) => {
+const VariationModal = ({ onAddVariation,productId }) => {
+  
   const [variation, setVariation] = useState({
     size: '',
     color: '',
@@ -43,10 +44,11 @@ const VariationModal = ({ onAddVariation }) => {
     try {
       setUploading(true);
 
-      const response = await fetch('http://localhost:8000/api/v1/product/addVariations', {
+      const response = await fetch(`http://localhost:8000/api/v1/product/addVariation/${productId}`, {
         method: 'POST',
         body: formData,
       });
+      console.log(response);
 
       if (!response.ok) throw new Error('Upload failed');
       const data = await response.json();

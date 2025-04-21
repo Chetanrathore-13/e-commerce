@@ -1265,3 +1265,53 @@
 [21 Apr, 2025 - 14:21:59:2159] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 33.352 ms[39m
 [21 Apr, 2025 - 14:21:59:2159] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 42.683 ms[39m
 [21 Apr, 2025 - 14:21:59:2159] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 47.191 ms[39m
+[21 Apr, 2025 - 15:32:24:3224] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[21 Apr, 2025 - 15:32:24:3224] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[21 Apr, 2025 - 15:32:24:3224] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[21 Apr, 2025 - 15:33:12:3312] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 401 - 897.689 ms[39m
+[21 Apr, 2025 - 15:33:31:3331] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 187.209 ms[39m
+[21 Apr, 2025 - 15:36:10:3610] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 200 - 166.644 ms[39m
+[21 Apr, 2025 - 15:36:10:3610] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 200 - 175.085 ms[39m
+[21 Apr, 2025 - 15:36:10:3610] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 200 - 169.733 ms[39m
+[21 Apr, 2025 - 15:36:38:3638] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 166.105 ms[39m
+[21 Apr, 2025 - 15:36:38:3638] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 170.863 ms[39m
+[21 Apr, 2025 - 15:36:38:3638] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 173.664 ms[39m
+[21 Apr, 2025 - 15:36:52:3652] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 42.895 ms[39m
+[21 Apr, 2025 - 15:36:52:3652] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 42.526 ms[39m
+[21 Apr, 2025 - 15:36:52:3652] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 46.148 ms[39m
+[21 Apr, 2025 - 15:37:09:379] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 137.786 ms[39m
+[21 Apr, 2025 - 15:37:10:3710] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 190.769 ms[39m
+[21 Apr, 2025 - 15:37:11:3711] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 325.119 ms[39m
+[21 Apr, 2025 - 15:37:13:3713] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 450.554 ms[39m
+[21 Apr, 2025 - 15:37:13:3713] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 473.205 ms[39m
+[21 Apr, 2025 - 15:37:13:3713] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 619.670 ms[39m
+[21 Apr, 2025 - 15:37:14:3714] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 101.970 ms[39m
+[21 Apr, 2025 - 15:37:14:3714] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 608.146 ms[39m
+[21 Apr, 2025 - 15:37:16:3716] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 140.838 ms[39m
+[21 Apr, 2025 - 15:38:03:383] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 168.568 ms[39m
+[21 Apr, 2025 - 15:38:03:383] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 169.172 ms[39m
+[21 Apr, 2025 - 15:38:03:383] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 167.977 ms[39m
+[21 Apr, 2025 - 15:38:46:3846] [35mhttp[39m: [35m::1 POST /api/v1/product/createProduct 201 - 267.089 ms[39m
+[21 Apr, 2025 - 15:38:46:3846] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 200 - 193.607 ms[39m
+[21 Apr, 2025 - 15:39:25:3925] [35mhttp[39m: [35m::1 POST /api/v1/product/addVariations 404 - 9.569 ms[39m
+[21 Apr, 2025 - 15:39:36:3936] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 200 - 32.623 ms[39m
+[21 Apr, 2025 - 15:39:48:3948] [35mhttp[39m: [35m::1 POST /api/v1/product/addVariations 404 - 8.434 ms[39m
+[21 Apr, 2025 - 15:44:52:4452] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 37.010 ms[39m
+[21 Apr, 2025 - 15:44:55:4455] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 82.892 ms[39m
+[21 Apr, 2025 - 15:45:07:457] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 30.096 ms[39m
+[21 Apr, 2025 - 15:45:07:457] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 33.047 ms[39m
+[21 Apr, 2025 - 15:45:07:457] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 34.338 ms[39m
+[21 Apr, 2025 - 15:45:40:4540] [35mhttp[39m: [35m::1 POST /api/v1/product/addVariation/6806192e8cbf29fbdc3d26e3 500 - 47.084 ms[39m
+[21 Apr, 2025 - 15:45:49:4549] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 200 - 33.599 ms[39m
+[21 Apr, 2025 - 15:46:30:4630] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 605.900 ms[39m
+[21 Apr, 2025 - 15:46:30:4630] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 608.150 ms[39m
+[21 Apr, 2025 - 15:46:30:4630] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 615.084 ms[39m
+[21 Apr, 2025 - 15:47:16:4716] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 200 - 570.932 ms[39m
+[21 Apr, 2025 - 15:48:02:482] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 569.849 ms[39m
+[21 Apr, 2025 - 15:48:02:482] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 575.803 ms[39m
+[21 Apr, 2025 - 15:48:02:482] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 580.973 ms[39m
+[21 Apr, 2025 - 15:50:13:5013] [35mhttp[39m: [35m::1 GET /api/v1/category/getCategories 304 - 335.884 ms[39m
+[21 Apr, 2025 - 15:50:13:5013] [35mhttp[39m: [35m::1 GET /api/v1/brand/getBrands 304 - 342.844 ms[39m
+[21 Apr, 2025 - 15:50:13:5013] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 304 - 341.972 ms[39m

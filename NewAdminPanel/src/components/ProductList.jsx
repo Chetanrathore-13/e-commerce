@@ -101,6 +101,7 @@ const ProductList = ({ onEdit }) => {
 
                 <VariationModal
                   onAddVariation={(variation) => addVariation(p._id, variation)}
+                  productId={p._id}
                   triggerLabel="Add Variation"
                 />
               </div>
