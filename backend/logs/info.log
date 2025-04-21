@@ -968,6 +968,7 @@
 [34m[39m
 [21 Apr, 2025 - 11:37:10:3710] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
 [21 Apr, 2025 - 11:37:10:3710] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+<<<<<<< HEAD
 [21 Apr, 2025 - 12:12:30:1230] [34minfo[39m: [34m[39m
 [34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
 [34m[39m
@@ -983,3 +984,15 @@
 [34m[39m
 [21 Apr, 2025 - 12:25:16:2516] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
 [21 Apr, 2025 - 12:25:16:2516] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+=======
+[21 Apr, 2025 - 12:18:28:1828] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[21 Apr, 2025 - 12:18:28:1828] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[21 Apr, 2025 - 12:18:28:1828] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[21 Apr, 2025 - 15:32:24:3224] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[21 Apr, 2025 - 15:32:24:3224] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[21 Apr, 2025 - 15:32:24:3224] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+>>>>>>> 14740212476518ec8efef4d8c17f4d8f5175ebda
