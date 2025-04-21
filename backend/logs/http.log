@@ -1134,3 +1134,18 @@
 [19 Apr, 2025 - 14:39:31:3931] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 200 - 45.473 ms[39m
 [19 Apr, 2025 - 14:39:45:3945] [35mhttp[39m: [35m::1 GET /api/v1/product/getProductbyId/680364c8b9bd3a199b1553b4 200 - 158.147 ms[39m
 [19 Apr, 2025 - 14:41:21:4121] [35mhttp[39m: [35m::1 GET /api/v1/product/getAllProducts 200 - 35.493 ms[39m
+[21 Apr, 2025 - 10:37:09:379] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[21 Apr, 2025 - 10:37:09:379] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[21 Apr, 2025 - 10:37:09:379] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[21 Apr, 2025 - 10:39:14:3914] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 82.126 ms[39m
+[21 Apr, 2025 - 10:40:01:401] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 79.121 ms[39m
+[21 Apr, 2025 - 10:40:59:4059] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 67.716 ms[39m
+[21 Apr, 2025 - 11:37:10:3710] [34minfo[39m: [34m[39m
+[34m☘️  MongoDB has been connected Successfully! Db host: ac-48xldkz-shard-00-00.ydut7g6.mongodb.net[39m
+[34m[39m
+[21 Apr, 2025 - 11:37:10:3710] [34minfo[39m: [34m📑 Visit the documentation at: http://localhost:8000[39m
+[21 Apr, 2025 - 11:37:10:3710] [34minfo[39m: [34m⚙️  Server is running on port: 8000[39m
+[21 Apr, 2025 - 11:57:59:5759] [35mhttp[39m: [35m::1 POST /api/v1/admin/login 200 - 74.561 ms[39m
+[21 Apr, 2025 - 11:58:21:5821] [35mhttp[39m: [35m::1 GET /api/v1/brands 404 - 3.528 ms[39m

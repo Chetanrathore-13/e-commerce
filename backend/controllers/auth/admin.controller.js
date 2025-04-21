@@ -38,5 +38,15 @@ export const adminLogin = async (req, res) => {
         }
 }
 
+export const adminLogout = async (req, res) => {
+    try {
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
+        res.status(200).json({ message: "Logged out successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 
  
