@@ -124,7 +124,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="name"
@@ -268,8 +268,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+        <div className="flex gap-4">
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -281,12 +281,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
               "Create Product"
             )}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/dashboard/products")}
-            className="w-full sm:w-auto"
-          >
+          <Button type="button" variant="outline" onClick={() => router.push("/dashboard/products")}>
             Cancel
           </Button>
         </div>

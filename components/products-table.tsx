@@ -17,10 +17,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
-import { Edit, Trash2, Layers } from "lucide-react"
+import { Edit, Trash2, Layers, Star, Award } from "lucide-react"
 import type { IProduct } from "@/lib/models"
 import { Pagination } from "@/components/pagination"
-import { Badge } from "@/components/ui/badge"
 
 interface ProductsTableProps {
   products: IProduct[]
@@ -33,6 +32,7 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  const [isUpdating, setIsUpdating] = useState<string | null>(null)
 
   const handleDelete = async (id: string) => {
     setIsDeleting(id)
@@ -65,6 +65,55 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
     }
   }
 
+  const toggleStatus = async (id: string, field: "is_featured" | "is_best_seller", currentValue: boolean) => {
+    setIsUpdating(id)
+
+    try {
+      // Get the current product data
+      const getResponse = await fetch(`/api/products/${id}`)
+      const { product } = await getResponse.json()
+
+      if (!getResponse.ok) {
+        throw new Error("Failed to get product data")
+      }
+
+      // Update the status
+      const updateData = {
+        ...product,
+        [field]: !currentValue,
+      }
+
+      const updateResponse = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      })
+
+      const data = await updateResponse.json()
+
+      if (!updateResponse.ok) {
+        throw new Error(data.error || `Failed to update product ${field}`)
+      }
+
+      toast({
+        title: "Success",
+        description: `Product ${field.replace("is_", "")} status updated`,
+      })
+
+      router.refresh()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update product",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUpdating(null)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="rounded-md border">
@@ -74,7 +123,7 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
               <TableHead>Name</TableHead>
               <TableHead>Brand</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="text-center">Status</TableHead>
               <TableHead className="w-[180px]">Created At</TableHead>
               <TableHead className="text-right w-[150px]">Actions</TableHead>
             </TableRow>
@@ -99,24 +148,34 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
                     {product.category_id?.name || "Unknown"}
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {product.is_featured && (
-                        <Badge
-                          variant="outline"
-                          className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                        >
-                          Featured
-                        </Badge>
-                      )}
-                      {product.is_best_seller && (
-                        <Badge
-                          variant="outline"
-                          className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                        >
-                          Best Seller
-                        </Badge>
-                      )}
-                      {!product.is_featured && !product.is_best_seller && <Badge variant="outline">Regular</Badge>}
+                    <div className="flex justify-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={product.is_featured ? "text-yellow-500" : "text-muted-foreground"}
+                        onClick={() => toggleStatus(product._id.toString(), "is_featured", product.is_featured)}
+                        disabled={isUpdating === product._id.toString()}
+                        title={product.is_featured ? "Remove from featured" : "Add to featured"}
+                      >
+                        <Star className="h-5 w-5" fill={product.is_featured ? "currentColor" : "none"} />
+                        <span className="sr-only">
+                          {product.is_featured ? "Remove from featured" : "Add to featured"}
+                        </span>
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={product.is_best_seller ? "text-green-500" : "text-muted-foreground"}
+                        onClick={() => toggleStatus(product._id.toString(), "is_best_seller", product.is_best_seller)}
+                        disabled={isUpdating === product._id.toString()}
+                        title={product.is_best_seller ? "Remove from best sellers" : "Add to best sellers"}
+                      >
+                        <Award className="h-5 w-5" fill={product.is_best_seller ? "currentColor" : "none"} />
+                        <span className="sr-only">
+                          {product.is_best_seller ? "Remove from best sellers" : "Add to best sellers"}
+                        </span>
+                      </Button>
                     </div>
                   </TableCell>
                   <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>

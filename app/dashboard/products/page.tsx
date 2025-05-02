@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
-import { getProducts } from "@/lib/data"
-import { ProductsTable } from "@/components/products-table"
+import { getProducts, getBrands, getCategories } from "@/lib/data"
+import { ProductsTable } from "@/components/products/products-table"
+import { ProductsFilter } from "@/components/products/products-filter"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { PlusCircle } from "lucide-react"
@@ -13,15 +14,30 @@ export const metadata: Metadata = {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; per_page?: string }
+  searchParams: {
+    page?: string
+    per_page?: string
+    name?: string
+    brand_id?: string
+    category_id?: string
+    date?: string
+  }
 }) {
   const page = Number(searchParams.page) || 1
   const per_page = Number(searchParams.per_page) || 10
+  const name = searchParams.name || ""
+  const brand_id = searchParams.brand_id || ""
+  const category_id = searchParams.category_id || ""
+  const date = searchParams.date || ""
 
-  const { products, totalPages } = await getProducts({ page, per_page })
+  const [{ products, totalPages }, { brands }, { categories }] = await Promise.all([
+    getProducts({ page, per_page, name, brand_id, category_id, date }),
+    getBrands({ page: 1, per_page: 100 }),
+    getCategories({ page: 1, per_page: 100 }),
+  ])
 
   return (
-    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+    <div className="flex-1 p-4 pt-6 md:p-8">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Products</h2>
         <Button asChild>
@@ -31,6 +47,9 @@ export default async function ProductsPage({
           </Link>
         </Button>
       </div>
+
+      <ProductsFilter brands={brands} categories={categories} />
+
       <ProductsTable products={products} totalPages={totalPages} page={page} per_page={per_page} />
     </div>
   )

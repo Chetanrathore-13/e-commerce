@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { getProductById, getVariationsByProductId } from "@/lib/data"
-import { VariationsTable } from "@/components/variations-table"
+import { VariationsTable } from "@/components/variations/variations-table"
 import { Button } from "@/components/ui/button"
+import { BackButton } from "@/components/back-button"
 import Link from "next/link"
 import { PlusCircle } from "lucide-react"
 import { notFound } from "next/navigation"
@@ -31,18 +32,21 @@ export default async function ProductVariationsPage({
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+    <div className="flex-1 p-4 pt-6 md:p-8">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Variations for {product.name}</h2>
           <p className="text-muted-foreground">Manage product variations</p>
         </div>
-        <Button asChild>
-          <Link href={`/dashboard/products/${params.id}/variations/new`}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Variation
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <BackButton section="products" />
+          <Button asChild>
+            <Link href={`/dashboard/products/${params.id}/variations/new`}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Variation
+            </Link>
+          </Button>
+        </div>
       </div>
       <VariationsTable
         productId={params.id}

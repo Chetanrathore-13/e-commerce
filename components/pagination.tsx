@@ -31,6 +31,11 @@ export function Pagination({ totalPages, currentPage, siblingCount = 1 }: Pagina
 
   // Generate page numbers to display
   const generatePagination = () => {
+    // For mobile, just show prev/next
+    if (typeof window !== "undefined" && window.innerWidth < 640) {
+      return []
+    }
+
     // If there are fewer pages than the siblings count * 2 + 5, just show all pages
     if (totalPages <= siblingCount * 2 + 5) {
       return Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -102,7 +107,7 @@ export function Pagination({ totalPages, currentPage, siblingCount = 1 }: Pagina
         <ChevronLeft className="h-4 w-4" />
       </Button>
 
-      <div className="flex items-center space-x-2">
+      <div className="hidden sm:flex items-center space-x-2">
         {pages.map((page, i) => {
           // Render ellipsis
           if (page < 0) {
@@ -128,6 +133,11 @@ export function Pagination({ totalPages, currentPage, siblingCount = 1 }: Pagina
           )
         })}
       </div>
+
+      {/* Mobile page indicator */}
+      <span className="sm:hidden text-sm">
+        Page {currentPage} of {totalPages}
+      </span>
 
       <Button
         variant="outline"

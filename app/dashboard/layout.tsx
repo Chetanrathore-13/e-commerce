@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
 import { authOptions } from "@/lib/auth"
 import { DashboardNav } from "@/components/dashboard-nav"
+import { MobileSidebar } from "@/components/mobile-sidebar"
 import { ModeToggle } from "@/components/mode-toggle"
 import { UserNav } from "@/components/user-nav"
 
@@ -17,15 +18,12 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
-  // Add this after checking the session
-  console.log("Session is valid:", !!session)
-  console.log("User:", session?.user)
-
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-40 border-b bg-background">
-        <div className="container flex h-16 items-center justify-between py-4">
+        <div className="flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
+            <MobileSidebar />
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -46,11 +44,11 @@ export default async function DashboardLayout({
           </div>
         </div>
       </header>
-      <div className="container grid flex-1 gap-12 md:grid-cols-[200px_1fr]">
-        <aside className="hidden w-[200px] flex-col md:flex">
+      <div className="flex flex-1">
+        <aside className="hidden h-[calc(100vh-4rem)] w-[240px] border-r bg-gray-50 dark:bg-gray-900 md:block">
           <DashboardNav />
         </aside>
-        <main className="flex w-full flex-1 flex-col overflow-hidden">{children}</main>
+        <main className="flex w-full flex-1 flex-col overflow-auto">{children}</main>
       </div>
     </div>
   )

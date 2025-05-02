@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { getCategoryById, getCategories } from "@/lib/data"
-import { CategoryForm } from "@/components/category-form"
+import { CategoryForm } from "@/components/categories/category-form"
+import { BackButton } from "@/components/back-button"
 import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default async function EditCategoryPage({
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Edit Category</h2>
+        <BackButton section="categories" />
       </div>
       <CategoryForm category={category} parentCategories={filteredCategories} />
     </div>

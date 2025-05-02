@@ -2,6 +2,11 @@ import { connectToDatabase } from "@/lib/mongodb"
 import { Brand, Category, Product, Variation } from "@/lib/models"
 import { isValidObjectId } from "mongoose"
 
+// Helper function to serialize MongoDB documents
+function serialize(obj: any) {
+  return JSON.parse(JSON.stringify(obj))
+}
+
 // Stats for dashboard
 export async function getStats() {
   await connectToDatabase()
@@ -46,21 +51,27 @@ export async function getStats() {
   }
 }
 
-// Get brands with pagination
-export async function getBrands({ page = 1, per_page = 10 }) {
+// Update the getBrands function to handle name filter
+export async function getBrands({ page = 1, per_page = 10, name = "" }) {
   await connectToDatabase()
 
   const skip = (page - 1) * per_page
 
+  // Build query based on filters
+  const query: any = {}
+  if (name) {
+    query.name = { $regex: name, $options: "i" }
+  }
+
   const [brands, totalBrands] = await Promise.all([
-    Brand.find({}).sort({ createdAt: -1 }).skip(skip).limit(per_page).lean(),
-    Brand.countDocuments({}),
+    Brand.find(query).sort({ createdAt: -1 }).skip(skip).limit(per_page).lean(),
+    Brand.countDocuments(query),
   ])
 
   const totalPages = Math.ceil(totalBrands / per_page)
 
   return {
-    brands,
+    brands: serialize(brands),
     totalPages,
   }
 }
@@ -73,24 +84,43 @@ export async function getBrandById(id: string) {
 
   const brand = await Brand.findById(id).lean()
 
-  return brand
+  return brand ? serialize(brand) : null
 }
 
-// Get categories with pagination
-export async function getCategories({ page = 1, per_page = 10 }) {
+// Update the getCategories function to handle name and parent_id filters
+export async function getCategories({ page = 1, per_page = 10, name = "", parent_id = "" }) {
   await connectToDatabase()
 
   const skip = (page - 1) * per_page
 
+  // Build query based on filters
+  const query: any = {}
+  if (name) {
+    query.name = { $regex: name, $options: "i" }
+  }
+
+  if (parent_id) {
+    if (parent_id === "none") {
+      query.parent_category_id = null
+    } else {
+      query.parent_category_id = parent_id
+    }
+  }
+
   const [categories, totalCategories] = await Promise.all([
-    Category.find({}).populate("parent_category_id", "name").sort({ createdAt: -1 }).skip(skip).limit(per_page).lean(),
-    Category.countDocuments({}),
+    Category.find(query)
+      .populate("parent_category_id", "name")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(per_page)
+      .lean(),
+    Category.countDocuments(query),
   ])
 
   const totalPages = Math.ceil(totalCategories / per_page)
 
   return {
-    categories,
+    categories: serialize(categories),
     totalPages,
   }
 }
@@ -103,30 +133,58 @@ export async function getCategoryById(id: string) {
 
   const category = await Category.findById(id).populate("parent_category_id", "name").lean()
 
-  return category
+  return category ? serialize(category) : null
 }
 
-// Get products with pagination
-export async function getProducts({ page = 1, per_page = 10 }) {
+// Update the getProducts function to handle all filters
+export async function getProducts({ page = 1, per_page = 10, name = "", brand_id = "", category_id = "", date = "" }) {
   await connectToDatabase()
 
   const skip = (page - 1) * per_page
 
+  // Build query based on filters
+  const query: any = {}
+
+  if (name) {
+    query.name = { $regex: name, $options: "i" }
+  }
+
+  if (brand_id) {
+    query.brand_id = brand_id
+  }
+
+  if (category_id) {
+    query.category_id = category_id
+  }
+
+  if (date) {
+    const startDate = new Date(date)
+    startDate.setHours(0, 0, 0, 0)
+
+    const endDate = new Date(date)
+    endDate.setHours(23, 59, 59, 999)
+
+    query.createdAt = {
+      $gte: startDate,
+      $lte: endDate,
+    }
+  }
+
   const [products, totalProducts] = await Promise.all([
-    Product.find({})
+    Product.find(query)
       .populate("brand_id", "name")
       .populate("category_id", "name")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(per_page)
       .lean(),
-    Product.countDocuments({}),
+    Product.countDocuments(query),
   ])
 
   const totalPages = Math.ceil(totalProducts / per_page)
 
   return {
-    products,
+    products: serialize(products),
     totalPages,
   }
 }
@@ -139,7 +197,7 @@ export async function getProductById(id: string) {
 
   const product = await Product.findById(id).populate("brand_id", "name").populate("category_id", "name").lean()
 
-  return product
+  return product ? serialize(product) : null
 }
 
 // Get variations by product ID with pagination
@@ -158,7 +216,7 @@ export async function getVariationsByProductId(productId: string, { page = 1, pe
   const totalPages = Math.ceil(totalVariations / per_page)
 
   return {
-    variations,
+    variations: serialize(variations),
     totalPages,
   }
 }
@@ -171,5 +229,5 @@ export async function getVariationById(id: string) {
 
   const variation = await Variation.findById(id).populate("product_id", "name").lean()
 
-  return variation
+  return variation ? serialize(variation) : null
 }

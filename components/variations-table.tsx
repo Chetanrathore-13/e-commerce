@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -17,19 +18,20 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { Edit, Trash2 } from "lucide-react"
-import type { ICategory } from "@/lib/models"
+import type { IVariation } from "@/lib/models"
 import { Pagination } from "@/components/pagination"
 
-interface CategoriesTableProps {
-  categories: ICategory[]
+interface VariationsTableProps {
+  productId: string
+  variations: IVariation[]
   totalPages: number
   page: number
   per_page: number
 }
 
-export function CategoriesTable({ categories, totalPages, page, per_page }: CategoriesTableProps) {
+export function VariationsTable({ productId, variations, totalPages, page, per_page }: VariationsTableProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
@@ -38,26 +40,26 @@ export function CategoriesTable({ categories, totalPages, page, per_page }: Cate
     setIsDeleting(id)
 
     try {
-      const response = await fetch(`/api/categories/${id}`, {
+      const response = await fetch(`/api/variations/${id}`, {
         method: "DELETE",
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to delete category")
+        throw new Error(data.error || "Failed to delete variation")
       }
 
       toast({
         title: "Success",
-        description: "Category deleted successfully",
+        description: "Variation deleted successfully",
       })
 
       router.refresh()
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to delete category",
+        description: error instanceof Error ? error.message : "Failed to delete variation",
         variant: "destructive",
       })
     } finally {
@@ -72,27 +74,30 @@ export function CategoriesTable({ categories, totalPages, page, per_page }: Cate
           <TableHeader>
             <TableRow>
               <TableHead className="w-[80px]">Image</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Parent Category</TableHead>
+              <TableHead>SKU</TableHead>
+              <TableHead>Size</TableHead>
+              <TableHead>Color</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Quantity</TableHead>
               <TableHead className="w-[180px]">Created At</TableHead>
               <TableHead className="text-right w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories.length === 0 ? (
+            {variations.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  No categories found.
+                <TableCell colSpan={8} className="h-24 text-center">
+                  No variations found.
                 </TableCell>
               </TableRow>
             ) : (
-              categories.map((category) => (
-                <TableRow key={category._id.toString()}>
+              variations.map((variation) => (
+                <TableRow key={variation._id.toString()}>
                   <TableCell>
-                    {category.image ? (
+                    {variation.image ? (
                       <Image
-                        src={category.image || "/placeholder.svg"}
-                        alt={category.name}
+                        src={variation.image || "/placeholder.svg"}
+                        alt={`${variation.size} - ${variation.color}`}
                         width={40}
                         height={40}
                         className="rounded-md object-cover"
@@ -103,20 +108,16 @@ export function CategoriesTable({ categories, totalPages, page, per_page }: Cate
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>
-                    {category.parent_category_id ? (
-                      // @ts-ignore - parent_category_id is populated
-                      category.parent_category_id.name
-                    ) : (
-                      <span className="text-muted-foreground">None</span>
-                    )}
-                  </TableCell>
-                  <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell className="font-medium">{variation.sku}</TableCell>
+                  <TableCell>{variation.size}</TableCell>
+                  <TableCell>{variation.color}</TableCell>
+                  <TableCell>${variation.price}</TableCell>
+                  <TableCell>{variation.quantity}</TableCell>
+                  <TableCell>{new Date(variation.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/dashboard/categories/${category._id}`}>
+                        <Link href={`/dashboard/products/${productId}/variations/${variation._id}`}>
                           <Edit className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
                         </Link>
@@ -132,17 +133,17 @@ export function CategoriesTable({ categories, totalPages, page, per_page }: Cate
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              This will permanently delete the category. This action cannot be undone.
+                              This will permanently delete the variation. This action cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => handleDelete(category._id.toString())}
-                              disabled={isDeleting === category._id.toString()}
+                              onClick={() => handleDelete(variation._id.toString())}
+                              disabled={isDeleting === variation._id.toString()}
                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                             >
-                              {isDeleting === category._id.toString() ? "Deleting..." : "Delete"}
+                              {isDeleting === variation._id.toString() ? "Deleting..." : "Delete"}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

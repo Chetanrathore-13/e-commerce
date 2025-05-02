@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { getProductById, getVariationById } from "@/lib/data"
 import { VariationForm } from "@/components/variations/variation-form"
+import { BackButton } from "@/components/back-button"
 import { notFound } from "next/navigation"
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default async function EditVariationPage({
           <h2 className="text-3xl font-bold tracking-tight">Edit Variation</h2>
           <p className="text-muted-foreground">For product: {product.name}</p>
         </div>
+        <BackButton section="variations" />
       </div>
       <VariationForm productId={params.id} variation={variation} />
     </div>
