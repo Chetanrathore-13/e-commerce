@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { Edit, Trash2 } from "lucide-react"
 import type { ICategory } from "@/lib/models"
 import { Pagination } from "@/components/pagination"

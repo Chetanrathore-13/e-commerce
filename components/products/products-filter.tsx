@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -12,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import type { IBrand, ICategory } from "@/lib/models"
+import { debounce } from "lodash"
 
 interface ProductsFilterProps {
   brands: IBrand[]
@@ -30,9 +29,8 @@ export function ProductsFilter({ brands, categories }: ProductsFilterProps) {
     searchParams.get("date") ? new Date(searchParams.get("date") as string) : undefined,
   )
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-
+  // Debounced function to update URL
+  const debouncedUpdateUrl = debounce((name: string, brandId: string, categoryId: string, date?: Date) => {
     const params = new URLSearchParams(searchParams.toString())
 
     if (name) {
@@ -63,26 +61,35 @@ export function ProductsFilter({ brands, categories }: ProductsFilterProps) {
     params.set("page", "1")
 
     router.push(`${pathname}?${params.toString()}`)
-  }
+  }, 500) // 500ms debounce time
+
+  // Update URL when filters change
+  useEffect(() => {
+    debouncedUpdateUrl(name, brandId, categoryId, date)
+
+    // Cleanup
+    return () => {
+      debouncedUpdateUrl.cancel()
+    }
+  }, [name, brandId, categoryId, date])
 
   const handleReset = () => {
     setName("")
     setBrandId("")
     setCategoryId("")
     setDate(undefined)
+  }
 
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete("name")
-    params.delete("brand_id")
-    params.delete("category_id")
-    params.delete("date")
-    params.set("page", "1")
+  const handleBrandChange = (value: string) => {
+    setBrandId(value === "all" ? "" : value)
+  }
 
-    router.push(`${pathname}?${params.toString()}`)
+  const handleCategoryChange = (value: string) => {
+    setCategoryId(value === "all" ? "" : value)
   }
 
   return (
-    <form onSubmit={handleSearch} className="flex flex-col gap-4 mb-6">
+    <div className="flex flex-col gap-4 mb-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -105,7 +112,7 @@ export function ProductsFilter({ brands, categories }: ProductsFilterProps) {
           )}
         </div>
 
-        <Select value={brandId} onValueChange={setBrandId}>
+        <Select value={brandId} onValueChange={handleBrandChange}>
           <SelectTrigger>
             <SelectValue placeholder="Filter by brand" />
           </SelectTrigger>
@@ -119,7 +126,7 @@ export function ProductsFilter({ brands, categories }: ProductsFilterProps) {
           </SelectContent>
         </Select>
 
-        <Select value={categoryId} onValueChange={setCategoryId}>
+        <Select value={categoryId} onValueChange={handleCategoryChange}>
           <SelectTrigger>
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
@@ -144,17 +151,23 @@ export function ProductsFilter({ brands, categories }: ProductsFilterProps) {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <CalendarComponent mode="single" selected={date} onSelect={setDate} initialFocus />
+            <CalendarComponent
+              mode="single"
+              selected={date}
+              onSelect={(newDate) => {
+                setDate(newDate)
+              }}
+              initialFocus
+            />
           </PopoverContent>
         </Popover>
       </div>
 
-      <div className="flex gap-2">
-        <Button type="submit">Apply Filters</Button>
+      <div>
         <Button type="button" variant="outline" onClick={handleReset}>
           Reset Filters
         </Button>
       </div>
-    </form>
+    </div>
   )
 }

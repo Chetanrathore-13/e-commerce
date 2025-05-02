@@ -1,14 +1,13 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, X } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { ICategory } from "@/lib/models"
+import { debounce } from "lodash"
 
 interface CategoriesFilterProps {
   parentCategories: ICategory[]
@@ -22,9 +21,8 @@ export function CategoriesFilter({ parentCategories }: CategoriesFilterProps) {
   const [name, setName] = useState(searchParams.get("name") || "")
   const [parentId, setParentId] = useState(searchParams.get("parent_id") || "")
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-
+  // Debounced function to update URL
+  const debouncedUpdateUrl = debounce((name: string, parentId: string) => {
     const params = new URLSearchParams(searchParams.toString())
 
     if (name) {
@@ -43,22 +41,29 @@ export function CategoriesFilter({ parentCategories }: CategoriesFilterProps) {
     params.set("page", "1")
 
     router.push(`${pathname}?${params.toString()}`)
-  }
+  }, 500) // 500ms debounce time
+
+  // Update URL when filters change
+  useEffect(() => {
+    debouncedUpdateUrl(name, parentId)
+
+    // Cleanup
+    return () => {
+      debouncedUpdateUrl.cancel()
+    }
+  }, [name, parentId])
 
   const handleReset = () => {
     setName("")
     setParentId("")
+  }
 
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete("name")
-    params.delete("parent_id")
-    params.set("page", "1")
-
-    router.push(`${pathname}?${params.toString()}`)
+  const handleParentChange = (value: string) => {
+    setParentId(value === "all" ? "" : value)
   }
 
   return (
-    <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2 mb-6">
+    <div className="flex flex-col sm:flex-row gap-2 mb-6">
       <div className="flex-1 flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -82,7 +87,7 @@ export function CategoriesFilter({ parentCategories }: CategoriesFilterProps) {
         </div>
 
         <div className="w-full sm:w-[200px]">
-          <Select value={parentId} onValueChange={setParentId}>
+          <Select value={parentId} onValueChange={handleParentChange}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by parent" />
             </SelectTrigger>
@@ -99,12 +104,11 @@ export function CategoriesFilter({ parentCategories }: CategoriesFilterProps) {
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <Button type="submit">Filter</Button>
+      <div>
         <Button type="button" variant="outline" onClick={handleReset}>
           Reset
         </Button>
       </div>
-    </form>
+    </div>
   )
 }

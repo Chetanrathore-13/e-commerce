@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { getBrandById } from "@/lib/data"
-import { BrandForm } from "@/components/brand-form"
+import { BrandForm } from "@/components/brands/brand-form"
 import { BackButton } from "@/components/back-button"
 import { notFound } from "next/navigation"
 

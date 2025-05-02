@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { BrandForm } from "@/components/brand-form"
+import { BrandForm } from "@/components/brands/brand-form"
 import { BackButton } from "@/components/back-button"
 
 export const metadata: Metadata = {
