@@ -38,7 +38,7 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
     setIsDeleting(id)
 
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/admin/products/${id}`, {
         method: "DELETE",
       })
 
@@ -70,7 +70,7 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
 
     try {
       // Get the current product data
-      const getResponse = await fetch(`/api/products/${id}`)
+      const getResponse = await fetch(`/api/admin/products/${id}`)
       const { product } = await getResponse.json()
 
       if (!getResponse.ok) {
@@ -83,7 +83,7 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
         [field]: !currentValue,
       }
 
-      const updateResponse = await fetch(`/api/products/${id}`, {
+      const updateResponse = await fetch(`/api/admin/products/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

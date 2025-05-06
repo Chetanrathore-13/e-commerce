@@ -1,18 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { Search, ShoppingBag, Heart, User, MenuIcon, X, Phone, MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import ProfileDropdown from "@/components/profile-dropdown"
-import CartModal from "@/app/cart/CartModal"
-import MegaMenu from "@/components/mega-menu"
-import type { MegaMenuContent, CategoryWithSubcategories } from "@/types"
-import { getCategoryTree } from "@/lib/api"
+import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Search,
+  ShoppingBag,
+  Heart,
+  User,
+  MenuIcon,
+  X,
+  Phone,
+  MessageCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import ProfileDropdown from "@/components/profile-dropdown";
+import CartModal from "@/app/cart/CartModal";
+import MegaMenu from "@/components/mega-menu";
+import type { MegaMenuContent, CategoryWithSubcategories } from "@/types";
+import { getCategoryTree } from "@/lib/api";
+import Logo from "../public/Logo/Parpra.png";
 
 // Hardcoded mega menu content to avoid hydration issues
 const defaultMegaMenuContent: Record<string, MegaMenuContent> = {
@@ -95,32 +105,34 @@ const defaultMegaMenuContent: Record<string, MegaMenuContent> = {
     ],
     featuredImage: "/placeholder.svg?key=insx1",
   },
-}
+};
 
 // Update the Header component to fetch categories from the database
 export default function Header() {
-  const pathname = usePathname()
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isCartOpen, setIsCartOpen] = useState(false)
-  const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [megaMenuContent, setMegaMenuContent] = useState<Record<string, MegaMenuContent>>(defaultMegaMenuContent)
-  const [categories, setCategories] = useState<CategoryWithSubcategories[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const profileRef = useRef<HTMLDivElement>(null)
-  const navRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [megaMenuContent, setMegaMenuContent] = useState<
+    Record<string, MegaMenuContent>
+  >(defaultMegaMenuContent);
+  const [categories, setCategories] = useState<CategoryWithSubcategories[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
   // Fetch categories from the database
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        setIsLoading(true)
-        const categoryTree = await getCategoryTree()
+        setIsLoading(true);
+        const categoryTree = await getCategoryTree();
         if (categoryTree && categoryTree.length > 0) {
-          setCategories(categoryTree)
+          setCategories(categoryTree);
 
           // Also update mega menu content based on categories
-          const newMegaMenuContent: Record<string, MegaMenuContent> = {}
+          const newMegaMenuContent: Record<string, MegaMenuContent> = {};
 
           categoryTree.forEach((category) => {
             if (category.subcategories && category.subcategories.length > 0) {
@@ -129,30 +141,34 @@ export default function Header() {
                   title: category.name.toUpperCase(),
                   items: category.subcategories.map((sub) => ({
                     title: sub.name,
-                    url: `/${category.name.toLowerCase()}/${sub.name.toLowerCase().replace(/\s+/g, "-")}`,
+                    url: `/${category.name.toLowerCase()}/${sub.name
+                      .toLowerCase()
+                      .replace(/\s+/g, "-")}`,
                   })),
                 },
-              ]
+              ];
 
               newMegaMenuContent[category.name.toLowerCase()] = {
                 sections,
-                featuredImage: category.image || `/placeholder.svg?height=400&width=300&query=${category.name}`,
-              }
+                featuredImage:
+                  category.image ||
+                  `/placeholder.svg?height=400&width=300&query=${category.name}`,
+              };
             }
-          })
+          });
 
           // Merge with default content to ensure we have fallbacks
-          setMegaMenuContent((prev) => ({ ...prev, ...newMegaMenuContent }))
+          setMegaMenuContent((prev) => ({ ...prev, ...newMegaMenuContent }));
         }
       } catch (error) {
-        console.error("Error fetching categories:", error)
+        console.error("Error fetching categories:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchCategories()
-  }, [])
+    fetchCategories();
+  }, []);
 
   // Determine if we're on a women's section page
   const isWomenActive =
@@ -160,74 +176,87 @@ export default function Header() {
     pathname?.includes("/sarees") ||
     pathname?.includes("/lehenga") ||
     pathname?.includes("/salwar-kameez") ||
-    pathname?.includes("/gowns")
+    pathname?.includes("/gowns");
 
   // Fetch mega menu content
   useEffect(() => {
     const fetchMegaMenuContent = async () => {
       try {
         // Prefetch mega menu content for common categories
-        const menuTypes = ["sarees", "lehenga", "salwar-kameez", "gowns", "men", "women"]
+        const menuTypes = [
+          "sarees",
+          "lehenga",
+          "salwar-kameez",
+          "gowns",
+          "men",
+          "women",
+        ];
 
         for (const type of menuTypes) {
           try {
-            const response = await fetch(`/api/mega-menu?type=${type}`)
+            const response = await fetch(`/api/mega-menu?type=${type}`);
             if (response.ok) {
-              const data = await response.json()
+              const data = await response.json();
               setMegaMenuContent((prev) => ({
                 ...prev,
                 [type]: data,
-              }))
+              }));
             }
           } catch (error) {
-            console.error(`Error fetching mega menu content for ${type}:`, error)
+            console.error(
+              `Error fetching mega menu content for ${type}:`,
+              error
+            );
           }
         }
       } catch (error) {
-        console.error("Error fetching mega menu content:", error)
+        console.error("Error fetching mega menu content:", error);
       }
-    }
+    };
 
-    fetchMegaMenuContent()
-  }, [])
+    fetchMegaMenuContent();
+  }, []);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-        setIsProfileOpen(false)
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileOpen(false);
       }
 
       if (navRef.current && !navRef.current.contains(event.target as Node)) {
-        setActiveMenu(null)
+        setActiveMenu(null);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Toggle mega menu visibility
   const handleMenuMouseEnter = (menu: string) => {
     // Small delay to prevent accidental triggers
     setTimeout(() => {
-      setActiveMenu(menu)
-    }, 50)
-  }
+      setActiveMenu(menu);
+    }, 50);
+  };
 
   // Add this function to handle mouse leave
   const handleMenuMouseLeave = () => {
-    setActiveMenu(null)
-  }
+    setActiveMenu(null);
+  };
 
   // Check if a nav item is active
   const isActive = (path: string) => {
     if (path === "/") {
-      return pathname === "/"
+      return pathname === "/";
     }
-    return pathname?.includes(path)
-  }
+    return pathname?.includes(path);
+  };
 
   return (
     <header>
@@ -251,15 +280,27 @@ export default function Header() {
               <SheetContent side="left" className="w-[300px] overflow-y-auto">
                 <div className="flex flex-col h-full">
                   <div className="py-4 border-b">
-                    <Link href="/" className="flex items-center gap-2 font-semibold">
-                      <Image src="/parpra-logo.png" alt="PARPRA" width={120} height={40} />
+                    <Link
+                      href="/"
+                      className="flex items-center gap-2 font-semibold"
+                    >
+                      <Image
+                        src="/parpra-logo.png"
+                        alt="PARPRA"
+                        width={120}
+                        height={40}
+                      />
                     </Link>
                   </div>
 
                   <nav className="flex flex-col py-4">
                     <Link
                       href="/"
-                      className={`px-2 py-3 ${pathname === "/" ? "text-teal-800 font-medium" : "text-gray-700"} hover:text-teal-800 border-b`}
+                      className={`px-2 py-3 ${
+                        pathname === "/"
+                          ? "text-teal-800 font-medium"
+                          : "text-gray-700"
+                      } hover:text-teal-800 border-b`}
                     >
                       Home
                     </Link>
@@ -277,9 +318,15 @@ export default function Header() {
                         .map((category) => (
                           <div key={category._id} className="collapsible">
                             <Link
-                              href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
+                              href={`/${category.name
+                                .toLowerCase()
+                                .replace(/\s+/g, "-")}`}
                               className={`px-2 py-3 flex justify-between items-center ${
-                                isActive(`/${category.name.toLowerCase().replace(/\s+/g, "-")}`)
+                                isActive(
+                                  `/${category.name
+                                    .toLowerCase()
+                                    .replace(/\s+/g, "-")}`
+                                )
                                   ? "text-teal-800 font-medium"
                                   : "text-gray-700"
                               } hover:text-teal-800 border-b`}
@@ -300,44 +347,71 @@ export default function Header() {
                                 <path d="m6 9 6 6 6-6" />
                               </svg>
                             </Link>
-                            {category.subcategories && category.subcategories.length > 0 && (
-                              <div className="pl-4">
-                                {category.subcategories.map((subcategory) => (
-                                  <Link
-                                    key={subcategory._id}
-                                    href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}/${subcategory.name.toLowerCase().replace(/\s+/g, "-")}`}
-                                    className={`px-2 py-2 block ${
-                                      isActive(
-                                        `/${category.name.toLowerCase().replace(/\s+/g, "-")}/${subcategory.name.toLowerCase().replace(/\s+/g, "-")}`,
-                                      )
-                                        ? "text-teal-800 font-medium"
-                                        : "text-gray-700"
-                                    } hover:text-teal-800`}
-                                  >
-                                    {subcategory.name}
-                                  </Link>
-                                ))}
-                              </div>
-                            )}
+                            {category.subcategories &&
+                              category.subcategories.length > 0 && (
+                                <div className="pl-4">
+                                  {category.subcategories.map((subcategory) => (
+                                    <Link
+                                      key={subcategory._id}
+                                      href={`/${category.name
+                                        .toLowerCase()
+                                        .replace(
+                                          /\s+/g,
+                                          "-"
+                                        )}/${subcategory.name
+                                        .toLowerCase()
+                                        .replace(/\s+/g, "-")}`}
+                                      className={`px-2 py-2 block ${
+                                        isActive(
+                                          `/${category.name
+                                            .toLowerCase()
+                                            .replace(
+                                              /\s+/g,
+                                              "-"
+                                            )}/${subcategory.name
+                                            .toLowerCase()
+                                            .replace(/\s+/g, "-")}`
+                                        )
+                                          ? "text-teal-800 font-medium"
+                                          : "text-gray-700"
+                                      } hover:text-teal-800`}
+                                    >
+                                      {subcategory.name}
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
                           </div>
                         ))
                     )}
 
                     <Link
                       href="/bridal"
-                      className={`px-2 py-3 ${isActive("/bridal") ? "text-teal-800 font-medium" : "text-gray-700"} hover:text-teal-800 border-b`}
+                      className={`px-2 py-3 ${
+                        isActive("/bridal")
+                          ? "text-teal-800 font-medium"
+                          : "text-gray-700"
+                      } hover:text-teal-800 border-b`}
                     >
                       Bridal
                     </Link>
                     <Link
                       href="/collections"
-                      className={`px-2 py-3 ${isActive("/collections") ? "text-teal-800 font-medium" : "text-gray-700"} hover:text-teal-800 border-b`}
+                      className={`px-2 py-3 ${
+                        isActive("/collections")
+                          ? "text-teal-800 font-medium"
+                          : "text-gray-700"
+                      } hover:text-teal-800 border-b`}
                     >
                       Collections
                     </Link>
                     <Link
                       href="/contact"
-                      className={`px-2 py-3 ${isActive("/contact") ? "text-teal-800 font-medium" : "text-gray-700"} hover:text-teal-800 border-b`}
+                      className={`px-2 py-3 ${
+                        isActive("/contact")
+                          ? "text-teal-800 font-medium"
+                          : "text-gray-700"
+                      } hover:text-teal-800 border-b`}
                     >
                       Contact
                     </Link>
@@ -346,8 +420,83 @@ export default function Header() {
               </SheetContent>
             </Sheet>
 
+            {/* Logo */}
+            <Link href="/" className="flex items-center">
+              <Image src={Logo} alt="PARPRA" width={100} height={60} />
+            </Link>
+
+            {/* Secondary Navigation */}
+            <div className="   overflow-x-auto relative">
+              <div className="container mx-auto px-4 relative">
+                <nav className="flex items-center space-x-8 py-3 whitespace-nowrap">
+                  
+
+                  {/* Dynamic Categories */}
+                  {isLoading ? (
+                    // Show placeholders while loading
+                    <>
+                      <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
+                      <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
+                      <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
+                    </>
+                  ) : (
+                    // Map through categories from database
+                    categories.map((category) => (
+                      <Link
+                        key={category._id}
+                        href={`/${category.name
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                        className={`text-sm hover:text-teal-800 ${
+                          isActive(
+                            `/${category.name
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")}`
+                          )
+                            ? "text-teal-800 font-medium"
+                            : ""
+                        }`}
+                        onMouseEnter={() =>
+                          handleMenuMouseEnter(category.name.toLowerCase())
+                        }
+                      >
+                        {category.name.toUpperCase()}
+                      </Link>
+                    ))
+                  )}
+
+                  <Link
+                    href="/collections"
+                    className={`text-sm hover:text-teal-800 ${
+                      isActive("/collections")
+                        ? "text-teal-800 font-medium"
+                        : ""
+                    }`}
+                    onMouseEnter={() => setActiveMenu(null)}
+                  >
+                    COLLECTION
+                  </Link>
+                  
+                </nav>
+
+                {/* Mega Menu - Now inside the navigation container */}
+                {activeMenu && megaMenuContent[activeMenu] && (
+                  <div
+                    className="absolute left-0 right-0 top-full z-[100]"
+                    onMouseEnter={() => setActiveMenu(activeMenu)}
+                    onMouseLeave={handleMenuMouseLeave}
+                  >
+                    <MegaMenu
+                      sections={megaMenuContent[activeMenu].sections}
+                      featuredImage={megaMenuContent[activeMenu].featuredImage}
+                      featuredImageAlt={`${activeMenu} featured image`}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
             {/* Currency Selector */}
-            <div className="hidden md:flex items-center mr-4">
+            <div className="hidden md:flex items-center ">
               <Button variant="ghost" className="flex items-center gap-1 px-2">
                 <span className="font-medium">INR</span>
                 <svg
@@ -367,46 +516,6 @@ export default function Header() {
               </Button>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8" ref={navRef} onMouseLeave={handleMenuMouseLeave}>
-              {isLoading ? (
-                // Show placeholders while loading
-                <>
-                  <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-                  <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-                </>
-              ) : (
-                // Filter to show only main categories (those without parent)
-                categories
-                  .filter((category) => !category.parent_category_id)
-                  .slice(0, 3) // Limit to first 3 main categories
-                  .map((category) => (
-                    <Link
-                      key={category._id}
-                      href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
-                      className={`font-medium hover:text-teal-800 py-3 ${
-                        isActive(`/${category.name.toLowerCase().replace(/\s+/g, "-")}`) ? "text-teal-800" : ""
-                      }`}
-                      onMouseEnter={() => handleMenuMouseEnter(category.name.toLowerCase())}
-                    >
-                      {category.name.toUpperCase()}
-                    </Link>
-                  ))
-              )}
-              <Link
-                href="/bridal"
-                className={`font-medium hover:text-teal-800 py-3 ${isActive("/bridal") ? "text-teal-800" : ""}`}
-                onMouseEnter={() => setActiveMenu(null)}
-              >
-                BRIDAL
-              </Link>
-            </nav>
-
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <Image src="/parpra-logo.png" alt="PARPRA" width={180} height={60} />
-            </Link>
-
             {/* Actions */}
             <div className="flex items-center space-x-4">
               <button
@@ -417,7 +526,11 @@ export default function Header() {
                 <Search className="h-5 w-5" />
               </button>
 
-              <Link href="/contact" className="hidden md:flex items-center hover:text-teal-800" aria-label="Contact">
+              <Link
+                href="/contact"
+                className="hidden md:flex items-center hover:text-teal-800"
+                aria-label="Contact"
+              >
                 <Phone className="h-5 w-5" />
               </Link>
 
@@ -430,7 +543,11 @@ export default function Header() {
                 <MessageCircle className="h-5 w-5" />
               </Link>
 
-              <Link href="/wishlist" className="hidden md:flex items-center hover:text-teal-800" aria-label="Wishlist">
+              <Link
+                href="/wishlist"
+                className="hidden md:flex items-center hover:text-teal-800"
+                aria-label="Wishlist"
+              >
                 <Heart className="h-5 w-5" />
               </Link>
 
@@ -462,8 +579,15 @@ export default function Header() {
           {isSearchOpen && (
             <div className="py-4 border-t mt-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <Input type="text" placeholder="Search products..." className="pl-10 pr-10" />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
+                <Input
+                  type="text"
+                  placeholder="Search products..."
+                  className="pl-10 pr-10"
+                />
                 <button
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                   onClick={() => setIsSearchOpen(false)}
@@ -476,77 +600,8 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Secondary Navigation */}
-      <div className="border-b overflow-x-auto relative">
-        <div className="container mx-auto px-4 relative">
-          <nav className="flex items-center space-x-8 py-3 whitespace-nowrap">
-            <Link
-              href="/whats-new"
-              className={`text-sm hover:text-teal-800 ${isActive("/whats-new") ? "text-teal-800 font-medium" : ""}`}
-              onMouseEnter={() => setActiveMenu(null)}
-            >
-              WHAT'S NEW
-            </Link>
-
-            {/* Dynamic Categories */}
-            {isLoading ? (
-              // Show placeholders while loading
-              <>
-                <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-                <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-              </>
-            ) : (
-              // Map through categories from database
-              categories.map((category) => (
-                <Link
-                  key={category._id}
-                  href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
-                  className={`text-sm hover:text-teal-800 ${
-                    isActive(`/${category.name.toLowerCase().replace(/\s+/g, "-")}`) ? "text-teal-800 font-medium" : ""
-                  }`}
-                  onMouseEnter={() => handleMenuMouseEnter(category.name.toLowerCase())}
-                >
-                  {category.name.toUpperCase()}
-                </Link>
-              ))
-            )}
-
-            <Link
-              href="/collections"
-              className={`text-sm hover:text-teal-800 ${isActive("/collections") ? "text-teal-800 font-medium" : ""}`}
-              onMouseEnter={() => setActiveMenu(null)}
-            >
-              COLLECTION
-            </Link>
-            <Link
-              href="/instashop"
-              className={`text-sm hover:text-teal-800 ${isActive("/instashop") ? "text-teal-800 font-medium" : ""}`}
-              onMouseEnter={() => setActiveMenu(null)}
-            >
-              INSTASHOP
-            </Link>
-          </nav>
-
-          {/* Mega Menu - Now inside the navigation container */}
-          {activeMenu && megaMenuContent[activeMenu] && (
-            <div
-              className="absolute left-0 right-0 top-full z-[100]"
-              onMouseEnter={() => setActiveMenu(activeMenu)}
-              onMouseLeave={handleMenuMouseLeave}
-            >
-              <MegaMenu
-                sections={megaMenuContent[activeMenu].sections}
-                featuredImage={megaMenuContent[activeMenu].featuredImage}
-                featuredImageAlt={`${activeMenu} featured image`}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Cart Modal */}
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
-  )
+  );
 }
