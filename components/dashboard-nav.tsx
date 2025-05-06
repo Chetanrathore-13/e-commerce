@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Layers, LayoutDashboard, Package, Tag } from "lucide-react"
+import { Layers, LayoutDashboard, Package, Tag , Users} from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 
 const items = [
@@ -27,6 +27,21 @@ const items = [
     href: "/dashboard/brands",
     icon: Tag,
   },
+  {
+    title: "Users",
+    href: "/dashboard/users",
+    icon: Users,
+  },
+  {
+    title: "Homepage Sections",
+    href: "/dashboard/homepage",
+    icon: Tag,
+  },
+  {
+    title: "Testimonials",
+    href: "/dashboard/testimonials",
+    icon: Tag,
+  }
 ]
 
 interface DashboardNavProps {

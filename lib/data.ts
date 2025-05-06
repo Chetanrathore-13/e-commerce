@@ -1,5 +1,5 @@
 import { connectToDatabase } from "@/lib/mongodb"
-import { Brand, Category, Product, Variation } from "@/lib/models"
+import { Brand, Category, Product, Variation, User } from "@/lib/models"
 import { isValidObjectId } from "mongoose"
 
 // Helper function to serialize MongoDB documents
@@ -16,15 +16,18 @@ export async function getStats() {
     totalCategories,
     totalBrands,
     totalVariations,
+    totalUsers,
     newProducts,
     newCategories,
     newBrands,
     newVariations,
+    newUsers,
   ] = await Promise.all([
     Product.countDocuments({}),
     Category.countDocuments({}),
     Brand.countDocuments({}),
     Variation.countDocuments({}),
+    User.countDocuments({}),
     Product.countDocuments({
       createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
     }),
@@ -37,6 +40,9 @@ export async function getStats() {
     Variation.countDocuments({
       createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
     }),
+    User.countDocuments({
+      createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+    }),
   ])
 
   return {
@@ -44,10 +50,12 @@ export async function getStats() {
     totalCategories,
     totalBrands,
     totalVariations,
+    totalUsers,
     newProducts,
     newCategories,
     newBrands,
     newVariations,
+    newUsers,
   }
 }
 
@@ -230,4 +238,50 @@ export async function getVariationById(id: string) {
   const variation = await Variation.findById(id).populate("product_id", "name").lean()
 
   return variation ? serialize(variation) : null
+}
+
+// Get users with pagination and filters
+export async function getUsers({ page = 1, per_page = 10, name = "", email = "" }) {
+  await connectToDatabase()
+
+  const skip = (page - 1) * per_page
+
+  // Build query based on filters
+  const query: any = {}
+
+  if (name) {
+    query.name = { $regex: name, $options: "i" }
+  }
+
+  if (email) {
+    query.email = { $regex: email, $options: "i" }
+  }
+
+  const [users, totalUsers] = await Promise.all([
+    User.find(query)
+      .select("-password") // Exclude password field
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(per_page)
+      .lean(),
+    User.countDocuments(query),
+  ])
+
+  const totalPages = Math.ceil(totalUsers / per_page)
+
+  return {
+    users: serialize(users),
+    totalPages,
+  }
+}
+
+// Get user by ID
+export async function getUserById(id: string) {
+  if (!isValidObjectId(id)) return null
+
+  await connectToDatabase()
+
+  const user = await User.findById(id).select("-password").lean()
+
+  return user ? serialize(user) : null
 }

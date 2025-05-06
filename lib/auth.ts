@@ -2,7 +2,7 @@ import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { connectToDatabase } from "@/lib/mongodb"
 import { User } from "@/lib/models"
-import { compare } from "bcrypt"
+import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
@@ -22,12 +22,13 @@ export const authOptions: NextAuthOptions = {
           await connectToDatabase()
 
           const user = await User.findOne({ email: credentials.email })
+          console.log("User found:", user)
 
           if (!user) {
             return null
           }
 
-          const isPasswordValid = await compare(credentials.password, user.password)
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
           if (!isPasswordValid) {
             return null
@@ -37,6 +38,7 @@ export const authOptions: NextAuthOptions = {
             id: user._id.toString(),
             name: user.name,
             email: user.email,
+            role: user.role,
           }
         } catch (error) {
           console.error("Auth error:", error)
@@ -57,12 +59,18 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.name = user.name
+        token.email = user.email
+        token.role = user.role
       }
       return token
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string
+        session.user.name = token.name as string
+        session.user.email = token.email as string
+        session.user.role = token.role as string
       }
       return session
     },

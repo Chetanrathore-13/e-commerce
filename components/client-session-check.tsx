@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react"
 
 export function ClientSessionCheck() {
+ 
   const { data: session, status } = useSession()
 
   return (
@@ -12,6 +13,7 @@ export function ClientSessionCheck() {
         <div>
           <p>Logged in as: {session.user?.name}</p>
           <p>Email: {session.user?.email}</p>
+          <p>role: {session.user?.role}</p>
         </div>
       ) : (
         <p>Not logged in</p>
