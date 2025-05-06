@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/db"
-import { HomepageSection } from "@/lib/models/homepage-section"
+import { HomepageSection } from "@/lib/models/index"
 
 export async function GET() {
   try {

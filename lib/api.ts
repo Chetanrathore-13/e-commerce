@@ -1,3 +1,4 @@
+// Client-side API functions to fetch data from the server
 import type { Product, ProductListResponse, Category, CategoryWithSubcategories, Brand, MegaMenuContent } from "@/types"
 
 // Export the getBaseUrl function so it can be used in other components
@@ -20,7 +21,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
     console.error(errorMessage)
     throw new Error(errorMessage)
   }
-``
+
   try {
     return await response.json()
   } catch (error) {
@@ -89,7 +90,6 @@ export async function getCategoryTree(): Promise<CategoryWithSubcategories[]> {
   try {
     const response = await fetch(url)
     const data = await handleResponse<{ categories: CategoryWithSubcategories[] }>(response)
-    console.log(data.categories)
     return data.categories || []
   } catch (error) {
     console.error("Error fetching category tree:", error)
@@ -435,18 +435,15 @@ export async function getBannersData() {
 
 export async function getHomepageSectionsData() {
   try {
-    const baseUrl = getBaseUrl()
-    const res = await fetch(`${baseUrl}/api/homepage-sections`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/homepage-sections`, {
       next: { revalidate: 3600 }, // Revalidate every hour
     })
 
-    // Don't throw errors, just return empty data
-    if (!res.ok) {
-      console.error("Failed to fetch homepage sections:", res.status)
-      return { sections: [] }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch homepage sections: ${response.status}`)
     }
 
-    return await res.json()
+    return response.json()
   } catch (error) {
     console.error("Error fetching homepage sections:", error)
     return { sections: [] }
