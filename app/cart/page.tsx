@@ -4,13 +4,14 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Minus, Plus, X, ShoppingBag } from "lucide-react"
+import { Minus, Plus, X, ShoppingBag, Tag, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface CartItem {
   _id: string
@@ -41,6 +42,14 @@ interface Cart {
   total: number
 }
 
+interface Coupon {
+  _id: string
+  code: string
+  discount_type: "percentage" | "fixed"
+  discount_value: number
+  description: string
+}
+
 export default function CartPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -48,6 +57,10 @@ export default function CartPage() {
   const [cart, setCart] = useState<Cart | null>(null)
   const [loading, setLoading] = useState(true)
   const [promoCode, setPromoCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null)
+  const [discountAmount, setDiscountAmount] = useState(0)
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [applyingCoupon, setApplyingCoupon] = useState(false)
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -124,6 +137,11 @@ export default function CartPage() {
           total: newTotal,
         }
       })
+
+      // Reset coupon when cart changes
+      if (appliedCoupon) {
+        validateCoupon(appliedCoupon.code)
+      }
     } catch (error) {
       console.error("Error updating quantity:", error)
       toast({
@@ -162,6 +180,11 @@ export default function CartPage() {
         title: "Success",
         description: "Item removed from cart",
       })
+
+      // Reset coupon when cart changes
+      if (appliedCoupon) {
+        validateCoupon(appliedCoupon.code)
+      }
     } catch (error) {
       console.error("Error removing from cart:", error)
       toast({
@@ -172,11 +195,72 @@ export default function CartPage() {
     }
   }
 
+  const validateCoupon = async (code: string) => {
+    if (!code) return
+
+    try {
+      setApplyingCoupon(true)
+      setCouponError(null)
+
+      const response = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code,
+          cartTotal: cart?.total || 0,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setCouponError(data.error || "Invalid coupon code")
+        setAppliedCoupon(null)
+        setDiscountAmount(0)
+        return
+      }
+
+      setAppliedCoupon(data.coupon)
+      setDiscountAmount(data.discountAmount)
+
+      toast({
+        title: "Coupon Applied",
+        description: `Coupon "${data.coupon.code}" applied successfully!`,
+      })
+    } catch (error) {
+      console.error("Error validating coupon:", error)
+      setCouponError("Failed to validate coupon")
+      setAppliedCoupon(null)
+      setDiscountAmount(0)
+    } finally {
+      setApplyingCoupon(false)
+    }
+  }
+
   const applyPromoCode = () => {
-    // In a real implementation, this would validate the promo code with the server
+    if (!promoCode) {
+      toast({
+        title: "Error",
+        description: "Please enter a coupon code",
+        variant: "destructive",
+      })
+      return
+    }
+
+    validateCoupon(promoCode)
+  }
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null)
+    setDiscountAmount(0)
+    setPromoCode("")
+    setCouponError(null)
+
     toast({
-      title: "Promo Code",
-      description: `Promo code "${promoCode}" applied!`,
+      title: "Coupon Removed",
+      description: "Coupon has been removed from your cart",
     })
   }
 
@@ -203,7 +287,7 @@ export default function CartPage() {
   const cartItems = cart?.items || []
   const subtotal = cart?.total || 0
   const shipping = 0 // Free shipping
-  const total = subtotal + shipping
+  const finalTotal = subtotal - discountAmount + shipping
 
   return (
     <div className="bg-white min-h-screen py-12">
@@ -218,7 +302,7 @@ export default function CartPage() {
               <ShoppingBag className="h-24 w-24 text-gray-300 mb-6" />
             </div>
             <Link href="/products">
-              <Button className="bg-amber-700 hover:bg-amber-800">Continue Shopping</Button>
+              <Button className="bg-teal-700 hover:bg-teal-800">Continue Shopping</Button>
             </Link>
           </div>
         ) : (
@@ -245,7 +329,7 @@ export default function CartPage() {
                       <div className="flex justify-between mb-2">
                         <Link
                           href={`/products/${item.product.slug}`}
-                          className="text-lg font-medium hover:text-amber-700 line-clamp-2"
+                          className="text-lg font-medium hover:text-teal-700 line-clamp-2"
                         >
                           {item.product.name}
                         </Link>
@@ -298,17 +382,44 @@ export default function CartPage() {
                       type="text"
                       placeholder="Enter coupon code here"
                       value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value)}
+                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                       className="rounded-r-none"
+                      disabled={!!appliedCoupon}
                     />
-                    <Button
-                      className="rounded-l-none bg-gray-700 hover:bg-gray-800"
-                      onClick={applyPromoCode}
-                      disabled={!promoCode}
-                    >
-                      Apply
-                    </Button>
+                    {appliedCoupon ? (
+                      <Button className="rounded-l-none bg-red-600 hover:bg-red-700" onClick={removeCoupon}>
+                        Remove
+                      </Button>
+                    ) : (
+                      <Button
+                        className="rounded-l-none bg-teal-700 hover:bg-teal-800"
+                        onClick={applyPromoCode}
+                        disabled={!promoCode || applyingCoupon}
+                      >
+                        {applyingCoupon ? "Applying..." : "Apply"}
+                      </Button>
+                    )}
                   </div>
+
+                  {couponError && (
+                    <Alert variant="destructive" className="mt-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>{couponError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {appliedCoupon && (
+                    <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
+                      <div className="flex items-start">
+                        <Tag className="h-4 w-4 text-green-600 mt-0.5 mr-2" />
+                        <div>
+                          <p className="text-sm font-medium text-green-800">{appliedCoupon.code}</p>
+                          <p className="text-xs text-green-700">{appliedCoupon.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <Separator className="my-4" />
@@ -319,6 +430,17 @@ export default function CartPage() {
                     <span className="text-gray-600">Sub Total</span>
                     <span className="font-medium">₹{subtotal.toLocaleString("en-IN")}</span>
                   </div>
+
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-600">
+                      <span className="flex items-center">
+                        <Tag className="h-4 w-4 mr-1" /> Discount
+                        {appliedCoupon.discount_type === "percentage" && ` (${appliedCoupon.discount_value}%)`}
+                      </span>
+                      <span className="font-medium">-₹{discountAmount.toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-medium text-green-600">FREE</span>
@@ -326,16 +448,16 @@ export default function CartPage() {
                   <Separator className="my-2" />
                   <div className="flex justify-between">
                     <span className="text-lg font-medium">Order Total</span>
-                    <span className="text-lg font-medium">₹{total.toLocaleString("en-IN")}</span>
+                    <span className="text-lg font-medium">₹{finalTotal.toLocaleString("en-IN")}</span>
                   </div>
                 </div>
 
                 <div className="mt-8 space-y-4">
                   <Link href="/checkout">
-                    <Button className="w-full bg-amber-700 hover:bg-amber-800 text-lg py-6">Checkout</Button>
+                    <Button className="w-full bg-teal-700 hover:bg-teal-800 text-lg py-6">Checkout</Button>
                   </Link>
                   <Link href="/products">
-                    <Button className="w-full border border-amber-700 bg-white text-amber-700 hover:bg-amber-50 text-lg py-6">
+                    <Button className="w-full border border-teal-700 bg-white text-teal-700 hover:bg-teal-50 text-lg py-6">
                       Continue Shopping
                     </Button>
                   </Link>

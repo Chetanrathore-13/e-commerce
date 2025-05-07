@@ -6,7 +6,16 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Check, CreditCard, Lock, DollarSignIcon as PaypalLogo, PlusCircle } from "lucide-react"
+import {
+  ArrowLeft,
+  Check,
+  CreditCard,
+  Lock,
+  DollarSignIcon as PaypalLogo,
+  PlusCircle,
+  Tag,
+  AlertCircle,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -18,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
 import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface CartItem {
   _id: string
@@ -74,6 +84,14 @@ interface PaymentMethod {
   is_default: boolean
 }
 
+interface Coupon {
+  _id: string
+  code: string
+  discount_type: "percentage" | "fixed"
+  discount_value: number
+  description: string
+}
+
 export default function CheckoutPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -86,6 +104,12 @@ export default function CheckoutPage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [loadingAddresses, setLoadingAddresses] = useState(false)
   const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(false)
+
+  // Coupon state
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null)
+  const [discountAmount, setDiscountAmount] = useState(0)
+  const [couponError, setCouponError] = useState<string | null>(null)
+  const [applyingCoupon, setApplyingCoupon] = useState(false)
 
   // Selected address and payment method
   const [selectedAddressId, setSelectedAddressId] = useState<string>("")
@@ -230,11 +254,72 @@ export default function CheckoutPage() {
     }
   }
 
+  const validateCoupon = async (code: string) => {
+    if (!code) return
+
+    try {
+      setApplyingCoupon(true)
+      setCouponError(null)
+
+      const response = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code,
+          cartTotal: cart?.total || 0,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setCouponError(data.error || "Invalid coupon code")
+        setAppliedCoupon(null)
+        setDiscountAmount(0)
+        return
+      }
+
+      setAppliedCoupon(data.coupon)
+      setDiscountAmount(data.discountAmount)
+
+      toast({
+        title: "Coupon Applied",
+        description: `Coupon "${data.coupon.code}" applied successfully!`,
+      })
+    } catch (error) {
+      console.error("Error validating coupon:", error)
+      setCouponError("Failed to validate coupon")
+      setAppliedCoupon(null)
+      setDiscountAmount(0)
+    } finally {
+      setApplyingCoupon(false)
+    }
+  }
+
   const applyPromoCode = () => {
-    // In a real implementation, this would validate the promo code with the server
+    if (!promoCode) {
+      toast({
+        title: "Error",
+        description: "Please enter a coupon code",
+        variant: "destructive",
+      })
+      return
+    }
+
+    validateCoupon(promoCode)
+  }
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null)
+    setDiscountAmount(0)
+    setPromoCode("")
+    setCouponError(null)
+
     toast({
-      title: "Promo Code",
-      description: `Promo code "${promoCode}" applied!`,
+      title: "Coupon Removed",
+      description: "Coupon has been removed from your order",
     })
   }
 
@@ -525,6 +610,8 @@ export default function CheckoutPage() {
         shipping_address: shippingAddress,
         billing_address: billingAddress,
         payment_method: selectedPaymentType || paymentMethod,
+        coupon_code: appliedCoupon?.code,
+        discount_amount: discountAmount,
       }
 
       // Log the data being sent for debugging
@@ -579,6 +666,22 @@ export default function CheckoutPage() {
         throw new Error("Invalid response format from server")
       }
 
+      // If we have a coupon, apply it to the order
+      if (appliedCoupon) {
+        try {
+          await fetch("/api/coupons/apply", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ code: appliedCoupon.code }),
+          })
+        } catch (couponError) {
+          console.error("Error applying coupon:", couponError)
+          // Continue with order placement even if coupon application fails
+        }
+      }
+
       toast({
         title: "Success",
         description: "Your order has been placed successfully!",
@@ -621,7 +724,7 @@ export default function CheckoutPage() {
   const cartItems = cart?.items || []
   const subtotal = cart?.total || 0
   const shipping = 0 // Free shipping
-  const total = subtotal + shipping
+  const finalTotal = subtotal - discountAmount + shipping
 
   return (
     <div className="bg-neutral-50 min-h-screen py-8">
@@ -632,7 +735,7 @@ export default function CheckoutPage() {
             <Image src="/parpra-logo.png" alt="PARPRA" width={180} height={60} />
           </Link>
           <div className="hidden md:flex items-center">
-            <Link href="/cart" className="text-gray-600 hover:text-amber-700 flex items-center">
+            <Link href="/cart" className="text-gray-600 hover:text-teal-700 flex items-center">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to cart
             </Link>
@@ -662,8 +765,8 @@ export default function CheckoutPage() {
               {/* Shipping Information */}
               <div className="bg-white p-6 rounded-md shadow-sm mb-6">
                 <h2 className="text-xl font-medium mb-4">Shipping Information</h2>
-                <div className="bg-amber-50 p-4 border border-amber-200 rounded-md mb-4 flex items-center">
-                  <div className="mr-3 bg-amber-700 rounded-full p-1">
+                <div className="bg-teal-50 p-4 border border-teal-200 rounded-md mb-4 flex items-center">
+                  <div className="mr-3 bg-teal-700 rounded-full p-1">
                     <Check className="h-4 w-4 text-white" />
                   </div>
                   <p className="text-sm">Unlocking Global Shopping With Free Worldwide Shipping!</p>
@@ -695,7 +798,7 @@ export default function CheckoutPage() {
                           </SelectItem>
                         ))}
                         <SelectItem value="new">
-                          <div className="flex items-center text-amber-700">
+                          <div className="flex items-center text-teal-700">
                             <PlusCircle className="h-4 w-4 mr-2" />
                             <span>Add New Address</span>
                           </div>
@@ -858,7 +961,7 @@ export default function CheckoutPage() {
                           </SelectItem>
                         ))}
                         <SelectItem value="new">
-                          <div className="flex items-center text-amber-700">
+                          <div className="flex items-center text-teal-700">
                             <PlusCircle className="h-4 w-4 mr-2" />
                             <span>Add New Payment Method</span>
                           </div>
@@ -956,7 +1059,7 @@ export default function CheckoutPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-amber-700 hover:bg-amber-800 text-lg py-6"
+                className="w-full bg-teal-700 hover:bg-teal-800 text-lg py-6"
                 disabled={processingOrder}
               >
                 {processingOrder ? "Processing..." : "Place Order"}
@@ -1017,17 +1120,44 @@ export default function CheckoutPage() {
                     type="text"
                     placeholder="Enter coupon code here"
                     value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
+                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                     className="rounded-r-none"
+                    disabled={!!appliedCoupon}
                   />
-                  <Button
-                    className="rounded-l-none bg-gray-700 hover:bg-gray-800"
-                    onClick={applyPromoCode}
-                    disabled={!promoCode}
-                  >
-                    Apply
-                  </Button>
+                  {appliedCoupon ? (
+                    <Button className="rounded-l-none bg-red-600 hover:bg-red-700" onClick={removeCoupon}>
+                      Remove
+                    </Button>
+                  ) : (
+                    <Button
+                      className="rounded-l-none bg-teal-700 hover:bg-teal-800"
+                      onClick={applyPromoCode}
+                      disabled={!promoCode || applyingCoupon}
+                    >
+                      {applyingCoupon ? "Applying..." : "Apply"}
+                    </Button>
+                  )}
                 </div>
+
+                {couponError && (
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{couponError}</AlertDescription>
+                  </Alert>
+                )}
+
+                {appliedCoupon && (
+                  <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
+                    <div className="flex items-start">
+                      <Tag className="h-4 w-4 text-green-600 mt-0.5 mr-2" />
+                      <div>
+                        <p className="text-sm font-medium text-green-800">{appliedCoupon.code}</p>
+                        <p className="text-xs text-green-700">{appliedCoupon.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Separator className="my-4" />
@@ -1038,6 +1168,17 @@ export default function CheckoutPage() {
                   <span className="text-gray-600">Sub Total</span>
                   <span className="font-medium">₹{subtotal.toLocaleString("en-IN")}</span>
                 </div>
+
+                {appliedCoupon && (
+                  <div className="flex justify-between text-green-600">
+                    <span className="flex items-center">
+                      <Tag className="h-4 w-4 mr-1" /> Discount
+                      {appliedCoupon.discount_type === "percentage" && ` (${appliedCoupon.discount_value}%)`}
+                    </span>
+                    <span className="font-medium">-₹{discountAmount.toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
                   <span className="font-medium text-green-600">FREE</span>
@@ -1045,7 +1186,7 @@ export default function CheckoutPage() {
                 <Separator className="my-2" />
                 <div className="flex justify-between">
                   <span className="text-lg font-medium">Order Total</span>
-                  <span className="text-lg font-medium">₹{total.toLocaleString("en-IN")}</span>
+                  <span className="text-lg font-medium">₹{finalTotal.toLocaleString("en-IN")}</span>
                 </div>
               </div>
             </div>

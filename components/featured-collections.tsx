@@ -4,7 +4,12 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getBaseUrl } from "@/lib/api";
-// import Sar from "../public/features-img/sar.png"
+import feature1 from "@/public/Features-img/feature1.jpeg";
+import feature2 from "@/public/Features-img/feature2.jpeg";
+import feature3 from "@/public/Features-img/feature3.jpeg";
+import feature4 from "@/public/Features-img/feature4.jpeg";
+import feature5 from "@/public/Features-img/feature5.jpeg";
+
 
 interface Collection {
   _id: string;
@@ -171,7 +176,7 @@ export default function FeaturedCollections({
           <Link href="/category/sarees">
             <div className="relative w-full h-full group">
               <Image
-                src="/luxury-saree-collection.png"
+                src={feature2}
                 alt="Luxury Saree Collection"
                 fill
                 className="object-cover"
@@ -191,7 +196,7 @@ export default function FeaturedCollections({
             <Link href="/category/organza-designer">
               <div className="relative w-full h-full group">
                 <Image
-                  src="/red-organza-saree-woman.png"
+                  src={feature1}
                   alt="Organza Designer Sarees"
                   fill
                   className="object-cover"
@@ -209,7 +214,7 @@ export default function FeaturedCollections({
             <Link href="/category/handloom-silk">
               <div className="relative w-full h-full group">
                 <Image
-                  src="/placeholder.svg?key=afco5"
+                  src={feature3}
                   alt="Handloom Silk Embroidery Sarees"
                   fill
                   className="object-cover"
@@ -228,7 +233,7 @@ export default function FeaturedCollections({
             <Link href="/category/kanchipuram">
               <div className="relative w-full h-full group">
                 <Image
-                  src="/woman-kanchipuram-saree.png"
+                  src={feature4}
                   alt="Kanchipuram Sarees"
                   fill
                   className="object-cover"
@@ -246,7 +251,7 @@ export default function FeaturedCollections({
             <Link href="/category/ready-blouse">
               <div className="relative w-full h-full group">
                 <Image
-                  src="/golden-saree-woman.png"
+                  src={feature5}
                   alt="Ready Blouse Sarees"
                   fill
                   className="object-cover"

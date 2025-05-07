@@ -4,9 +4,10 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Package, Truck, CheckCircle, Clock, AlertCircle } from "lucide-react"
+import { ArrowLeft, Package, Truck, CheckCircle, Clock, Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
@@ -37,9 +38,12 @@ interface Address {
 
 interface Order {
   _id: string
-  user_id: string
   order_number: string
+  user_id: string
   items: OrderItem[]
+  subtotal: number
+  discount: number
+  coupon_code?: string
   total: number
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled"
   shipping_address: Address
@@ -47,7 +51,6 @@ interface Order {
   payment_method: string
   payment_status: "pending" | "paid" | "failed"
   tracking_number?: string
-  notes?: string
   createdAt: string
   updatedAt: string
 }
@@ -58,22 +61,22 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
   const { toast } = useToast()
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
-  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login?redirect=/account/orders")
+      return
     }
 
     if (status === "authenticated" && params.id) {
-      fetchOrder()
+      fetchOrder(params.id)
     }
-  }, [status, router, params.id])
+  }, [status, params.id, router])
 
-  const fetchOrder = async () => {
+  const fetchOrder = async (orderId: string) => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/orders/${params.id}`)
+      const response = await fetch(`/api/orders/${orderId}`)
 
       if (!response.ok) {
         throw new Error("Failed to fetch order")
@@ -93,40 +96,12 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
     }
   }
 
-  const cancelOrder = async () => {
-    if (!order) return
-
-    if (!confirm("Are you sure you want to cancel this order?")) {
-      return
-    }
-
-    try {
-      setCancelling(true)
-      const response = await fetch(`/api/orders/${order._id}`, {
-        method: "PATCH",
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to cancel order")
-      }
-
-      // Update order status locally
-      setOrder((prev) => (prev ? { ...prev, status: "cancelled" } : null))
-
-      toast({
-        title: "Success",
-        description: "Order cancelled successfully",
-      })
-    } catch (error) {
-      console.error("Error cancelling order:", error)
-      toast({
-        title: "Error",
-        description: "Failed to cancel order",
-        variant: "destructive",
-      })
-    } finally {
-      setCancelling(false)
-    }
+  // Fix image paths if needed
+  const fixImagePath = (path: string) => {
+    if (!path) return "/diverse-products-still-life.png"
+    if (path.startsWith("http")) return path
+    if (path.startsWith("/")) return path
+    return `/${path}`
   }
 
   const getStatusIcon = (status: string) => {
@@ -139,27 +114,25 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
         return <Truck className="h-5 w-5 text-purple-500" />
       case "delivered":
         return <CheckCircle className="h-5 w-5 text-green-500" />
-      case "cancelled":
-        return <AlertCircle className="h-5 w-5 text-red-500" />
       default:
         return <Clock className="h-5 w-5 text-gray-500" />
     }
   }
 
-  const getStatusText = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "Order Pending"
+        return "bg-amber-100 text-amber-800 hover:bg-amber-100"
       case "processing":
-        return "Order Processing"
+        return "bg-blue-100 text-blue-800 hover:bg-blue-100"
       case "shipped":
-        return "Order Shipped"
+        return "bg-purple-100 text-purple-800 hover:bg-purple-100"
       case "delivered":
-        return "Order Delivered"
+        return "bg-green-100 text-green-800 hover:bg-green-100"
       case "cancelled":
-        return "Order Cancelled"
+        return "bg-red-100 text-red-800 hover:bg-red-100"
       default:
-        return "Unknown Status"
+        return "bg-gray-100 text-gray-800 hover:bg-gray-100"
     }
   }
 
@@ -177,14 +150,16 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
       <div className="bg-neutral-50 min-h-screen py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="w-full md:w-1/3 lg:w-1/4">
-              <Skeleton className="h-[400px] w-full rounded-md" />
+            <div className="md:w-1/4">
+              <UserAccountSidebar />
             </div>
-            <div className="flex-1">
-              <Skeleton className="h-12 w-1/3 mb-6" />
-              <Skeleton className="h-8 w-1/4 mb-4" />
-              <Skeleton className="h-[400px] w-full rounded-md mb-6" />
-              <Skeleton className="h-[200px] w-full rounded-md" />
+            <div className="md:w-3/4">
+              <Skeleton className="h-12 w-1/3 mb-8" />
+              <div className="space-y-6">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-[200px] w-full rounded-md" />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -197,27 +172,21 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
       <div className="bg-neutral-50 min-h-screen py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="w-full md:w-1/3 lg:w-1/4">
-              <UserAccountSidebar activeItem="orders" />
+            <div className="md:w-1/4">
+              <UserAccountSidebar />
             </div>
-            <div className="flex-1">
-              <div className="bg-white p-6 rounded-md shadow-sm">
-                <div className="flex items-center mb-6">
-                  <Link href="/account/orders" className="text-amber-700 hover:text-amber-800 flex items-center">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+            <div className="md:w-3/4">
+              <div className="bg-white p-8 rounded-md shadow-sm">
+                <h1 className="text-2xl font-medium mb-4">Order Not Found</h1>
+                <p className="text-gray-500 mb-6">
+                  The order you are looking for does not exist or you do not have permission to view it.
+                </p>
+                <Link href="/account/orders">
+                  <Button className="bg-teal-700 hover:bg-teal-800">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Orders
-                  </Link>
-                </div>
-                <div className="text-center py-12">
-                  <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                  <h2 className="text-2xl font-medium mb-2">Order Not Found</h2>
-                  <p className="text-gray-500 mb-6">
-                    The order you're looking for doesn't exist or you don't have permission to view it.
-                  </p>
-                  <Link href="/account/orders">
-                    <Button className="bg-amber-700 hover:bg-amber-800">View All Orders</Button>
-                  </Link>
-                </div>
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -230,81 +199,48 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
     <div className="bg-neutral-50 min-h-screen py-12">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="w-full md:w-1/3 lg:w-1/4">
-            <UserAccountSidebar activeItem="orders" />
+          <div className="md:w-1/4">
+            <UserAccountSidebar />
           </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            <div className="bg-white p-6 rounded-md shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <Link href="/account/orders" className="text-amber-700 hover:text-amber-800 flex items-center">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Orders
-                </Link>
-                <p className="text-sm text-gray-500">Order Date: {formatDate(order.createdAt)}</p>
-              </div>
-
-              {/* Order Header */}
+          <div className="md:w-3/4">
+            <div className="bg-white p-6 rounded-md shadow-sm mb-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <div>
-                  <h1 className="text-2xl font-medium mb-1">Order #{order.order_number}</h1>
-                  <div className="flex items-center">
-                    {getStatusIcon(order.status)}
-                    <span className="ml-2">{getStatusText(order.status)}</span>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-2xl font-medium">Order #{order.order_number}</h1>
+                    <Badge className={getStatusColor(order.status)}>
+                      <span className="flex items-center gap-1">
+                        {getStatusIcon(order.status)}
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </span>
+                    </Badge>
                   </div>
+                  <p className="text-gray-500 mt-1">Placed on {formatDate(order.createdAt)}</p>
                 </div>
-                {order.status === "pending" || order.status === "processing" ? (
-                  <Button
-                    variant="outline"
-                    className="text-red-600 border-red-600 hover:bg-red-50"
-                    onClick={cancelOrder}
-                    disabled={cancelling}
-                  >
-                    {cancelling ? "Cancelling..." : "Cancel Order"}
+                <Link href="/account/orders">
+                  <Button variant="outline" className="mt-4 md:mt-0">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Orders
                   </Button>
-                ) : null}
+                </Link>
               </div>
 
-              {/* Order Status */}
-              <div className="bg-gray-50 p-4 rounded-md mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 mb-1">Payment Status</p>
-                    <p
-                      className={`font-medium ${order.payment_status === "paid" ? "text-green-600" : order.payment_status === "failed" ? "text-red-600" : "text-amber-600"}`}
-                    >
-                      {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 mb-1">Payment Method</p>
-                    <p className="font-medium">
-                      {order.payment_method
-                        .split("-")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")}
-                    </p>
-                  </div>
-                  {order.tracking_number && (
-                    <div className="text-center">
-                      <p className="text-sm text-gray-500 mb-1">Tracking Number</p>
-                      <p className="font-medium">{order.tracking_number}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <Separator className="my-6" />
 
               {/* Order Items */}
-              <div className="mb-6">
-                <h2 className="text-xl font-medium mb-4">Order Items</h2>
+              <div className="space-y-6">
+                <h2 className="text-xl font-medium">Order Items</h2>
                 <div className="space-y-4">
                   {order.items.map((item) => (
-                    <div key={item._id} className="flex flex-col md:flex-row gap-4 border-b pb-4">
+                    <div key={item._id} className="flex flex-col md:flex-row gap-4 p-4 border rounded-md">
                       <div className="w-full md:w-1/6">
                         <div className="relative aspect-square rounded-md overflow-hidden">
-                          <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
+                          <Image
+                            src={fixImagePath(item.image) || "/placeholder.svg"}
+                            alt={item.name}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
                       </div>
                       <div className="flex-1">
@@ -322,33 +258,13 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                 </div>
               </div>
 
-              {/* Order Summary */}
-              <div className="mb-6">
-                <h2 className="text-xl font-medium mb-4">Order Summary</h2>
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Subtotal</span>
-                      <span>₹{order.total.toLocaleString("en-IN")}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Shipping</span>
-                      <span className="text-green-600">FREE</span>
-                    </div>
-                    <Separator className="my-2" />
-                    <div className="flex justify-between font-medium">
-                      <span>Total</span>
-                      <span>₹{order.total.toLocaleString("en-IN")}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Separator className="my-6" />
 
-              {/* Shipping & Billing */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Order Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <h2 className="text-xl font-medium mb-4">Shipping Address</h2>
-                  <div className="bg-gray-50 p-4 rounded-md">
+                  <h2 className="text-xl font-medium mb-4">Shipping Information</h2>
+                  <div className="p-4 border rounded-md">
                     <p className="font-medium">{order.shipping_address.full_name}</p>
                     <p>{order.shipping_address.address_line1}</p>
                     {order.shipping_address.address_line2 && <p>{order.shipping_address.address_line2}</p>}
@@ -356,22 +272,89 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                       {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
                     </p>
                     <p>{order.shipping_address.country}</p>
-                    <p className="mt-2">{order.shipping_address.phone}</p>
+                    <p className="mt-2">Phone: {order.shipping_address.phone}</p>
                   </div>
-                </div>
-                <div>
-                  <h2 className="text-xl font-medium mb-4">Billing Address</h2>
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <p className="font-medium">{order.billing_address.full_name}</p>
-                    <p>{order.billing_address.address_line1}</p>
-                    {order.billing_address.address_line2 && <p>{order.billing_address.address_line2}</p>}
+
+                  <h2 className="text-xl font-medium mt-6 mb-4">Payment Information</h2>
+                  <div className="p-4 border rounded-md">
                     <p>
-                      {order.billing_address.city}, {order.billing_address.state} {order.billing_address.postal_code}
+                      <span className="font-medium">Payment Method:</span>{" "}
+                      {order.payment_method.charAt(0).toUpperCase() + order.payment_method.slice(1).replace("-", " ")}
                     </p>
-                    <p>{order.billing_address.country}</p>
-                    <p className="mt-2">{order.billing_address.phone}</p>
+                    <p>
+                      <span className="font-medium">Payment Status:</span>{" "}
+                      <Badge
+                        className={
+                          order.payment_status === "paid"
+                            ? "bg-green-100 text-green-800"
+                            : order.payment_status === "failed"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-amber-100 text-amber-800"
+                        }
+                      >
+                        {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
+                      </Badge>
+                    </p>
                   </div>
                 </div>
+
+                <div>
+                  <h2 className="text-xl font-medium mb-4">Order Summary</h2>
+                  <div className="p-4 border rounded-md">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Subtotal</span>
+                        <span>₹{order.subtotal?.toLocaleString("en-IN") || order.total.toLocaleString("en-IN")}</span>
+                      </div>
+
+                      {order.discount > 0 && (
+                        <div className="flex justify-between text-green-600">
+                          <span className="flex items-center">
+                            <Tag className="h-4 w-4 mr-1" /> Discount
+                            {order.coupon_code && ` (${order.coupon_code})`}
+                          </span>
+                          <span>-₹{order.discount.toLocaleString("en-IN")}</span>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Shipping</span>
+                        <span className="text-green-600">FREE</span>
+                      </div>
+                      <Separator className="my-2" />
+                      <div className="flex justify-between font-medium">
+                        <span>Total</span>
+                        <span>₹{order.total.toLocaleString("en-IN")}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {order.tracking_number && (
+                    <div className="mt-6">
+                      <h2 className="text-xl font-medium mb-4">Tracking Information</h2>
+                      <div className="p-4 border rounded-md">
+                        <p>
+                          <span className="font-medium">Tracking Number:</span> {order.tracking_number}
+                        </p>
+                        <Button className="mt-4 bg-teal-700 hover:bg-teal-800">Track Package</Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-md shadow-sm">
+              <h2 className="text-xl font-medium mb-4">Need Help?</h2>
+              <p className="text-gray-600 mb-4">
+                If you have any questions or concerns about your order, please contact our customer support team.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/contact">
+                  <Button variant="outline">Contact Support</Button>
+                </Link>
+                <Button variant="outline">Request Return</Button>
+                <Button variant="outline">Cancel Order</Button>
               </div>
             </div>
           </div>

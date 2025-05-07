@@ -7,15 +7,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"
 
-// Generate a unique order number
-function generateOrderNumber() {
-  const timestamp = new Date().getTime().toString().slice(-8)
-  const random = Math.floor(Math.random() * 10000)
-    .toString()
-    .padStart(4, "0")
-  return `ORD-${timestamp}-${random}`
-}
-
+// Get user's orders
 export async function GET() {
   try {
     await connectToDatabase()
@@ -30,25 +22,14 @@ export async function GET() {
     // Find orders for the user
     const orders = await Order.find({ user_id: userId }).sort({ createdAt: -1 }).lean()
 
-    // Format orders for response
-    const formattedOrders = orders.map((order) => ({
-      ...order,
-      _id: order._id.toString(),
-      user_id: order.user_id.toString(),
-      items: order.items.map((item) => ({
-        ...item,
-        product_id: item.product_id.toString(),
-        variation_id: item.variation_id.toString(),
-      })),
-    }))
-
-    return NextResponse.json({ orders: formattedOrders })
+    return NextResponse.json({ orders })
   } catch (error) {
     console.error("Error fetching orders:", error)
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 })
   }
 }
 
+// Create a new order
 export async function POST(request: Request) {
   try {
     await connectToDatabase()
@@ -59,167 +40,118 @@ export async function POST(request: Request) {
     }
 
     const userId = session.user.id
-
-    // Parse request body
-    let requestBody
-    try {
-      requestBody = await request.json()
-      console.log("Received order request body:", JSON.stringify(requestBody, null, 2))
-    } catch (parseError) {
-      console.error("Error parsing request body:", parseError)
-      return NextResponse.json({ error: "Invalid request body format" }, { status: 400 })
-    }
-
-    const { shipping_address, billing_address, payment_method } = requestBody
+    const data = await request.json()
 
     // Validate required fields
-    if (!shipping_address) {
-      return NextResponse.json({ error: "Missing required field: shipping_address" }, { status: 400 })
-    }
-
-    if (!billing_address) {
-      return NextResponse.json({ error: "Missing required field: billing_address" }, { status: 400 })
-    }
-
-    if (!payment_method) {
-      return NextResponse.json({ error: "Missing required field: payment_method" }, { status: 400 })
-    }
-
-    // Log the received data for debugging
-    console.log("Processing order with data:", {
-      shipping_address,
-      billing_address,
-      payment_method,
-      userId,
-    })
-
-    // Additional validation for shipping address fields
-    const requiredAddressFields = ["full_name", "address_line1", "city", "state", "postal_code", "country", "phone"]
-
-    for (const field of requiredAddressFields) {
-      if (!shipping_address[field]) {
-        return NextResponse.json(
-          {
-            error: `Missing required field: shipping_address.${field}`,
-          },
-          { status: 400 },
-        )
-      }
-
-      if (!billing_address[field]) {
-        return NextResponse.json(
-          {
-            error: `Missing required field: billing_address.${field}`,
-          },
-          { status: 400 },
-        )
-      }
+    if (!data.shipping_address || !data.billing_address || !data.payment_method) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
     // Get user's cart
-    const cart = await Cart.findOne({ user_id: userId })
-
-    if (!cart) {
-      return NextResponse.json({ error: "Cart not found" }, { status: 400 })
-    }
-
-    if (!cart.items || cart.items.length === 0) {
+    const cart = await Cart.findOne({ user_id: userId }).lean()
+    if (!cart || !cart.items || cart.items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 })
     }
 
-    // Verify stock availability and prepare order items
+    // Prepare order items
     const orderItems = []
+    let subtotal = 0
 
     for (const item of cart.items) {
-      // Check if product and variation exist and have enough stock
-      const product = await Product.findById(item.product_id)
-      const variation = await Variation.findById(item.variation_id)
+      try {
+        const product = await Product.findById(item.product_id).lean()
+        const variation = await Variation.findById(item.variation_id).lean()
 
-      if (!product || !variation) {
-        return NextResponse.json(
-          {
-            error: `Product or variation not found for item ${item._id}`,
-          },
-          { status: 400 },
-        )
+        if (!product || !variation) {
+          continue
+        }
+
+        // Check if item is still in stock
+        if (variation.quantity < item.quantity) {
+          return NextResponse.json(
+            {
+              error: `Not enough stock for ${product.name} (${variation.color}, ${variation.size})`,
+            },
+            { status: 400 },
+          )
+        }
+
+        // Add item to order
+        orderItems.push({
+          product_id: item.product_id,
+          variation_id: item.variation_id,
+          quantity: item.quantity,
+          price: item.price,
+          name: product.name,
+          image: variation.image,
+          size: variation.size,
+          color: variation.color,
+        })
+
+        // Update subtotal
+        subtotal += item.price * item.quantity
+
+        // Update product variation quantity
+        await Variation.findByIdAndUpdate(item.variation_id, {
+          $inc: { quantity: -item.quantity },
+        })
+      } catch (err) {
+        console.error("Error processing cart item:", err)
       }
-
-      if (variation.quantity < item.quantity) {
-        return NextResponse.json(
-          {
-            error: `Not enough stock available for ${product.name} (${variation.size}, ${variation.color})`,
-          },
-          { status: 400 },
-        )
-      }
-
-      // Prepare order item
-      orderItems.push({
-        product_id: item.product_id,
-        variation_id: item.variation_id,
-        quantity: item.quantity,
-        price: item.price,
-        name: product.name,
-        image: variation.image,
-        size: variation.size,
-        color: variation.color,
-      })
-
-      // Update product variation quantity
-      variation.quantity -= item.quantity
-      await variation.save()
     }
+
+    if (orderItems.length === 0) {
+      return NextResponse.json({ error: "No valid items in cart" }, { status: 400 })
+    }
+
+    // Apply discount if coupon is provided
+    let discountAmount = 0
+    if (data.coupon_code && data.discount_amount) {
+      discountAmount = data.discount_amount
+    }
+
+    // Calculate final total
+    const total = subtotal - discountAmount
+
+    // Generate order number
+    const orderCount = await Order.countDocuments()
+    const orderNumber = `ORD${new Date().getFullYear()}${(orderCount + 1).toString().padStart(6, "0")}`
 
     // Create order
-    const orderData = {
+    const order = new Order({
       user_id: new mongoose.Types.ObjectId(userId),
-      order_number: generateOrderNumber(),
+      order_number: orderNumber,
       items: orderItems,
-      total: cart.total,
+      total,
+      subtotal,
+      discount: discountAmount,
+      coupon_code: data.coupon_code || null,
       status: "pending",
-      shipping_address,
-      billing_address,
-      payment_method,
-      payment_status: "pending", // Assuming payment will be handled separately
-    }
+      shipping_address: data.shipping_address,
+      billing_address: data.billing_address,
+      payment_method: data.payment_method,
+      payment_status: "pending", // In a real app, this would be updated after payment processing
+    })
 
-    console.log("Creating order with data:", JSON.stringify(orderData, null, 2))
-
-    const order = new Order(orderData)
     await order.save()
 
-    // Clear user's cart after successful order
-    cart.items = []
-    cart.total = 0
-    await cart.save()
-
-    // Format order for response
-    const formattedOrder = {
-      ...order.toObject(),
-      _id: order._id.toString(),
-      user_id: order.user_id.toString(),
-      items: order.items.map((item) => ({
-        ...item.toObject(),
-        product_id: item.product_id.toString(),
-        variation_id: item.variation_id.toString(),
-      })),
-    }
+    // Clear the cart after successful order
+    await Cart.findOneAndUpdate({ user_id: userId }, { $set: { items: [], total: 0 } })
 
     return NextResponse.json({
       message: "Order placed successfully",
-      order: formattedOrder,
+      order: {
+        _id: order._id,
+        order_number: order.order_number,
+        total: order.total,
+      },
     })
   } catch (error) {
     console.error("Error creating order:", error)
-    // Provide more detailed error information
-    const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    const errorStack = error instanceof Error ? error.stack : "No stack trace"
-
     return NextResponse.json(
       {
         error: "Failed to create order",
-        details: errorMessage,
-        stack: errorStack,
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
     )

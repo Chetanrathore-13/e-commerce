@@ -26,6 +26,9 @@ export interface IOrder extends Document {
   user_id: mongoose.Types.ObjectId
   order_number: string
   items: IOrderItem[]
+  subtotal: number
+  discount: number
+  coupon_code?: string
   total: number
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled"
   shipping_address: IAddress
@@ -67,6 +70,9 @@ const OrderSchema = new Schema<IOrder>(
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     order_number: { type: String, required: true, unique: true },
     items: [OrderItemSchema],
+    subtotal: { type: Number, required: true },
+    discount: { type: Number, default: 0 },
+    coupon_code: { type: String },
     total: { type: Number, required: true },
     status: {
       type: String,

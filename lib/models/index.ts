@@ -14,6 +14,7 @@ import { HomepageSection } from "./homepage-section"
 import Address from "./address"
 import PaymentMothod from "./payment-mothod"
 import { Blog } from "./blog"
+import Coupon from "./coupon"
 
 // Export all models
 export {
@@ -33,4 +34,5 @@ export {
   Address,
   PaymentMothod,
   Blog,
+  Coupon,
 }
