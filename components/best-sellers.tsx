@@ -114,8 +114,8 @@ export default function BestSellers({
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between mb-8">
           <div className="mb-6 md:mb-0">
-            <h2 className="text-3xl font-light mb-2">{sectionTitle}</h2>
-            {sectionSubtitle && <p className="text-gray-600">{sectionSubtitle}</p>}
+            <h2 className="text-5xl font-light mb-2 text-center">{sectionTitle}</h2>
+            {sectionSubtitle && <p className="text-gray-600 text-start ml-2 pt-2">{sectionSubtitle}</p>}
           </div>
 
           {sectionImage && (

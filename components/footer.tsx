@@ -1,16 +1,36 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from "lucide-react"
-
+import Logo from "../public/Logo/Parpra.png";
 export default function Footer() {
   return (
     <footer className="bg-white border-t">
       <div className="container mx-auto px-4 py-12">
+
+
+        {/* Newsletter */}
+        <div className="border-b border-gray-200 mt-12 mb-10 pt-8 pb-8">
+          <div className="max-w-md mx-auto text-center">
+            <h3 className="text-lg font-semibold mb-2">Subscribe to our newsletter</h3>
+            <p className="text-gray-600 mb-4">Stay updated with our latest collections and exclusive offers</p>
+            <div className="flex">
+              <input
+                type="email"
+                placeholder="Your email address"
+                className="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-teal-800"
+              />
+              <button className="bg-teal-800 text-white px-4 py-2 rounded-r-md hover:bg-teal-700 transition duration-200">
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and About */}
           <div className="space-y-4">
             <Link href="/">
-              <Image src="/parpra-logo.png" alt="PARPRA" width={150} height={50} />
+              <Image src={Logo} alt="PARPRA" width={150} height={50} />
             </Link>
             <p className="text-gray-600 mt-4">
               Discover the elegance of Indian ethnic wear with our curated collection of traditional and contemporary
@@ -154,23 +174,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Newsletter */}
-        <div className="border-t border-gray-200 mt-12 pt-8">
-          <div className="max-w-md mx-auto text-center">
-            <h3 className="text-lg font-semibold mb-2">Subscribe to our newsletter</h3>
-            <p className="text-gray-600 mb-4">Stay updated with our latest collections and exclusive offers</p>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-teal-800"
-              />
-              <button className="bg-teal-800 text-white px-4 py-2 rounded-r-md hover:bg-teal-700 transition duration-200">
-                Subscribe
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Copyright */}
         <div className="border-t border-gray-200 mt-8 pt-8 text-center">

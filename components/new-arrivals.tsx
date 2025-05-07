@@ -166,10 +166,10 @@ export default function NewArrivals({
               return (
                 <Card
                   key={product._id}
-                  className="min-w-[250px] max-w-[250px] flex-shrink-0 overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer"
+                  className="min-w-[300px] max-w-[300px] max-h-[400px] min-h-[450px] flex-shrink-0 overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer"
                   onClick={() => router.push(`/products/${product.slug}`)}
                 >
-                  <div className="relative h-64 w-full group">
+                  <div className="relative h-80 w-full group">
                     <Image
                       src={variation.image || `/placeholder.svg?height=256&width=256&query=${product.name}`}
                       alt={product.name}
@@ -181,7 +181,7 @@ export default function NewArrivals({
                         {discountPercentage}% OFF
                       </div>
                     )}
-                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 flex justify-center gap-2 py-3 translate-y-full group-hover:translate-y-0 transition-all duration-300">
+                    {/* <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 flex justify-center gap-2 py-3 translate-y-full group-hover:translate-y-0 transition-all duration-300">
                       <Button
                         size="sm"
                         variant="secondary"
@@ -198,10 +198,10 @@ export default function NewArrivals({
                       >
                         <Heart className="h-4 w-4" />
                       </Button>
-                    </div>
+                    </div> */}
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium mb-1 truncate">{product.name}</h3>
+                  <CardContent className="p-5 ">
+                    <h3 className=" text-xl mb-1 truncate">{product.name}</h3>
                     <div className="flex items-center gap-2">
                       {variation.salePrice ? (
                         <>
