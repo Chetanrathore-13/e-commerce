@@ -34,54 +34,103 @@ export default function PaymentMethodsPage() {
     }
 
     if (status === "authenticated") {
-      // In a real implementation, you would fetch payment methods from the API
-      // For now, we'll use dummy data
-      setPaymentMethods([
-        {
-          _id: "1",
-          user_id: "user1",
-          card_type: "Visa",
-          last_four: "4242",
-          expiry_month: "12",
-          expiry_year: "2025",
-          is_default: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ])
-      setLoading(false)
+      fetchPaymentMethods()
     }
   }, [status, router])
+
+  const fetchPaymentMethods = async () => {
+    try {
+      const response = await fetch("/api/user/payment-methods")
+      if (!response.ok) {
+        throw new Error("Failed to fetch payment methods")
+      }
+      const data = await response.json()
+      setPaymentMethods(data.paymentMethods || [])
+    } catch (error) {
+      console.error("Error fetching payment methods:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load payment methods",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleAddPaymentMethod = () => {
     router.push("/account/payment-methods/new")
   }
 
-  const handleDeletePaymentMethod = (id: string) => {
+  const handleDeletePaymentMethod = async (id: string) => {
     if (confirm("Are you sure you want to delete this payment method?")) {
-      // In a real implementation, you would call the API to delete the payment method
-      setPaymentMethods((prev) => prev.filter((method) => method._id !== id))
+      try {
+        const response = await fetch(`/api/user/payment-methods/${id}`, {
+          method: "DELETE",
+        })
 
-      toast({
-        title: "Success",
-        description: "Payment method deleted successfully",
-      })
+        if (!response.ok) {
+          throw new Error("Failed to delete payment method")
+        }
+
+        // Update the payment methods list
+        setPaymentMethods((prev) => prev.filter((method) => method._id !== id))
+
+        toast({
+          title: "Success",
+          description: "Payment method deleted successfully",
+        })
+      } catch (error) {
+        console.error("Error deleting payment method:", error)
+        toast({
+          title: "Error",
+          description: "Failed to delete payment method",
+          variant: "destructive",
+        })
+      }
     }
   }
 
-  const handleSetDefaultPaymentMethod = (id: string) => {
-    // In a real implementation, you would call the API to set the default payment method
-    setPaymentMethods((prev) =>
-      prev.map((method) => ({
-        ...method,
-        is_default: method._id === id,
-      })),
-    )
+  const handleSetDefaultPaymentMethod = async (id: string) => {
+    try {
+      const method = paymentMethods.find((m) => m._id === id)
+      if (!method) return
 
-    toast({
-      title: "Success",
-      description: "Default payment method updated",
-    })
+      const response = await fetch(`/api/user/payment-methods/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...method,
+          is_default: true,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update payment method")
+      }
+
+      // Update the payment methods list
+      setPaymentMethods((prev) =>
+        prev.map((method) => ({
+          ...method,
+          is_default: method._id === id,
+        })),
+      )
+
+      toast({
+        title: "Success",
+        description: "Default payment method updated",
+      })
+    } catch (error) {
+      console.error("Error updating payment method:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update payment method",
+        variant: "destructive",
+      })
+    }
   }
 
   if (status === "loading" || (status === "authenticated" && loading)) {

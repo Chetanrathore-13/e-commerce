@@ -56,13 +56,13 @@ export default function OrdersPage() {
     try {
       setLoading(true)
       const response = await fetch("/api/orders")
-
       if (!response.ok) {
         throw new Error("Failed to fetch orders")
       }
 
       const data = await response.json()
-      setOrders(data)
+     
+       setOrders(data.orders)
     } catch (error) {
       console.error("Error fetching orders:", error)
       toast({
@@ -152,7 +152,7 @@ export default function OrdersPage() {
             <div className="bg-white p-6 rounded-md shadow-sm">
               <h1 className="text-2xl font-medium mb-6">My Orders</h1>
 
-              {orders.length === 0 ? (
+              {orders?.length === 0 ? (
                 <div className="text-center py-12">
                   <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h2 className="text-xl font-medium mb-2">No Orders Yet</h2>
@@ -163,7 +163,7 @@ export default function OrdersPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {orders.map((order) => (
+                  {orders?.map((order) => (
                     <Link
                       key={order._id}
                       href={`/account/orders/${order._id}`}

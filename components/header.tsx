@@ -23,6 +23,7 @@ import MegaMenu from "@/components/mega-menu";
 import type { MegaMenuContent, CategoryWithSubcategories } from "@/types";
 import { getCategoryTree } from "@/lib/api";
 import Logo from "../public/Logo/Parpra.png";
+import { useSession } from "next-auth/react"
 
 // Hardcoded mega menu content to avoid hydration issues
 const defaultMegaMenuContent: Record<string, MegaMenuContent> = {
@@ -109,6 +110,7 @@ const defaultMegaMenuContent: Record<string, MegaMenuContent> = {
 
 // Update the Header component to fetch categories from the database
 export default function Header() {
+  const { status } = useSession()
   const pathname = usePathname();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -120,7 +122,40 @@ export default function Header() {
   const [categories, setCategories] = useState<CategoryWithSubcategories[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const profileRef = useRef<HTMLDivElement>(null);
+  const [cartItemCount, setCartItemCount] = useState(0)
   const navRef = useRef<HTMLDivElement>(null);
+
+    // Fetch cart item count
+    useEffect(() => {
+      const fetchCartCount = async () => {
+        if (status !== "authenticated") {
+          setCartItemCount(0)
+          return
+        }
+  
+        try {
+          const response = await fetch("/api/cart")
+          if (!response.ok) {
+            throw new Error("Failed to fetch cart")
+          }
+  
+          const data = await response.json()
+          const count = data.items?.length || 0
+          setCartItemCount(count)
+        } catch (error) {
+          console.error("Error fetching cart count:", error)
+          setCartItemCount(0)
+        }
+      }
+  
+      fetchCartCount()
+  
+      // Setup an interval to refresh the cart count every minute
+      const intervalId = setInterval(fetchCartCount, 60000)
+  
+      // Clean up on component unmount
+      return () => clearInterval(intervalId)
+    }, [status])
 
   // Fetch categories from the database
   useEffect(() => {
@@ -567,10 +602,12 @@ export default function Header() {
                 onClick={() => setIsCartOpen(true)}
                 aria-label="Shopping Cart"
               >
-                <ShoppingBag className="h-5 w-5" />
-                <span className="absolute -top-2 -right-2 bg-teal-800 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  1
-                </span>
+                 <ShoppingBag className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-teal-800 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItemCount}
+                  </span>
+                )}
               </button>
             </div>
           </div>

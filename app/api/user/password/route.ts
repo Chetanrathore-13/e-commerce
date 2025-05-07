@@ -5,7 +5,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
 
-export async function PATCH(request: Request) {
+// Update user password
+export async function PUT(request: Request) {
   try {
     await connectToDatabase()
 

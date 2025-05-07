@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/db"
-import { Order } from "@/lib/models"
+import Order from "@/lib/models/order"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"

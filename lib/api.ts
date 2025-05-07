@@ -170,8 +170,21 @@ export async function getUserCart(): Promise<any> {
   const url = `${getBaseUrl()}/api/cart`
 
   try {
-    const response = await fetch(url)
-    return handleResponse<any>(response)
+    const response = await fetch(url, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error("Cart API error:", response.status, errorData)
+      throw new Error(errorData.error || `API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log("Cart data fetched:", data)
+    return data
   } catch (error) {
     console.error("Error fetching user cart:", error)
     return { items: [] }

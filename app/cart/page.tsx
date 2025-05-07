@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Minus, Plus, X } from "lucide-react"
+import { Minus, Plus, X, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
@@ -52,6 +52,7 @@ export default function CartPage() {
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login?redirect=/cart")
+      return
     }
 
     if (status === "authenticated") {
@@ -69,6 +70,7 @@ export default function CartPage() {
       }
 
       const data = await response.json()
+      console.log("Cart data:", data) // Debug log
       setCart(data)
     } catch (error) {
       console.error("Error fetching cart:", error)
@@ -80,6 +82,14 @@ export default function CartPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Fix image paths if needed
+  const fixImagePath = (path: string) => {
+    if (!path) return "/diverse-products-still-life.png"
+    if (path.startsWith("http")) return path
+    if (path.startsWith("/")) return path
+    return `/${path}`
   }
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
@@ -204,6 +214,9 @@ export default function CartPage() {
           <div className="text-center py-16">
             <h2 className="text-2xl font-light mb-4">Your cart is empty</h2>
             <p className="text-gray-500 mb-8">Looks like you haven't added any products to your cart yet.</p>
+            <div className="flex justify-center">
+              <ShoppingBag className="h-24 w-24 text-gray-300 mb-6" />
+            </div>
             <Link href="/products">
               <Button className="bg-amber-700 hover:bg-amber-800">Continue Shopping</Button>
             </Link>
@@ -221,7 +234,7 @@ export default function CartPage() {
                         className="block relative aspect-square rounded-md overflow-hidden"
                       >
                         <Image
-                          src={item.variation.image || "/placeholder.svg"}
+                          src={fixImagePath(item.variation.image) || "/placeholder.svg"}
                           alt={item.product.name}
                           fill
                           className="object-cover"

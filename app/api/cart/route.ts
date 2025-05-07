@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/db"
+import {  Product, Variation } from "@/lib/models"
 import Cart from "@/lib/models/cart"
-import { Product, Variation } from "@/lib/models"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"

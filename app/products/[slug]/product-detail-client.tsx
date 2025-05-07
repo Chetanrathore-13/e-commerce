@@ -1,394 +1,332 @@
 "use client"
 
-import { useState } from "react"
+import type React from "react"
+
+import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Heart, ShoppingBag, Check } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { addToCart, addToWishlist } from "@/lib/api"
-import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { Heart, ShoppingCart, Check } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
+import type { Product, Variation } from "@/types"
+import { addToCart, addToWishlist } from "@/lib/api"
 
 interface ProductDetailClientProps {
-  product: any
+  product: Product
 }
 
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
-  const [selectedVariation, setSelectedVariation] = useState(product.variations?.[0] || null)
-  const [selectedImage, setSelectedImage] = useState(
-    selectedVariation?.image || product.variations?.[0]?.image || "/placeholder.svg",
-  )
-  const [quantity, setQuantity] = useState(1)
-  const [isAddingToCart, setIsAddingToCart] = useState(false)
-  const [isAddingToWishlist, setIsAddingToWishlist] = useState(false)
-  const { toast } = useToast()
+  const { data: session, status } = useSession()
   const router = useRouter()
-  const { data: session } = useSession()
+  const { toast } = useToast()
 
-  // Helper function to fix image paths
+  const [selectedVariation, setSelectedVariation] = useState<Variation | null>(null)
+  const [selectedSize, setSelectedSize] = useState<string>("")
+  const [selectedColor, setSelectedColor] = useState<string>("")
+  const [quantity, setQuantity] = useState(1)
+  const [addingToCart, setAddingToCart] = useState(false)
+  const [addingToWishlist, setAddingToWishlist] = useState(false)
+  const [addedToWishlist, setAddedToWishlist] = useState(false)
+
+  // Get unique sizes and colors from variations
+  const sizes = Array.from(new Set(product.variations.map((v) => v.size)))
+  const colors = Array.from(
+    new Set(product.variations.filter((v) => !selectedSize || v.size === selectedSize).map((v) => v.color)),
+  )
+
+  // Set initial selected variation
+  useEffect(() => {
+    if (product.variations.length > 0) {
+      const firstVariation = product.variations[0]
+      setSelectedSize(firstVariation.size)
+      setSelectedColor(firstVariation.color)
+      setSelectedVariation(firstVariation)
+    }
+  }, [product])
+
+  // Update selected variation when size or color changes
+  useEffect(() => {
+    const variation = product.variations.find((v) => v.size === selectedSize && v.color === selectedColor)
+    setSelectedVariation(variation || null)
+  }, [selectedSize, selectedColor, product.variations])
+
+  // Fix image paths if needed
   const fixImagePath = (path: string) => {
     if (!path) return "/diverse-products-still-life.png"
-
-    // If it's already a full URL or starts with /, return as is
-    if (path.startsWith("http") || path.startsWith("/")) {
-      return path
-    }
-
-    // Otherwise, add /uploads/ prefix
-    return `/uploads/${path}`
+    if (path.startsWith("http")) return path
+    if (path.startsWith("/")) return path
+    return `/${path}`
   }
 
-  // Handle variation selection
-  const handleVariationSelect = (variation: any) => {
-    setSelectedVariation(variation)
-    if (variation.image) {
-      setSelectedImage(variation.image)
+  const handleSizeChange = (size: string) => {
+    setSelectedSize(size)
+
+    // Find a variation with the selected size and any color
+    const variation = product.variations.find((v) => v.size === size)
+    if (variation) {
+      setSelectedColor(variation.color)
     }
   }
 
-  // Handle quantity change
-  const handleQuantityChange = (newQuantity: number) => {
-    if (newQuantity < 1) return
-    if (selectedVariation && newQuantity > selectedVariation.quantity) {
-      toast({
-        title: "Quantity limit",
-        description: `Only ${selectedVariation.quantity} items available in stock.`,
-        variant: "destructive",
-      })
-      return
-    }
-    setQuantity(newQuantity)
+  const handleColorChange = (color: string) => {
+    setSelectedColor(color)
   }
 
-  // Handle add to cart
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setQuantity(Number.parseInt(e.target.value))
+  }
+
   const handleAddToCart = async () => {
-    if (!session) {
-      toast({
-        title: "Please login",
-        description: "You need to be logged in to add items to cart",
-        variant: "destructive",
-      })
-      router.push("/login")
-      return
-    }
-
     if (!selectedVariation) {
       toast({
-        title: "Please select a variation",
-        description: "You need to select a size and color before adding to cart",
+        title: "Error",
+        description: "Please select a size and color",
         variant: "destructive",
       })
       return
     }
 
-    try {
-      setIsAddingToCart(true)
-      const response = await addToCart(product._id, selectedVariation._id, quantity)
+    if (status !== "authenticated") {
+      router.push(`/login?redirect=/products/${product.slug}`)
+      return
+    }
 
-      if (response.error) {
-        throw new Error(response.error)
-      }
+    setAddingToCart(true)
+
+    try {
+      await addToCart(product._id, selectedVariation._id, quantity)
 
       toast({
-        title: "Added to cart",
-        description: `${product.name} has been added to your cart.`,
+        title: "Success",
+        description: "Product added to cart",
       })
-
-      // Refresh the page to update cart count
-      router.refresh()
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error adding to cart:", error)
       toast({
         title: "Error",
-        description: error.message || "Failed to add item to cart. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to add to cart",
         variant: "destructive",
       })
     } finally {
-      setIsAddingToCart(false)
+      setAddingToCart(false)
     }
   }
 
-  // Handle add to wishlist
   const handleAddToWishlist = async () => {
-    if (!session) {
-      toast({
-        title: "Please login",
-        description: "You need to be logged in to add items to wishlist",
-        variant: "destructive",
-      })
-      router.push("/login")
-      return
-    }
-
     if (!selectedVariation) {
       toast({
-        title: "Please select a variation",
-        description: "You need to select a size and color before adding to wishlist",
+        title: "Error",
+        description: "Please select a size and color",
         variant: "destructive",
       })
       return
     }
 
+    if (status !== "authenticated") {
+      router.push(`/login?redirect=/products/${product.slug}`)
+      return
+    }
+
+    setAddingToWishlist(true)
+
     try {
-      setIsAddingToWishlist(true)
-      const response = await addToWishlist(product._id, selectedVariation._id)
+      await addToWishlist(product._id, selectedVariation._id)
 
-      if (response.error) {
-        throw new Error(response.error)
-      }
-
+      setAddedToWishlist(true)
       toast({
-        title: "Added to wishlist",
-        description: `${product.name} has been added to your wishlist.`,
+        title: "Success",
+        description: "Product added to wishlist",
       })
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error adding to wishlist:", error)
       toast({
         title: "Error",
-        description: error.message || "Failed to add item to wishlist. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to add to wishlist",
         variant: "destructive",
       })
     } finally {
-      setIsAddingToWishlist(false)
+      setAddingToWishlist(false)
     }
   }
-
-  // Handle buy now
-  const handleBuyNow = async () => {
-    if (!session) {
-      toast({
-        title: "Please login",
-        description: "You need to be logged in to checkout",
-        variant: "destructive",
-      })
-      router.push("/login")
-      return
-    }
-
-    if (!selectedVariation) {
-      toast({
-        title: "Please select a variation",
-        description: "You need to select a size and color before checkout",
-        variant: "destructive",
-      })
-      return
-    }
-
-    try {
-      setIsAddingToCart(true)
-      const response = await addToCart(product._id, selectedVariation._id, quantity)
-
-      if (response.error) {
-        throw new Error(response.error)
-      }
-
-      // Redirect to checkout
-      router.push("/checkout")
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to proceed to checkout. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsAddingToCart(false)
-    }
-  }
-
-  // Get all available colors and sizes
-  const availableColors = Array.from(new Set(product.variations?.map((v: any) => v.color))).filter(Boolean)
-  const availableSizes = Array.from(new Set(product.variations?.map((v: any) => v.size))).filter(Boolean)
-
-  // Get gallery images
-  const galleryImages = selectedVariation?.gallery || []
-  const allImages = [selectedVariation?.image, ...galleryImages].filter(Boolean)
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      {/* Product Images */}
-      <div className="space-y-4">
-        <div className="relative h-96 bg-gray-100 rounded-lg overflow-hidden">
-          <Image
-            src={fixImagePath(selectedImage) || "/placeholder.svg"}
-            alt={product.name}
-            fill
-            className="object-contain"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            priority
-          />
-        </div>
-        {allImages.length > 1 && (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Product Images */}
+        <div className="w-full md:w-1/2">
+          <div className="relative aspect-square overflow-hidden rounded-lg mb-4">
+            {selectedVariation && (
+              <Image
+                src={fixImagePath(selectedVariation.image) || "/placeholder.svg"}
+                alt={product.name}
+                fill
+                className="object-cover"
+                priority
+              />
+            )}
+          </div>
           <div className="grid grid-cols-4 gap-2">
-            {allImages.map((image, index) => (
-              <button
-                key={index}
-                className={`relative h-24 bg-gray-100 rounded-lg overflow-hidden ${
-                  selectedImage === image ? "ring-2 ring-teal-800" : ""
-                }`}
-                onClick={() => setSelectedImage(image)}
-              >
+            {selectedVariation?.gallery?.slice(0, 4).map((image, index) => (
+              <div key={index} className="relative aspect-square overflow-hidden rounded-lg">
                 <Image
                   src={fixImagePath(image) || "/placeholder.svg"}
-                  alt={`${product.name} - Image ${index + 1}`}
+                  alt={`${product.name} - Gallery ${index + 1}`}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 25vw, 10vw"
                 />
-              </button>
+              </div>
             ))}
           </div>
-        )}
-      </div>
-
-      {/* Product Details */}
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">{product.name}</h1>
-        <div className="flex items-center">
-          <p className="text-2xl font-semibold text-teal-800">
-            ₹{selectedVariation?.salePrice || selectedVariation?.price || 0}
-          </p>
-          {selectedVariation?.salePrice && (
-            <p className="ml-2 text-lg text-gray-500 line-through">₹{selectedVariation.price}</p>
-          )}
         </div>
 
-        <div className="prose max-w-none">
-          <p>{product.description}</p>
-        </div>
+        {/* Product Details */}
+        <div className="w-full md:w-1/2">
+          <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
 
-        {/* Product Attributes */}
-        <div className="space-y-4">
-          {product.brand_id && (
-            <div>
-              <p className="text-sm text-gray-500">Brand</p>
-              <p className="font-medium">{product.brand_id.name}</p>
-            </div>
-          )}
-          {product.material && (
-            <div>
-              <p className="text-sm text-gray-500">Material</p>
-              <p className="font-medium">{product.material}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Color Selection */}
-        {availableColors.length > 0 && (
-          <div className="space-y-2">
-            <p className="font-medium">Color: {selectedVariation?.color}</p>
-            <div className="flex flex-wrap gap-2">
-              {availableColors.map((color) => {
-                const colorVariation = product.variations.find((v: any) => v.color === color)
-                return (
-                  <button
-                    key={color}
-                    className={`w-10 h-10 rounded-full border ${
-                      selectedVariation?.color === color ? "ring-2 ring-teal-800 ring-offset-2" : ""
-                    }`}
-                    style={{ backgroundColor: color.toLowerCase() }}
-                    onClick={() => handleVariationSelect(colorVariation)}
-                    aria-label={`Select ${color} color`}
-                  >
-                    {selectedVariation?.color === color && <Check className="h-6 w-6 text-white mx-auto" />}
-                  </button>
-                )
-              })}
-            </div>
+          <div className="flex items-center mb-4">
+            <p className="text-gray-500 mr-4">Brand: {product.brand_id?.name}</p>
+            <p className="text-gray-500">Category: {product.category_id?.name}</p>
           </div>
-        )}
 
-        {/* Size Selection */}
-        {availableSizes.length > 0 && (
-          <div className="space-y-2">
-            <p className="font-medium">Size: {selectedVariation?.size}</p>
-            <div className="flex flex-wrap gap-2">
-              {availableSizes.map((size) => {
-                const sizeVariation = product.variations.find(
-                  (v: any) => v.size === size && v.color === selectedVariation?.color,
-                )
-                const isAvailable = !!sizeVariation
-                return (
-                  <button
-                    key={size}
-                    className={`h-10 min-w-[2.5rem] px-3 rounded border ${
-                      selectedVariation?.size === size
-                        ? "bg-teal-800 text-white"
-                        : isAvailable
-                          ? "bg-white text-gray-900 hover:bg-gray-100"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    }`}
-                    disabled={!isAvailable}
-                    onClick={() => isAvailable && handleVariationSelect(sizeVariation)}
-                  >
-                    {size}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Quantity */}
-        <div className="space-y-2">
-          <p className="font-medium">Quantity</p>
-          <div className="flex items-center space-x-2">
-            <button
-              className="w-8 h-8 flex items-center justify-center border rounded-md"
-              onClick={() => handleQuantityChange(quantity - 1)}
-              disabled={quantity <= 1}
-            >
-              -
-            </button>
-            <span className="w-12 text-center">{quantity}</span>
-            <button
-              className="w-8 h-8 flex items-center justify-center border rounded-md"
-              onClick={() => handleQuantityChange(quantity + 1)}
-              disabled={selectedVariation && quantity >= selectedVariation.quantity}
-            >
-              +
-            </button>
-            {selectedVariation && (
-              <span className="text-sm text-gray-500 ml-2">{selectedVariation.quantity} available</span>
-            )}
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex space-x-4">
-          <Button
-            className="flex-1 bg-teal-800 hover:bg-teal-900"
-            onClick={handleBuyNow}
-            disabled={isAddingToCart || !selectedVariation}
-          >
-            Buy Now
-          </Button>
-          <Button
-            className="flex-1"
-            variant="outline"
-            onClick={handleAddToCart}
-            disabled={isAddingToCart || !selectedVariation}
-          >
-            <ShoppingBag className="mr-2 h-4 w-4" />
-            Add to Cart
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleAddToWishlist}
-            disabled={isAddingToWishlist || !selectedVariation}
-          >
-            <Heart className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Stock Status */}
-        {selectedVariation && (
-          <div className="text-sm">
-            {selectedVariation.quantity > 0 ? (
-              <p className="text-green-600">In Stock</p>
+          <div className="mb-6">
+            {selectedVariation?.salePrice ? (
+              <div className="flex items-center">
+                <p className="text-2xl font-bold text-amber-700">₹{selectedVariation.salePrice.toLocaleString()}</p>
+                <p className="text-lg text-gray-500 line-through ml-2">₹{selectedVariation.price.toLocaleString()}</p>
+                <p className="ml-2 bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-sm">
+                  {Math.round(
+                    ((selectedVariation.price - selectedVariation.salePrice) / selectedVariation.price) * 100,
+                  )}
+                  % OFF
+                </p>
+              </div>
             ) : (
-              <p className="text-red-600">Out of Stock</p>
+              <p className="text-2xl font-bold text-amber-700">₹{selectedVariation?.price.toLocaleString() || "N/A"}</p>
             )}
           </div>
-        )}
+
+          {/* Size Selection */}
+          <div className="mb-4">
+            <p className="font-medium mb-2">Size</p>
+            <div className="flex flex-wrap gap-2">
+              {sizes.map((size) => (
+                <button
+                  key={size}
+                  className={`px-3 py-1 border rounded-md ${
+                    selectedSize === size
+                      ? "border-amber-700 bg-amber-50 text-amber-700"
+                      : "border-gray-300 hover:border-gray-400"
+                  }`}
+                  onClick={() => handleSizeChange(size)}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Color Selection */}
+          <div className="mb-4">
+            <p className="font-medium mb-2">Color</p>
+            <div className="flex flex-wrap gap-2">
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  className={`px-3 py-1 border rounded-md ${
+                    selectedColor === color
+                      ? "border-amber-700 bg-amber-50 text-amber-700"
+                      : "border-gray-300 hover:border-gray-400"
+                  }`}
+                  onClick={() => handleColorChange(color)}
+                >
+                  {color}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quantity Selection */}
+          <div className="mb-6">
+            <p className="font-medium mb-2">Quantity</p>
+            <select
+              value={quantity}
+              onChange={handleQuantityChange}
+              className="border border-gray-300 rounded-md px-3 py-2 w-24"
+            >
+              {[...Array(10)].map((_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {i + 1}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Stock Status */}
+          {selectedVariation && (
+            <div className="mb-6">
+              <p className={selectedVariation.quantity > 0 ? "text-green-600" : "text-red-600"}>
+                {selectedVariation.quantity > 0 ? `In Stock (${selectedVariation.quantity} available)` : "Out of Stock"}
+              </p>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            <Button
+              className="flex-1 bg-amber-700 hover:bg-amber-800"
+              size="lg"
+              onClick={handleAddToCart}
+              disabled={addingToCart || !selectedVariation || selectedVariation.quantity < 1}
+            >
+              {addingToCart ? (
+                "Adding..."
+              ) : (
+                <>
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  Add to Cart
+                </>
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 border-amber-700 text-amber-700 hover:bg-amber-50"
+              size="lg"
+              onClick={handleAddToWishlist}
+              disabled={addingToWishlist || addedToWishlist}
+            >
+              {addingToWishlist ? (
+                "Adding..."
+              ) : addedToWishlist ? (
+                <>
+                  <Check className="mr-2 h-5 w-5" />
+                  Added to Wishlist
+                </>
+              ) : (
+                <>
+                  <Heart className="mr-2 h-5 w-5" />
+                  Add to Wishlist
+                </>
+              )}
+            </Button>
+          </div>
+
+          {/* Product Description */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-2">Description</h2>
+            <p className="text-gray-700">{product.description}</p>
+          </div>
+
+          {/* Product Details */}
+          <div>
+            <h2 className="text-xl font-semibold mb-2">Details</h2>
+            <ul className="list-disc list-inside text-gray-700 space-y-1">
+              <li>Material: {product.material}</li>
+              <li>SKU: {selectedVariation?.sku || "N/A"}</li>
+              {product.tags && product.tags.length > 0 && <li>Tags: {product.tags.join(", ")}</li>}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   )

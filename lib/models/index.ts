@@ -11,6 +11,9 @@ import { Testimonial } from "./testimonial"
 import { MegaMenuConfig } from "./mega-menu-config"
 import Collection from "./collection"
 import { HomepageSection } from "./homepage-section"
+import Address from "./address"
+import PaymentMothod from "./payment-mothod"
+import { Blog } from "./blog"
 
 // Export all models
 export {
@@ -27,4 +30,7 @@ export {
   MegaMenuConfig,
   Collection,
   HomepageSection,
+  Address,
+  PaymentMothod,
+  Blog,
 }

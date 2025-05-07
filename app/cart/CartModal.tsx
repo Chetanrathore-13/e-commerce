@@ -1,20 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, Minus, Plus, X } from "lucide-react"
+import { Heart, Minus, Plus, X, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useToast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useSession } from "next-auth/react"
 
 interface CartItem {
-  id: string
-  name: string
-  price: number
-  image: string
-  slug: string
+  _id: string
+  product_id: string
+  variation_id: string
   quantity: number
-  deliveryTime: string
+  product: {
+    _id: string
+    name: string
+    slug: string
+  }
+  variation: {
+    _id: string
+    price: number
+    salePrice?: number
+    image: string
+    size: string
+    color: string
+  }
 }
 
 interface CartModalProps {
@@ -23,33 +36,146 @@ interface CartModalProps {
 }
 
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "Ochre Yellow Tissue Organza Designer Saree With Sequins Work And Readymade Blouse-GE3048",
-      price: 32890,
-      image: "/placeholder.svg?key=kl9l0",
-      slug: "ochre-yellow-tissue-organza-designer-saree",
-      quantity: 1,
-      deliveryTime: "M(36) 40-45 Working Days",
-    },
-  ])
+  const { data: session, status } = useSession()
+  const { toast } = useToast()
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [promoCode, setPromoCode] = useState("")
 
-  const updateQuantity = (itemId: string, newQuantity: number) => {
+  useEffect(() => {
+    if (isOpen && status === "authenticated") {
+      fetchCartItems()
+    }
+  }, [isOpen, status])
+
+  const fetchCartItems = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch("/api/cart")
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch cart items")
+      }
+
+      const data = await response.json()
+      setCartItems(data.items || [])
+    } catch (error) {
+      console.error("Error fetching cart:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load cart items",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return
-    setCartItems(cartItems.map((item) => (item.id === itemId ? { ...item, quantity: newQuantity } : item)))
+
+    try {
+      const response = await fetch(`/api/cart/${itemId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ quantity: newQuantity }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update quantity")
+      }
+
+      setCartItems(cartItems.map((item) => (item._id === itemId ? { ...item, quantity: newQuantity } : item)))
+    } catch (error) {
+      console.error("Error updating quantity:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update quantity",
+        variant: "destructive",
+      })
+    }
   }
 
-  const removeItem = (itemId: string) => {
-    setCartItems(cartItems.filter((item) => item.id !== itemId))
+  const removeItem = async (itemId: string) => {
+    try {
+      const response = await fetch(`/api/cart/${itemId}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to remove item from cart")
+      }
+
+      setCartItems(cartItems.filter((item) => item._id !== itemId))
+      toast({
+        title: "Success",
+        description: "Item removed from cart",
+      })
+    } catch (error) {
+      console.error("Error removing item:", error)
+      toast({
+        title: "Error",
+        description: "Failed to remove item from cart",
+        variant: "destructive",
+      })
+    }
   }
 
-  const subtotal = cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
+  const moveToWishlist = async (productId: string, variationId: string, cartItemId: string) => {
+    try {
+      // Add to wishlist
+      const wishlistResponse = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          variation_id: variationId,
+        }),
+      })
+
+      if (!wishlistResponse.ok) {
+        throw new Error("Failed to add item to wishlist")
+      }
+
+      // Remove from cart
+      await removeItem(cartItemId)
+
+      toast({
+        title: "Success",
+        description: "Item moved to wishlist",
+      })
+    } catch (error) {
+      console.error("Error moving to wishlist:", error)
+      toast({
+        title: "Error",
+        description: "Failed to move item to wishlist",
+        variant: "destructive",
+      })
+    }
+  }
 
   const applyPromoCode = () => {
     // In a real implementation, this would validate the promo code with the server
-    alert(`Promo code "${promoCode}" applied!`)
+    toast({
+      title: "Promo Code",
+      description: `Promo code "${promoCode}" applied!`,
+    })
+  }
+
+  const subtotal = cartItems.reduce((total, item) => {
+    const price = item.variation.salePrice || item.variation.price
+    return total + price * item.quantity
+  }, 0)
+
+  const fixImagePath = (path: string) => {
+    if (!path) return "/placeholder.svg"
+    if (path.startsWith("http")) return path
+    if (path.startsWith("/")) return path
+    return `/${path}`
   }
 
   if (!isOpen) return null
@@ -80,7 +206,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                 className="rounded-r-none"
               />
               <Button
-                className="rounded-l-none bg-gray-700 hover:bg-gray-800"
+                className="rounded-l-none bg-teal-700 hover:bg-teal-800"
                 onClick={applyPromoCode}
                 disabled={!promoCode}
               >
@@ -91,37 +217,66 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
           <div className="mb-4">
             <h3 className="font-medium mb-4">ORDER SUMMARY</h3>
-            {cartItems.length === 0 ? (
-              <p className="text-center py-8 text-gray-500">Your cart is empty</p>
+            {loading ? (
+              <div className="space-y-6">
+                {[1, 2].map((i) => (
+                  <div key={i} className="flex gap-4 border-b pb-4">
+                    <Skeleton className="h-32 w-24" />
+                    <div className="flex-1">
+                      <Skeleton className="h-4 w-3/4 mb-2" />
+                      <Skeleton className="h-3 w-1/2 mb-4" />
+                      <div className="flex justify-between mt-3">
+                        <Skeleton className="h-8 w-24" />
+                        <Skeleton className="h-4 w-16" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : cartItems.length === 0 ? (
+              <div className="text-center py-8">
+                <ShoppingBag className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-500 mb-4">Your cart is empty</p>
+                <Button variant="outline" onClick={onClose} className="mx-auto">
+                  Continue Shopping
+                </Button>
+              </div>
             ) : (
               <div className="space-y-6">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex gap-4 border-b pb-4">
+                  <div key={item._id} className="flex gap-4 border-b pb-4">
                     <div className="relative h-32 w-24 flex-shrink-0">
-                      <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
+                      <Image
+                        src={fixImagePath(item.variation.image) || "/placeholder.svg"}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between">
                         <Link
-                          href={`/products/${item.slug}`}
+                          href={`/products/${item.product.slug}`}
                           onClick={onClose}
-                          className="text-sm font-medium line-clamp-2 hover:text-amber-700"
+                          className="text-sm font-medium line-clamp-2 hover:text-teal-700"
                         >
-                          {item.name}
+                          {item.product.name}
                         </Link>
                         <button
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeItem(item._id)}
                           className="text-gray-400 hover:text-gray-600 flex-shrink-0"
                           aria-label="Remove from cart"
                         >
                           <X className="h-4 w-4" />
                         </button>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">{item.deliveryTime}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Size: {item.variation.size}, Color: {item.variation.color}
+                      </p>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center border rounded-md">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
                             className="px-2 py-0.5 hover:bg-gray-100"
                             disabled={item.quantity <= 1}
                           >
@@ -129,15 +284,20 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                           </button>
                           <span className="w-8 text-center text-sm">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
                             className="px-2 py-0.5 hover:bg-gray-100"
                           >
                             <Plus className="h-3 w-3" />
                           </button>
                         </div>
-                        <p className="font-medium">₹{item.price.toLocaleString("en-IN")}</p>
+                        <p className="font-medium">
+                          ₹{(item.variation.salePrice || item.variation.price).toLocaleString("en-IN")}
+                        </p>
                       </div>
-                      <button className="mt-2 text-xs text-amber-700 hover:text-amber-800 flex items-center">
+                      <button
+                        className="mt-2 text-xs text-teal-700 hover:text-teal-800 flex items-center"
+                        onClick={() => moveToWishlist(item.product._id, item.variation._id, item._id)}
+                      >
                         <Heart className="h-3 w-3 mr-1" />
                         Move to Wishlist
                       </button>
@@ -148,24 +308,28 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
             )}
           </div>
 
-          <div className="flex justify-between font-bold text-lg mb-6">
-            <span>Subtotal</span>
-            <span>₹{subtotal.toLocaleString("en-IN")}</span>
-          </div>
+          {cartItems.length > 0 && (
+            <>
+              <div className="flex justify-between font-bold text-lg mb-6">
+                <span>Subtotal</span>
+                <span>₹{subtotal.toLocaleString("en-IN")}</span>
+              </div>
 
-          <div className="space-y-4">
-            <Link href="/checkout" onClick={onClose}>
-              <Button className="w-full bg-amber-700 hover:bg-amber-800">Checkout</Button>
-            </Link>
-            <Link href="/cart" onClick={onClose}>
-              <Button variant="outline" className="w-full">
-                View Cart
-              </Button>
-            </Link>
-            <Button variant="link" onClick={onClose} className="w-full">
-              Continue Shopping
-            </Button>
-          </div>
+              <div className="space-y-4">
+                <Link href="/checkout" onClick={onClose}>
+                  <Button className="w-full bg-teal-700 hover:bg-teal-800">Checkout</Button>
+                </Link>
+                <Link href="/cart" onClick={onClose}>
+                  <Button variant="outline" className="w-full">
+                    View Cart
+                  </Button>
+                </Link>
+                <Button variant="link" onClick={onClose} className="w-full">
+                  Continue Shopping
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

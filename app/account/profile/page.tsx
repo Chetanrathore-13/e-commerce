@@ -45,7 +45,7 @@ export default function ProfilePage() {
 
     try {
       const response = await fetch("/api/user/profile", {
-        method: "PATCH",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -53,7 +53,8 @@ export default function ProfilePage() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to update profile")
+        const data = await response.json()
+        throw new Error(data.error || "Failed to update profile")
       }
 
       // Update session
@@ -67,7 +68,7 @@ export default function ProfilePage() {
       console.error("Error updating profile:", error)
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: error instanceof Error ? error.message : "Failed to update profile",
         variant: "destructive",
       })
     } finally {
@@ -91,7 +92,7 @@ export default function ProfilePage() {
 
     try {
       const response = await fetch("/api/user/password", {
-        method: "PATCH",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },

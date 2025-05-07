@@ -38,27 +38,29 @@ export default function AddressesPage() {
     }
 
     if (status === "authenticated") {
-      // In a real implementation, you would fetch addresses from the API
-      // For now, we'll use dummy data
-      setAddresses([
-        {
-          _id: "1",
-          user_id: "user1",
-          full_name: "John Doe",
-          address_line1: "123 Main St",
-          city: "Bangalore",
-          state: "Karnataka",
-          postal_code: "560001",
-          country: "India",
-          phone: "+91 9876543210",
-          is_default: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ])
-      setLoading(false)
+      fetchAddresses()
     }
   }, [status, router])
+
+  const fetchAddresses = async () => {
+    try {
+      const response = await fetch("/api/user/addresses")
+      if (!response.ok) {
+        throw new Error("Failed to fetch addresses")
+      }
+      const data = await response.json()
+      setAddresses(data.addresses || [])
+    } catch (error) {
+      console.error("Error fetching addresses:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load addresses",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleAddAddress = () => {
     router.push("/account/addresses/new")
@@ -68,31 +70,75 @@ export default function AddressesPage() {
     router.push(`/account/addresses/${id}`)
   }
 
-  const handleDeleteAddress = (id: string) => {
+  const handleDeleteAddress = async (id: string) => {
     if (confirm("Are you sure you want to delete this address?")) {
-      // In a real implementation, you would call the API to delete the address
-      setAddresses((prev) => prev.filter((address) => address._id !== id))
+      try {
+        const response = await fetch(`/api/user/addresses/${id}`, {
+          method: "DELETE",
+        })
 
-      toast({
-        title: "Success",
-        description: "Address deleted successfully",
-      })
+        if (!response.ok) {
+          throw new Error("Failed to delete address")
+        }
+
+        // Update the addresses list
+        setAddresses((prev) => prev.filter((address) => address._id !== id))
+
+        toast({
+          title: "Success",
+          description: "Address deleted successfully",
+        })
+      } catch (error) {
+        console.error("Error deleting address:", error)
+        toast({
+          title: "Error",
+          description: "Failed to delete address",
+          variant: "destructive",
+        })
+      }
     }
   }
 
-  const handleSetDefaultAddress = (id: string) => {
-    // In a real implementation, you would call the API to set the default address
-    setAddresses((prev) =>
-      prev.map((address) => ({
-        ...address,
-        is_default: address._id === id,
-      })),
-    )
+  const handleSetDefaultAddress = async (id: string) => {
+    try {
+      const address = addresses.find((a) => a._id === id)
+      if (!address) return
 
-    toast({
-      title: "Success",
-      description: "Default address updated",
-    })
+      const response = await fetch(`/api/user/addresses/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...address,
+          is_default: true,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update address")
+      }
+
+      // Update the addresses list
+      setAddresses((prev) =>
+        prev.map((address) => ({
+          ...address,
+          is_default: address._id === id,
+        })),
+      )
+
+      toast({
+        title: "Success",
+        description: "Default address updated",
+      })
+    } catch (error) {
+      console.error("Error updating address:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update address",
+        variant: "destructive",
+      })
+    }
   }
 
   if (status === "loading" || (status === "authenticated" && loading)) {

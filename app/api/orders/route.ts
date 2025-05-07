@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/db"
-import { Cart, Product, Variation, Order } from "@/lib/models"
+import {  Product, Variation } from "@/lib/models"
+import Cart from "@/lib/models/cart"
+import Order from "@/lib/models/order"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"
@@ -57,17 +59,71 @@ export async function POST(request: Request) {
     }
 
     const userId = session.user.id
-    const { shipping_address, billing_address, payment_method } = await request.json()
+
+    // Parse request body
+    let requestBody
+    try {
+      requestBody = await request.json()
+      console.log("Received order request body:", JSON.stringify(requestBody, null, 2))
+    } catch (parseError) {
+      console.error("Error parsing request body:", parseError)
+      return NextResponse.json({ error: "Invalid request body format" }, { status: 400 })
+    }
+
+    const { shipping_address, billing_address, payment_method } = requestBody
 
     // Validate required fields
-    if (!shipping_address || !billing_address || !payment_method) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    if (!shipping_address) {
+      return NextResponse.json({ error: "Missing required field: shipping_address" }, { status: 400 })
+    }
+
+    if (!billing_address) {
+      return NextResponse.json({ error: "Missing required field: billing_address" }, { status: 400 })
+    }
+
+    if (!payment_method) {
+      return NextResponse.json({ error: "Missing required field: payment_method" }, { status: 400 })
+    }
+
+    // Log the received data for debugging
+    console.log("Processing order with data:", {
+      shipping_address,
+      billing_address,
+      payment_method,
+      userId,
+    })
+
+    // Additional validation for shipping address fields
+    const requiredAddressFields = ["full_name", "address_line1", "city", "state", "postal_code", "country", "phone"]
+
+    for (const field of requiredAddressFields) {
+      if (!shipping_address[field]) {
+        return NextResponse.json(
+          {
+            error: `Missing required field: shipping_address.${field}`,
+          },
+          { status: 400 },
+        )
+      }
+
+      if (!billing_address[field]) {
+        return NextResponse.json(
+          {
+            error: `Missing required field: billing_address.${field}`,
+          },
+          { status: 400 },
+        )
+      }
     }
 
     // Get user's cart
     const cart = await Cart.findOne({ user_id: userId })
 
-    if (!cart || !cart.items || cart.items.length === 0) {
+    if (!cart) {
+      return NextResponse.json({ error: "Cart not found" }, { status: 400 })
+    }
+
+    if (!cart.items || cart.items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 })
     }
 
@@ -115,7 +171,7 @@ export async function POST(request: Request) {
     }
 
     // Create order
-    const order = new Order({
+    const orderData = {
       user_id: new mongoose.Types.ObjectId(userId),
       order_number: generateOrderNumber(),
       items: orderItems,
@@ -125,8 +181,11 @@ export async function POST(request: Request) {
       billing_address,
       payment_method,
       payment_status: "pending", // Assuming payment will be handled separately
-    })
+    }
 
+    console.log("Creating order with data:", JSON.stringify(orderData, null, 2))
+
+    const order = new Order(orderData)
     await order.save()
 
     // Clear user's cart after successful order
@@ -152,6 +211,17 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("Error creating order:", error)
-    return NextResponse.json({ error: "Failed to create order" }, { status: 500 })
+    // Provide more detailed error information
+    const errorMessage = error instanceof Error ? error.message : "Unknown error"
+    const errorStack = error instanceof Error ? error.stack : "No stack trace"
+
+    return NextResponse.json(
+      {
+        error: "Failed to create order",
+        details: errorMessage,
+        stack: errorStack,
+      },
+      { status: 500 },
+    )
   }
 }

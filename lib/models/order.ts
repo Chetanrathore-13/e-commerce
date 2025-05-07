@@ -49,6 +49,8 @@ const OrderItemSchema = new Schema<IOrderItem>({
   color: { type: String, required: true },
 })
 
+// Check the AddressSchema to ensure it has all required fields
+// Make sure the AddressSchema has all required fields with proper validation
 const AddressSchema = new Schema<IAddress>({
   full_name: { type: String, required: true },
   address_line1: { type: String, required: true },
