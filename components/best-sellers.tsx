@@ -210,7 +210,7 @@ export default function BestSellers({
         <div className="text-center mt-10">
           <Link
             href="/products?sort=bestseller"
-            className="inline-block border border-amber-700 text-amber-700 hover:bg-amber-700 hover:text-white px-6 py-2 transition-colors"
+            className="inline-block bg-white rounded-md px-10 shadow-md hover:bg-gray-100  py-2  transition-colors text-xs"
           >
             VIEW ALL
           </Link>

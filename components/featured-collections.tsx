@@ -10,7 +10,6 @@ import feature3 from "@/public/Features-img/feature3.jpeg";
 import feature4 from "@/public/Features-img/feature4.jpeg";
 import feature5 from "@/public/Features-img/feature5.jpeg";
 
-
 interface Collection {
   _id: string;
   name: string;
@@ -81,32 +80,16 @@ export default function FeaturedCollections({
   if (loading || collections.length === 0) {
     return (
       <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-12">
-            <div className="mb-6 md:mb-0 md:max-w-xl">
-              <h2 className="text-3xl font-bold mb-4">{sectionTitle}</h2>
-              <p className="text-gray-600">{sectionSubtitle}</p>
+        <div className="flex flex-col items-center mx-auto px-0 sm:px-4 md:px-8 lg:px-16 w-full">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="relative h-80 bg-gray-200 rounded-lg animate-pulse"
+                ></div>
+              ))}
             </div>
-
-            {sectionImage && (
-              <div className="w-full md:w-1/3 lg:w-1/4 relative h-40 md:h-60">
-                <Image
-                  src={sectionImage || "/placeholder.svg"}
-                  alt={sectionTitle || "Featured Collections"}
-                  fill
-                  className="object-cover rounded-lg"
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="relative h-80 bg-gray-200 rounded-lg animate-pulse"
-              ></div>
-            ))}
           </div>
         </div>
       </section>
@@ -158,17 +141,41 @@ export default function FeaturedCollections({
     //   </div>
     // </section>
     <main className="container mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-12 w-full">
+        <div className="mb-6 md:mb-0 ">
+          <h2 className="text-5xl font-light mb-2 text-center">
+            {sectionTitle}
+          </h2>
+          {sectionSubtitle && (
+            <p className="text-gray-600 text-start mt-2 pt-2 ml-2 ">
+              {sectionSubtitle}
+            </p>
+          )}
+        </div>
 
-
-      <div className="container mx-auto px-4">
+        {sectionImage && (
+          <div className="w-full md:w-1/3 relative h-100">
+            <Image
+              src={sectionImage || "/placeholder.svg"}
+              alt={sectionTitle}
+              fill
+              className="object-cover rounded-sm"
+            />
+          </div>
+        )}
+      </div>
+      {/* <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12">
           <div className="mb-6 md:mb-0 md:max-w-xl">
-            <h2 className="text-5xl font-light mb-2 text-center">{sectionTitle}</h2>
-            <p className="text-gray-600 text-start ml-2 pt-20">{sectionSubtitle}</p>
+            <h2 className="text-5xl font-light mb-2 text-center">
+              {sectionTitle}
+            </h2>
+            <p className="text-gray-600 text-start ml-2 pt-20">
+              {sectionSubtitle}
+            </p>
           </div>
         </div>
-      </div>
-
+      </div> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Large hero image - 50% width on desktop */}

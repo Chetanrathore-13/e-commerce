@@ -11,9 +11,14 @@ import {
   Award,
   CreditCard,
   HandMetal,
+  Globe,
 } from "lucide-react";
 
-import Logo from "../public/Logo/Parpra.png";
+import Logo from "../public/Logo/ParPraWhite.png"
+import PhonePe from "../public/Payment-icons/PhonePe.png";
+import Cash from "../public/Payment-icons/cash.png";
+import Upi from "../public/Payment-icons/upi.png";
+import Paytm from "../public/Payment-icons/Paytm.png";
 export default function Footer() {
   const features = [
     {
@@ -68,7 +73,7 @@ export default function Footer() {
       </div>
 
       {/* Newsletter Section */}
-      <div className="w-full border-b border-gray-200 py-8">
+      <div className="w-full border-b border-gray-200 py-8  mt-4  mb-4">
         <div className="max-w-xl mx-auto text-center px-4">
           <h3 className="text-lg font-semibold mb-2">
             Subscribe to our newsletter
@@ -287,11 +292,79 @@ export default function Footer() {
       </div>
 
       {/* Copyright */}
-      <div className="w-full border-t border-gray-200 py-6 text-center bg-teal-800">
-        <p className="text-white">
-          © {new Date().getFullYear()} PARPRA. All rights reserved.
-        </p>
+        <div className="w-full bg-teal-800">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4 py-2">
+          {/* Left section - Country and Shipping */}
+          <div className="flex items-center gap-4 flex-wrap text-white">
+            <div className="flex items-center gap-1">
+              <Globe className="w-5 h-5" />
+              <span className="text-sm">India</span>
+            </div>
+      
+            <div className="flex items-center gap-3">
+              <span className="font-bold text-sm">FedEx</span>
+              <span className="font-bold text-sm">
+                <span className="text-blue-400">BLUE</span>
+                <span className="text-green-400">DART</span>
+                <span className="text-white">&gt;</span>
+              </span>
+              <span className="font-bold text-sm">DELHIVERY</span>
+            </div>
+          </div>
+      
+          {/* Center section - Copyright */}
+          <div className="text-md text-white text-center whitespace-nowrap">
+            © 2025 Parpra Fashions Ltd. All rights reserved.
+          </div>
+      
+          {/* Right section - Payment methods */}
+          <div className="flex items-center gap-4 flex-wrap justify-end">
+            <span className="text-md text-white whitespace-nowrap">
+              100% Secure Payments
+            </span>
+            <div className="flex gap-1">
+              <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
+                <Image
+                  src={Paytm}
+                  alt="Paytm"
+                  width={28}
+                  height={20}
+                  className="object-contain"
+                />
+              </div>
+              <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
+                <Image
+                  src={Cash}
+                  alt="Cash"
+                  width={28}
+                  height={20}
+                  className="object-contain"
+                />
+              </div>
+              <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
+                <Image
+                  src={Upi}
+                  alt="UPI"
+                  width={28}
+                  height={20}
+                  className="object-contain"
+                />
+              </div>
+              <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
+                <Image
+                  src={PhonePe}
+                  alt="PhonePe"
+                  width={28}
+                  height={20}
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      
+
     </footer>
   );
 }
