@@ -475,8 +475,9 @@ export async function getTestimonialsData() {
                         console.error("Failed to fetch testimonials:", res.status)
                         return { testimonials: [] }
                 }
-
-                return await res.json()
+                const  data = await res.json()
+                console.log(data)
+                return data
         } catch (error) {
                 console.error("Error fetching testimonials:", error)
                 return { testimonials: [] }

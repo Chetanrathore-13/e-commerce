@@ -150,7 +150,7 @@ export default function HomepageSectionsPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Homepage Sections</h1>
-        <Link href="/admin/homepage/new">
+        <Link href="/dashboard/homepage/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Add Section
@@ -166,7 +166,7 @@ export default function HomepageSectionsPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64">
             <p className="text-gray-500 mb-4">No homepage sections found</p>
-            <Link href="/admin/homepage/new">
+            <Link href="/dashboard/homepage/new">
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Section

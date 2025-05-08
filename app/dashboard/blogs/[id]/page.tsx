@@ -251,7 +251,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
       })
 
       // Redirect to blogs list
-      router.push("/admin/blogs")
+      router.push("/dashboard/blogs")
     } catch (error) {
       console.error("Error saving blog:", error)
       toast({
@@ -278,7 +278,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" asChild>
-            <Link href="/admin/blogs">
+            <Link href="/dashboard/blogs">
               <ArrowLeft className="h-4 w-4" />
               <span className="sr-only">Back</span>
             </Link>
@@ -286,7 +286,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
           <h1 className="text-2xl font-semibold">{isNew ? "Create New Blog Post" : "Edit Blog Post"}</h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => router.push("/admin/blogs")}>
+          <Button variant="outline" onClick={() => router.push("/dashboard/blogs")}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isSaving}>

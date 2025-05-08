@@ -215,7 +215,7 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
         description: `Testimonial ${isNew ? "created" : "updated"} successfully`,
       })
 
-      router.push("/admin/testimonials")
+      router.push("/dashboard/testimonials")
     } catch (error) {
       console.error(`Error ${isNew ? "creating" : "updating"} testimonial:`, error)
       addLog(`Error: ${error instanceof Error ? error.message : String(error)}`)
@@ -253,7 +253,7 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
   return (
     <div>
       <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/admin/testimonials")} className="mr-4">
+        <Button variant="ghost" onClick={() => router.push("/dashboard/testimonials")} className="mr-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
@@ -381,7 +381,7 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push("/admin/testimonials")}
+                onClick={() => router.push("/dashboard/testimonials")}
                 disabled={saving || uploading}
               >
                 Cancel

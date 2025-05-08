@@ -244,7 +244,7 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
         description: `Section ${isNew ? "created" : "updated"} successfully`,
       })
 
-      router.push("/admin/homepage")
+      router.push("/dashboard/homepage")
     } catch (error) {
       console.error(`Error ${isNew ? "creating" : "updating"} section:`, error)
       addLog(`Error: ${error instanceof Error ? error.message : String(error)}`)
@@ -289,7 +289,7 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
   return (
     <div>
       <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/admin/homepage")} className="mr-4">
+        <Button variant="ghost" onClick={() => router.push("/dashboard/homepage")} className="mr-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
@@ -437,7 +437,7 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push("/admin/homepage")}
+                onClick={() => router.push("/dashboard/homepage")}
                 disabled={saving || uploadingImage}
               >
                 Cancel

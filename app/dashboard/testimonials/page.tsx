@@ -122,7 +122,7 @@ export default function TestimonialsPage() {
             <AlertCircle className="h-10 w-10 text-gray-400 mb-4" />
             <p className="text-lg font-medium text-gray-900 mb-1">No testimonials found</p>
             <p className="text-gray-500 mb-4">Get started by creating your first testimonial</p>
-            <Button onClick={() => router.push("/admin/testimonials/new")}>
+            <Button onClick={() => router.push("/dashboard/testimonials/new")}>
               <Plus className="h-4 w-4 mr-2" />
               Add Testimonial
             </Button>

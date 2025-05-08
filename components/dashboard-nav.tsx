@@ -41,6 +41,21 @@ const items = [
     title: "Testimonials",
     href: "/dashboard/testimonials",
     icon: Tag,
+  },
+  {
+    title:"Orders",
+    href: "/dashboard/orders",
+    icon: Tag,
+  },
+  {
+    title:"Blogs",
+    href: "/dashboard/blogs",
+    icon: Tag,
+  },
+  {
+    title:"Coupons",
+    href: "/dashboard/coupons",
+    icon: Tag,
   }
 ]
 

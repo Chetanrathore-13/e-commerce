@@ -87,7 +87,7 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
         description: "Failed to load coupon details",
         variant: "destructive",
       })
-      router.push("/admin/coupons")
+      router.push("/dashboard/coupons")
     } finally {
       setIsLoading(false)
     }
@@ -164,7 +164,7 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
         description: "Coupon updated successfully",
       })
 
-      router.push("/admin/coupons")
+      router.push("/dashboard/coupons")
     } catch (error) {
       console.error("Error updating coupon:", error)
       toast({
@@ -181,7 +181,7 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={() => router.push("/admin/coupons")} className="mr-4">
+          <Button variant="ghost" onClick={() => router.push("/dashboard/coupons")} className="mr-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Coupons
           </Button>
@@ -204,7 +204,7 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/admin/coupons")} className="mr-4">
+        <Button variant="ghost" onClick={() => router.push("/dashboard/coupons")} className="mr-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Coupons
         </Button>

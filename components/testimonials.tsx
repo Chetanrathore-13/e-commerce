@@ -4,13 +4,16 @@ import Image from "next/image"
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  getTestimonialsData
+} from "@/lib/api";
 
 interface Testimonial {
   _id: string
   name: string
-  location?: string
+  role?: string
   image?: string
-  text: string
+  content: string
 }
 
 interface TestimonialsProps {
@@ -29,43 +32,29 @@ export default function Testimonials({
   const [currentPairIndex, setCurrentPairIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
+  const [testimonialsData, setTestimonials] = useState<Testimonial[]>([])
+
   // Ensure testimonials is always an array
   const safeTestimonials = Array.isArray(testimonials) ? testimonials : []
+  useEffect(() => {
+    const testimonialrealdata = async () => {
+      try {
+        const data = await getTestimonialsData()
+        console.log(data)
+        console.log(data.testimonials)
+        setTestimonials(data.testimonials)
+      } catch (error) {
+        console.error("Error fetching testimonials:", error)
+      }
+    }
+    testimonialrealdata()
+  },[])
 
   // If no testimonials are provided, use default ones
   const displayTestimonials =
     safeTestimonials.length > 0
       ? safeTestimonials
-      : [
-          {
-            _id: "1",
-            name: "Shradha Patel",
-            location: "Michigan, USA",
-            image: "/light-gown-testimonial.jpg",
-            text: "They delivered my outfit on time. Outfit looked great, fitting and everything worked out perfect for me. I would definitely recommend others.",
-          },
-          {
-            _id: "2",
-            name: "Ruchi Rawat",
-            location: "Bengaluru, Karnataka",
-            image: "/pink-saree-testimonial.jpg",
-            text: "This saree is absolutely beautiful and complemented my skin tone perfectly. It exudes a classic vintage charm, making it an elegant and timeless choice.",
-          },
-          {
-            _id: "3",
-            name: "Priya Sharma",
-            location: "Delhi, India",
-            image: "/placeholder.svg?key=p0dck",
-            text: "The craftsmanship of this lehenga is exceptional. The embroidery details are intricate and the fabric quality is outstanding. Worth every penny!",
-          },
-          {
-            _id: "4",
-            name: "Anita Desai",
-            location: "London, UK",
-            image: "/placeholder.svg?key=4ekkm",
-            text: "I received so many compliments on this outfit. The colors are vibrant and the design is unique. The customer service was also excellent.",
-          },
-        ]
+      : testimonialsData
 
   // Calculate the number of pairs
   const pairCount = Math.ceil(displayTestimonials.length / 2)
@@ -152,11 +141,11 @@ export default function Testimonials({
                             />
                           </div>
                           <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col justify-between">
-                            <p className="text-gray-700 italic mb-6">{displayTestimonials[pairIndex * 2].text}</p>
+                            <p className="text-gray-700 italic mb-6">{displayTestimonials[pairIndex * 2].content}</p>
                             <div>
                               <p className="font-medium text-center">{displayTestimonials[pairIndex * 2].name}</p>
                               <p className="text-gray-500 text-center text-sm mb-4">
-                                {displayTestimonials[pairIndex * 2].location}
+                                {displayTestimonials[pairIndex * 2].role}
                               </p>
                               <div className="flex justify-center">
                                 <Button
@@ -189,12 +178,12 @@ export default function Testimonials({
                           </div>
                           <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col justify-between">
                             <p className="text-gray-700 italic mb-6 text-right">
-                              {displayTestimonials[pairIndex * 2 + 1].text}
+                              {displayTestimonials[pairIndex * 2 + 1].content}
                             </p>
                             <div>
                               <p className="font-medium text-center">{displayTestimonials[pairIndex * 2 + 1].name}</p>
                               <p className="text-gray-500 text-center text-sm mb-4">
-                                {displayTestimonials[pairIndex * 2 + 1].location}
+                                {displayTestimonials[pairIndex * 2 + 1].role}
                               </p>
                               <div className="flex justify-center">
                                 <Button

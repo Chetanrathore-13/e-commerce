@@ -142,7 +142,7 @@ export default function BlogsAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Blog Posts</h1>
-        <Link href="/admin/blogs/new">
+        <Link href="/dashboard/blogs/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Add New Post
@@ -205,7 +205,7 @@ export default function BlogsAdminPage() {
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">
                   <p className="text-gray-500">No blog posts found</p>
-                  <Link href="/admin/blogs/new" className="mt-2 inline-block">
+                  <Link href="/dahboard/blogs/new" className="mt-2 inline-block">
                     <Button variant="link" className="text-amber-700">
                       Create your first blog post
                     </Button>

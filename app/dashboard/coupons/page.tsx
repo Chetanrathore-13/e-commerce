@@ -164,7 +164,7 @@ export default function CouponsPage() {
             <CardTitle className="text-2xl">Coupons</CardTitle>
             <CardDescription>Create and manage discount coupons for your store</CardDescription>
           </div>
-          <Button onClick={() => router.push("/admin/coupons/new")}>
+          <Button onClick={() => router.push("/dashboard/coupons/new")}>
             <Plus className="mr-2 h-4 w-4" /> Add New Coupon
           </Button>
         </CardHeader>

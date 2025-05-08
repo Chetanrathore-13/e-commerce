@@ -5,7 +5,7 @@ import NewArrivals from "@/components/new-arrivals";
 import BestSellers from "@/components/best-sellers";
 import FeaturedCollections from "@/components/featured-collections";
 import Testimonials from "@/components/testimonials";
-import InstagramFeed from "@/components/instagram-feed";
+// import InstagramFeed from "@/components/instagram-feed";
 import Art from "../public/Banners/art.png";
 
 import {
@@ -66,6 +66,7 @@ export default async function Home() {
   const featuredCategoriesSection = findSectionByType("featured-categories");
   // Get new arrivals section
   const newArrivalsSection = findSectionByType("new-arrivals");
+  console.log("New Arrivals Section:", newArrivalsSection);
   // Get best sellers section
   const bestSellersSection = findSectionByType("best-sellers");
   // Get featured collections section
