@@ -4,7 +4,7 @@ import { ProductsTable } from "@/components/products/products-table"
 import { ProductsFilter } from "@/components/products/products-filter"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, Upload } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Products | E-commerce Admin",
@@ -38,14 +38,22 @@ export default async function ProductsPage({
 
   return (
     <div className="flex-1 p-4 pt-6 md:p-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-3xl font-bold tracking-tight">Products</h2>
-        <Button asChild>
-          <Link href="/dashboard/products/new">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add Product
-          </Link>
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button asChild variant="outline">
+            <Link href="/dashboard/products/import-export">
+              <Upload className="mr-2 h-4 w-4" />
+              Import/Export
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href="/dashboard/products/new">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Product
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <ProductsFilter brands={brands} categories={categories} />
