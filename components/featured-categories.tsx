@@ -22,7 +22,6 @@ export default function FeaturedCategories({
   sectionTitle = "Shop by Category",
   sectionSubtitle,
 }: FeaturedCategoriesProps) {
-  console.log("Section Image in FeaturedCategories:", sectionImage);
 
   // Ensure categories is always an array
   const safeCategories = Array.isArray(categories) ? categories : [];

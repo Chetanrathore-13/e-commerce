@@ -17,7 +17,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     const { id } = await  params
-    console.log(id)
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Order ID is required" }, { status: 400 })

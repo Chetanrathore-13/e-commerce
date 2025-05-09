@@ -183,7 +183,6 @@ export async function getUserCart(): Promise<any> {
     }
 
     const data = await response.json()
-    console.log("Cart data fetched:", data)
     return data
   } catch (error) {
     console.error("Error fetching user cart:", error)
@@ -331,11 +330,11 @@ export async function getOrderDetails(orderId: string): Promise<any> {
 // Get order by ID (with option for admin mode)
 export async function getOrderById(orderId: string, isAdmin = false): Promise<any> {
   const url = `${getBaseUrl()}/api/${isAdmin ? "admin/" : ""}orders/${orderId}`
-  console.log(url)
+  
 
   try {
     const response = await fetch(url)
-    console.log(response)
+   
     return handleResponse<any>(response)
   } catch (error) {
     console.error(`Error fetching order ${orderId}:`, error)
@@ -527,8 +526,8 @@ export async function getHomepageSectionsData() {
     if (!response.ok) {
       throw new Error(`Failed to fetch homepage sections: ${response.status}`)
     }
-
-    return response.json()
+    const data = await response.json()
+    return data
   } catch (error) {
     console.error("Error fetching homepage sections:", error)
     return { sections: [] }

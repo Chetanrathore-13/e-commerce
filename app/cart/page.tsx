@@ -83,7 +83,6 @@ export default function CartPage() {
       }
 
       const data = await response.json()
-      console.log("Cart data:", data) // Debug log
       setCart(data)
     } catch (error) {
       console.error("Error fetching cart:", error)

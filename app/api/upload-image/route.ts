@@ -12,12 +12,10 @@ export const config = {
 }
 
 export async function POST(request: Request) {
-  console.log("📤 Upload API called")
 
   try {
     // Parse the multipart form data
     const formData = await request.formData()
-    console.log("✅ Form data parsed successfully")
 
     // Get the file from the form data
     const file = formData.get("file") as File | null
@@ -27,8 +25,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
     }
 
-    // Log file details
-    console.log(`📄 File received: ${file.name}, type: ${file.type}, size: ${file.size} bytes`)
 
     // Create a unique filename
     const fileExtension = file.name.split(".").pop()?.toLowerCase() || "jpg"
@@ -38,14 +34,11 @@ export async function POST(request: Request) {
     const uploadDir = path.join(process.cwd(), "public", "uploads")
     const filePath = path.join(uploadDir, fileName)
 
-    console.log(`📁 Upload directory: ${uploadDir}`)
 
     // Create the uploads directory if it doesn't exist
     if (!existsSync(uploadDir)) {
-      console.log(`📁 Creating upload directory: ${uploadDir}`)
       try {
         await mkdir(uploadDir, { recursive: true })
-        console.log("✅ Upload directory created successfully")
       } catch (error) {
         console.error("❌ Failed to create uploads directory:", error)
         return NextResponse.json({ error: "Server error: Failed to create uploads directory" }, { status: 500 })
@@ -55,15 +48,14 @@ export async function POST(request: Request) {
     try {
       // Convert the file to a Buffer
       const buffer = Buffer.from(await file.arrayBuffer())
-      console.log(`✅ File converted to buffer: ${buffer.length} bytes`)
 
       // Write the file to disk
       await writeFile(filePath, buffer)
-      console.log(`✅ File saved successfully to ${filePath}`)
+     
 
       // Return the public URL to the file
       const fileUrl = `/uploads/${fileName}`
-      console.log(`✅ File uploaded successfully. Public URL: ${fileUrl}`)
+      
 
       return NextResponse.json({
         success: true,

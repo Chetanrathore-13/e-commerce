@@ -6,15 +6,15 @@ import { Skeleton } from "@/components/ui/skeleton"
 import ProductDetailClient from "./product-detail-client"
 
 async function getProduct(slug: string) {
-  console.log("Fetching product...", slug)
+
   try {
     // Use absolute URL to avoid path issues
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-    console.log("Base URL:", baseUrl)
+   
     const res = await fetch(`${baseUrl}/api/products/${slug}`, {
       cache: "no-store", // Disable cache to always get fresh data
     })
-    console.log("Response status:", res.status)
+    
 
     if (!res.ok) {
       console.error(`Failed to fetch product: ${res.status} ${res.statusText}`)
@@ -58,7 +58,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
     notFound()
   }
 
-  console.log("Product data:", JSON.stringify(product).substring(0, 200) + "...")
+  
 
   // Get related products based on category if available
   const categoryId = product.category_id?._id || product.category_id

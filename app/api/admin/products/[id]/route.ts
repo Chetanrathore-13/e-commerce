@@ -21,7 +21,6 @@ const productSchema = z.object({
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = params
-    console.log(id)
 
     if (!isValidObjectId(id)) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 })
