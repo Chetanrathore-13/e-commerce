@@ -56,6 +56,11 @@ const items = [
     title:"Coupons",
     href: "/dashboard/coupons",
     icon: Tag,
+  },
+  {
+    title:"Announcement Bar",
+    href: "/dashboard/announcements",
+    icon: Tag,
   }
 ]
 

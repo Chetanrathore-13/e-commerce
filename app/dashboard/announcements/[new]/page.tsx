@@ -61,7 +61,7 @@ export default function NewAnnouncementPage() {
         throw new Error(data.error || "Failed to create announcement")
       }
 
-      router.push("/admin/announcements")
+      router.push("/dashboard/announcements")
     } catch (error) {
       console.error("Error creating announcement:", error)
       setError(error instanceof Error ? error.message : "An unexpected error occurred")
@@ -73,7 +73,7 @@ export default function NewAnnouncementPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <Link href="/admin/announcements" className="text-teal-700 hover:text-teal-900 flex items-center gap-1">
+        <Link href="/dashboard/announcements" className="text-teal-700 hover:text-teal-900 flex items-center gap-1">
           <ArrowLeft size={16} />
           Back to Announcements
         </Link>
@@ -186,7 +186,7 @@ export default function NewAnnouncementPage() {
 
           <div className="flex items-center justify-end space-x-3">
             <Link
-              href="/admin/announcements"
+              href="/dashboard/announcements"
               className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
             >
               Cancel

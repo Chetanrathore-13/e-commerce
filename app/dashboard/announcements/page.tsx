@@ -157,7 +157,7 @@ export default function AnnouncementsPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Announcements</h1>
         <Link
-          href="/admin/announcements/new"
+          href="/dashboard/announcements/new"
           className="bg-teal-700 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-teal-800 transition-colors"
         >
           <Plus size={16} />
@@ -239,7 +239,7 @@ export default function AnnouncementsPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <Link
-                        href={`/admin/announcements/${announcement._id}`}
+                        href={`/dashboard/announcements/${announcement._id}`}
                         className="text-indigo-600 hover:text-indigo-900 p-1 rounded hover:bg-gray-100"
                       >
                         <Edit size={16} />
