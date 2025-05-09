@@ -97,8 +97,8 @@ export default function Testimonials({
         {(sectionTitle || sectionSubtitle) && (
           <div className="flex flex-col md:flex-row items-center justify-between mb-12">
             <div className="mb-6 md:mb-0 md:max-w-xl">
-              <h2 className="text-3xl font-bold mb-4">{sectionTitle}</h2>
-              <p className="text-gray-600">{sectionSubtitle}</p>
+              <h2 className="text-5xl font-light mb-2 text-center">{sectionTitle}</h2>
+              <p className="text-gray-600 text-start mt-2 pt-2">{sectionSubtitle}</p>
             </div>
 
             {sectionImage && (

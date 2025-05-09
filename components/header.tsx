@@ -294,7 +294,7 @@ export default function Header() {
   };
 
   return (
-    <header>
+    <header className="sticky top-0 z-40  bg-background">
       {/* Top Banner */}
       <div className="bg-teal-900 text-white py-2 px-4 text-center text-sm">
         <p>Unlocking Global Shopping with free world wide shipping</p>
