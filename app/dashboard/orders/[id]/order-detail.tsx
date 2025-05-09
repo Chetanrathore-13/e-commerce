@@ -107,7 +107,7 @@ export function OrderDetail({ order }) {
           </Link>
           <h1 className="text-3xl font-bold">Order #{order.order_number}</h1>
           <Badge className={`ml-2 ${statusColors[order.status]} border`}>
-            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
           </Badge>
         </div>
         <div className="flex space-x-2">
@@ -204,7 +204,7 @@ export function OrderDetail({ order }) {
                 <dt className="text-sm font-medium text-gray-500">Order Status</dt>
                 <dd className="flex items-center space-x-2">
                   {statusIcons[order.status]}
-                  <span>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                  <span>{order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}</span>
                 </dd>
               </div>
               <div>
@@ -223,7 +223,7 @@ export function OrderDetail({ order }) {
                           : "bg-red-100 text-red-800 border-red-200"
                     }
                   >
-                    {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
+                    {order.payment_status?.charAt(0).toUpperCase() + order.payment_status?.slice(1)}
                   </Badge>
                 </dd>
               </div>

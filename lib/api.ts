@@ -330,11 +330,11 @@ export async function getOrderDetails(orderId: string): Promise<any> {
 // Get order by ID (with option for admin mode)
 export async function getOrderById(orderId: string, isAdmin = false): Promise<any> {
   const url = `${getBaseUrl()}/api/${isAdmin ? "admin/" : ""}orders/${orderId}`
-  
+   console.log(url)
 
   try {
     const response = await fetch(url)
-   
+    console.log("response", response)
     return handleResponse<any>(response)
   } catch (error) {
     console.error(`Error fetching order ${orderId}:`, error)
