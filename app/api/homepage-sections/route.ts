@@ -6,7 +6,6 @@ export async function GET() {
   try {
     await connectToDatabase()
     const sections = await HomepageSection.find({ isActive: true }).sort({ position: 1 }).lean()
-
     return NextResponse.json({
       sections: sections.map((section) => ({
         ...section,

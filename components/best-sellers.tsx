@@ -38,7 +38,7 @@ export default function BestSellers({
 }: BestSellersProps) {
   // Ensure products is always an array
   const safeProducts = Array.isArray(products) ? products : []
-  console.log("Section Image in BestSellers:", sectionImage)
+ 
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)

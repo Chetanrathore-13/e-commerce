@@ -68,7 +68,6 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
   const [uploadingImage, setUploadingImage] = useState(false)
 
   const addLog = (message: string) => {
-    console.log(message)
     setDebugLogs((prev) => [...prev, message])
   }
 

@@ -49,7 +49,6 @@ export default function TestimonialsPage() {
         throw new Error("Failed to fetch testimonials")
       }
       const data = await response.json()
-      console.log(data)
       setTestimonials(data)
     } catch (error) {
       console.error("Error fetching testimonials:", error)

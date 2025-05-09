@@ -59,7 +59,6 @@ export async function POST(request: Request) {
       delete data._id
     }
 
-    console.log("Creating banner with data:", data)
 
     // Create the banner
     const banner = new Banner(data)

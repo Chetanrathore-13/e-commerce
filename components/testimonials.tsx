@@ -40,8 +40,6 @@ export default function Testimonials({
     const testimonialrealdata = async () => {
       try {
         const data = await getTestimonialsData()
-        console.log(data)
-        console.log(data.testimonials)
         setTestimonials(data.testimonials)
       } catch (error) {
         console.error("Error fetching testimonials:", error)

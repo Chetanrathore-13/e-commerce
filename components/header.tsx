@@ -24,6 +24,7 @@ import type { MegaMenuContent, CategoryWithSubcategories } from "@/types";
 import { getCategoryTree } from "@/lib/api";
 import Logo from "../public/Logo/Parpra.png";
 import { useSession } from "next-auth/react"
+import AnnouncementBar from "./announcement-bar";
 
 // Hardcoded mega menu content to avoid hydration issues
 const defaultMegaMenuContent: Record<string, MegaMenuContent> = {
@@ -296,8 +297,11 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40  bg-background">
       {/* Top Banner */}
-      <div className="bg-teal-900 text-white py-2 px-4 text-center text-sm">
+      {/* <div className="bg-teal-900 text-white py-2 px-4 text-center text-sm">
         <p>Unlocking Global Shopping with free world wide shipping</p>
+      </div> */}
+      <div>
+        <AnnouncementBar/>
       </div>
 
       {/* Main Header */}
@@ -529,26 +533,6 @@ export default function Header() {
                   </div>
                 )}
               </div>
-            </div>
-            {/* Currency Selector */}
-            <div className="hidden md:flex items-center ">
-              <Button variant="ghost" className="flex items-center gap-1 px-2">
-                <span className="font-medium">INR</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                >
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </Button>
             </div>
 
             {/* Actions */}

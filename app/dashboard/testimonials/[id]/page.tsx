@@ -51,7 +51,7 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
   const [debugLogs, setDebugLogs] = useState<string[]>([])
 
   const addLog = (message: string) => {
-    console.log(message)
+    
     setDebugLogs((prev) => [...prev, message])
   }
 

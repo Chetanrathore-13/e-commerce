@@ -1,11 +1,10 @@
 import Image from "next/image";
-import Link from "next/link";
 import FeaturedCategories from "@/components/featured-categories";
 import NewArrivals from "@/components/new-arrivals";
 import BestSellers from "@/components/best-sellers";
 import FeaturedCollections from "@/components/featured-collections";
 import Testimonials from "@/components/testimonials";
-// import InstagramFeed from "@/components/instagram-feed";
+import HeroBannerSlider from "@/components/hero-banner-slider"
 import Art from "../public/Banners/art.png";
 
 import {
@@ -56,17 +55,29 @@ export default async function Home() {
       ? bestSellersData.value?.products || []
       : [];
 
-  console.log("Sections Data:", sections);
+      // Filter banner sections from homepage sections
+  const bannerSections = sections.filter((section) => section.type === "banner" && section.isActive)
 
+  // Sort banner sections by position
+  bannerSections.sort((a, b) => a.position - b.position)
+
+
+  // Define the interface for section
+  interface Section {
+    type: string;
+    image?: string;
+    title?: string;
+    subtitle?: string;
+  }
+  
   // Find sections by type
   const findSectionByType = (type: string) =>
-    sections.find((section) => section.type === type);
+      sections.find((section: Section) => section.type === type);
 
   // Get featured categories section
   const featuredCategoriesSection = findSectionByType("featured-categories");
   // Get new arrivals section
   const newArrivalsSection = findSectionByType("new-arrivals");
-  console.log("New Arrivals Section:", newArrivalsSection);
   // Get best sellers section
   const bestSellersSection = findSectionByType("best-sellers");
   // Get featured collections section
@@ -80,13 +91,15 @@ export default async function Home() {
     <main>
       {/* Hero Section */}
       <section className="relative h-[70vh] md:h-[80vh] w-full">
-        <Image
+        {/* <Image
           src={sections[0]?.image || "/images/hero.jpg"}
           alt="Parpra - Ethnic Wear Collection"
           fill
           className="object-cover"
           priority
-        />
+        /> */}
+        {/* Hero Banner Slider */}
+      <HeroBannerSlider bannerSections={bannerSections} />
         {/* <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-center p-4">
           <div className="max-w-3xl">
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">

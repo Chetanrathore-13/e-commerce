@@ -614,8 +614,7 @@ export default function CheckoutPage() {
         discount_amount: discountAmount,
       }
 
-      // Log the data being sent for debugging
-      console.log("Sending order data:", orderData)
+  
 
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -625,9 +624,7 @@ export default function CheckoutPage() {
         body: JSON.stringify(orderData),
       })
 
-      // Log the raw response for debugging
-      console.log("Order API response status:", response.status)
-      console.log("Order API response headers:", Object.fromEntries([...response.headers.entries()]))
+      
 
       // Try to parse the response as JSON, but handle non-JSON responses
       let errorData = {}
@@ -635,7 +632,7 @@ export default function CheckoutPage() {
 
       try {
         responseText = await response.text()
-        console.log("Raw response text:", responseText)
+        
 
         if (responseText) {
           try {

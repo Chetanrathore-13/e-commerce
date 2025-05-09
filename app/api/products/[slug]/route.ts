@@ -7,7 +7,6 @@ export async function GET(request: Request, { params }: { params: { slug: string
     await connectToDatabase()
 
     const slug = params.slug
-    console.log(`Fetching product with slug: ${slug}`)
 
     // Find the product by slug and populate related data
     const product = await Product.findOne({ slug })
@@ -21,7 +20,6 @@ export async function GET(request: Request, { params }: { params: { slug: string
       return NextResponse.json({ error: "Product not found" }, { status: 404 })
     }
 
-    console.log(`Found product: ${product.name}`)
 
     // Format response to handle ObjectId conversion
     const formattedProduct = {
