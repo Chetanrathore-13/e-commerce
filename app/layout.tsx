@@ -8,6 +8,8 @@ import LayoutWrapper from "@/components/layout-wrapper"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { LoadingProvider } from "@/components/loading-provider"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -19,12 +21,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await getServerSession(authOptions)
+  const role = session?.user?.role || "null"
   return (
+    <>
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <NextAuthSessionProvider>
@@ -36,13 +41,14 @@ export default function RootLayout({
             enableColorScheme={true}
           >
             <LoadingProvider>
-              <Header />
-              <LayoutWrapper>{children}</LayoutWrapper>
-              <Footer />
+              {role !== "admin" && <Header />}
+              <LayoutWrapper>{children}</LayoutWrapper>       
+              {role !== "admin" &&  <Footer />}
             </LoadingProvider>
           </ThemeProvider>
         </NextAuthSessionProvider>
       </body>
     </html>
+    </>
   )
 }
