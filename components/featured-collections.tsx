@@ -143,11 +143,11 @@ export default function FeaturedCollections({
     <main className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row items-center justify-between mb-12 w-full">
         <div className="mb-6 md:mb-0 ">
-          <h2 className="text-5xl font-light mb-2 text-center">
+          <h2 className="text-5xl text-teal-700 font-light mb-2 text-center">
             {sectionTitle}
           </h2>
           {sectionSubtitle && (
-            <p className="text-gray-600 text-start mt-2 pt-2 ml-2 ">
+            <p className="text-start mt-2 pt-2 ml-2 ">
               {sectionSubtitle}
             </p>
           )}

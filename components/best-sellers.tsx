@@ -114,7 +114,7 @@ export default function BestSellers({
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between mb-8">
           <div className="mb-6 md:mb-0">
-            <h2 className="text-5xl font-light mb-2 text-center">{sectionTitle}</h2>
+            <h2 className="text-5xl font-light mb-2 text-center text-teal-700">{sectionTitle}</h2>
             {sectionSubtitle && <p className="text-gray-600 text-start ml-2 pt-2">{sectionSubtitle}</p>}
           </div>
 
@@ -176,17 +176,17 @@ export default function BestSellers({
               : null
 
             return (
-              <div key={product._id} className="min-w-[280px] max-w-[280px]">
+              <div key={product._id} className="min-w-[280px] max-w-[280px] scroll-bar">
                 <div className="group relative">
                   <div className="aspect-[3/4] relative overflow-hidden rounded-md">
                     <Image
                       src={mainVariation.image || "/placeholder.svg?height=600&width=450&query=ethnic wear"}
                       alt={product.name}
                       fill
-                      className="object-fill group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <button
-                      className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+                      className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 hover:cursor-pointer"
                       onClick={(e) => handleAddToWishlist(e, product._id, mainVariation._id)}
                     >
                       <Heart className="h-4 w-4 text-gray-600" />
@@ -196,10 +196,10 @@ export default function BestSellers({
                     <Link href={`/products/${product.slug}`}>
                       <h3 className="font-medium text-gray-900 line-clamp-2">{product.name}</h3>
                       <div className="mt-1 flex items-center gap-2">
-                        <p className="font-medium text-gray-900">{salePrice ? formattedSalePrice : formattedPrice}</p>
+                        <p className="font-bold  text-teal-600">{salePrice ? formattedSalePrice : formattedPrice}</p>
                         {salePrice && <p className="text-gray-500 line-through text-sm">{formattedPrice}</p>}
                       </div>
-                    </Link>
+                    </Link> 
                   </div>
                 </div>
               </div>
@@ -210,7 +210,7 @@ export default function BestSellers({
         <div className="text-center mt-10">
           <Link
             href="/products?sort=bestseller"
-            className="inline-block bg-white rounded-md px-10 shadow-md hover:bg-gray-100  py-2  transition-colors text-xs"
+            className="inline-block bg-teal-600 rounded-md px-10 shadow-md hover:bg-teal-500  py-4  transition-colors text-md font-semibold text-white"
           >
             VIEW ALL
           </Link>

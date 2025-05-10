@@ -228,7 +228,7 @@ export default function FAQPage() {
   return (
     <div className="bg-gradient-to-b from-neutral-50 to-neutral-100 min-h-screen py-12">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-8xl mx-auto px-4">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-light mb-4 text-teal-800">Frequently Asked Questions</h1>
             <p className="text-gray-600 max-w-2xl mx-auto">

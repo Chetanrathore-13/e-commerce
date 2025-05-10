@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { motion } from "framer-motion"
+import Cont from "@/public/aboutpage/map.jpg"
 
 export default function ContactPageClient() {
   const fadeIn = {
@@ -18,14 +19,14 @@ export default function ContactPageClient() {
     <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white">
       {/* Hero Section */}
       <div className="relative h-[30vh] md:h-[40vh] overflow-hidden">
-        <Image
+        {/* <Image
           src="/placeholder.svg?key=j35at"
           alt="Contact Us Hero"
           fill
           className="object-cover brightness-75"
           priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-teal-900/70 to-transparent flex items-center">
+        /> */}
+        <div className="absolute inset-0 bg-teal-900 flex items-center">
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
@@ -34,8 +35,8 @@ export default function ContactPageClient() {
               transition={{ duration: 0.5 }}
               className="max-w-2xl text-white"
             >
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
-              <p className="text-lg md:text-xl opacity-90">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4  ">Contact Us</h1>
+              <p className="text-lg md:text-xl opacity-90 ml-2  ">
                 We're here to help with any questions or concerns about our products and services.
               </p>
             </motion.div>
@@ -44,7 +45,7 @@ export default function ContactPageClient() {
       </div>
 
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-8xl mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Contact Information Cards */}
             <motion.div
@@ -260,7 +261,7 @@ export default function ContactPageClient() {
               >
                 <h3 className="text-xl font-semibold p-6 border-b border-gray-100">Find Us</h3>
                 <div className="aspect-video relative">
-                  <Image src="/placeholder.svg?key=8oj7w" alt="Store Location Map" fill className="object-cover" />
+                  <Image src={Cont} alt="Store Location Map" fill className="object-cover" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Link
                       href="https://maps.google.com"

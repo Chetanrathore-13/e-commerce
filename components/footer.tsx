@@ -47,7 +47,7 @@ export default function Footer() {
     <footer className="bg-white border-t w-full">
       {/* Features Section */}
       <div className="w-full bg-white py-8 md:py-12 border-b border-gray-200">
-        <div className="px-4 max-w-screen-xl mx-auto">
+        <div className="px-4 max-w-screen-3xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {features.map((feature, index) => (
               <div
@@ -101,7 +101,7 @@ export default function Footer() {
 
       {/* Main Footer Content */}
       <div className="w-full bg-teal-800">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 px-4 py-10 max-w-screen-xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 px-8 py-10 max-w-screen-2xl mx-auto">
           {/* Logo and About */}
           <div className="space-y-4">
             <Link href="/">
@@ -153,7 +153,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">
+            <h3 className="text-2xl font-semibold mb-4 text-white">
               Quick Links
             </h3>
             <ul className="space-y-2">
@@ -201,7 +201,7 @@ export default function Footer() {
 
           {/* Categories */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">
+            <h3 className="text-2xl font-semibold mb-4 text-white">
               Categories
             </h3>
             <ul className="space-y-2">
@@ -258,23 +258,23 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">
+            <h3 className="text-2xl font-semibold mb-4 text-white">
               Contact Us
             </h3>
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-white mr-2 mt-0.5" />
                 <span className="text-white">
-                  123 Fashion Street, Bangalore, Karnataka, India - 560001
+                  Bhopal, Madhya Pradesh, India
                 </span>
               </li>
               <li className="flex items-center">
                 <Phone className="h-5 w-5 text-white mr-2" />
                 <a
-                  href="tel:+919876543210"
+                  href="tel:+919893348683"
                   className="text-white hover:text-teal-300"
                 >
-                  +91 98765 43210
+                  +91 98933 48683
                 </a>
               </li>
               <li className="flex items-center">
@@ -293,22 +293,21 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="w-full bg-teal-800">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4 py-2">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4 py-6">
           {/* Left section - Country and Shipping */}
           <div className="flex items-center gap-4 flex-wrap text-white">
-            <div className="flex items-center gap-1">
-              <Globe className="w-5 h-5" />
-              <span className="text-sm">India</span>
+            <div className="flex items-center gap-2">
+              <Globe className="w-6 h-6" />
+              <span className="text-xl">India</span>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="font-bold text-sm">FedEx</span>
-              <span className="font-bold text-sm">
+              <span className="font-bold text-xl">FedEx</span>
+              <span className="font-bold text-xl">
                 <span className="text-blue-400">BLUE</span>
                 <span className="text-green-400">DART</span>
-                <span className="text-white">&gt;</span>
               </span>
-              <span className="font-bold text-sm">DELHIVERY</span>
+              <span className="font-bold text-xl">DELHIVERY</span>
             </div>
           </div>
 
@@ -323,39 +322,39 @@ export default function Footer() {
               100% Secure Payments
             </span>
             <div className="flex gap-4">
-              <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
+              <div className="bg-white rounded h-10 w-20 flex items-center justify-center">
                 <Image
                   src={Paytm}
                   alt="Paytm"
-                  width={100}
+                  width={80}
                   height={40}
                   className="object-contain"
                 />
               </div>
-              <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
+              <div className="bg-white rounded h-10 w-20 flex items-center justify-center">
                 <Image
                   src={Cash}
                   alt="Cash"
-                  width={30}
-                  height={20}
+                  width={80}
+                  height={40}
                   className="object-contain"
                 />
               </div>
-              <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
+              <div className="bg-white rounded h-10 w-20 flex items-center justify-center">
                 <Image
                   src={Upi}
                   alt="UPI"
-                  width={28}
-                  height={20}
+                  width={80}
+                  height={40}
                   className="object-contain"
                 />
               </div>
-              <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
+              <div className="bg-white rounded h-10 w-20 flex items-center justify-center">
                 <Image
                   src={PhonePe}
                   alt="PhonePe"
-                  width={28}
-                  height={20}
+                  width={80}
+                  height={40}
                   className="object-contain"
                 />
               </div>

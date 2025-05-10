@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="bg-gradient-to-b from-neutral-50 to-neutral-100 min-h-screen py-12">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-8xl mx-auto px-4">
           <motion.div
             className="text-center mb-12"
             initial={{ opacity: 0, y: -20 }}

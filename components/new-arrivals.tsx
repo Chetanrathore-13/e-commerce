@@ -125,12 +125,12 @@ export default function NewArrivals({
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12">
           <div className="mb-6 md:mb-0 md:max-w-xl">
-            <h2 className="text-5xl font-light mb-2 text-center">{sectionTitle}</h2>
+            <h2 className="text-5xl font-light mb-2 text-center text-teal-600">{sectionTitle}</h2>
             <p className="text-gray-600 text-start ml-2 pt-2">{sectionSubtitle}</p>
           </div>
 
           {sectionImage && (
-            <div className="w-full md:w-1/3 lg:w-1/4 relative h-40 md:h-60">
+            <div className="w-full md:w-1/3 lg:w-1/4 relative h-80 md:h-60">
               <Image
                 src={sectionImage || "/placeholder.svg"}
                 alt={sectionTitle || "New Arrivals"}
@@ -145,7 +145,7 @@ export default function NewArrivals({
           {canScrollLeft && (
             <button
               onClick={() => scroll("left")}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-teal-900 rounded-full p-2 shadow-md hover:bg-teal-700 text-white"
               aria-label="Scroll left"
             >
               <ChevronLeft className="h-6 w-6" />
@@ -169,12 +169,12 @@ export default function NewArrivals({
                   className="min-w-[300px] max-w-[300px] max-h-[400px] min-h-[450px] flex-shrink-0 overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer"
                   onClick={() => router.push(`/products/${product.slug}`)}
                 >
-                  <div className="relative h-80 w-full group">
+                  <div className="relative h-90 w-full group">
                     <Image
                       src={variation.image || `/placeholder.svg?height=256&width=256&query=${product.name}`}
                       alt={product.name}
                       fill
-                      className="object-fill transition-transform group-hover:scale-105 duration-500"
+                      className="object-cover transition-transform group-hover:scale-105 duration-500"
                     />
                     {discountPercentage > 0 && (
                       <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
@@ -205,7 +205,7 @@ export default function NewArrivals({
                     <div className="flex items-center gap-2">
                       {variation.salePrice ? (
                         <>
-                          <span className="font-bold">₹{variation.salePrice}</span>
+                          <span className="font-bold text-teal-600">₹{variation.salePrice}</span>
                           <span className="text-gray-500 line-through text-sm">₹{variation.price}</span>
                         </>
                       ) : (
@@ -221,7 +221,7 @@ export default function NewArrivals({
           {canScrollRight && (
             <button
               onClick={() => scroll("right")}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-teal-900 rounded-full p-2 shadow-md text-white  hover:bg-teal-700"
               aria-label="Scroll right"
             >
               <ChevronRight className="h-6 w-6" />
@@ -230,10 +230,8 @@ export default function NewArrivals({
         </div>
 
         <div className="flex justify-center mt-8">
-          <Link href="/products">
-            <Button variant="outline" className="rounded-md">
-              View All Products
-            </Button>
+          <Link href="/products" className="inline-block bg-teal-600 rounded-md px-10 shadow-md hover:bg-teal-500  py-4  transition-colors text-md font-semibold text-white">
+            VIEW ALL
           </Link>
         </div>
       </div>

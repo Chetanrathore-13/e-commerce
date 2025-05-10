@@ -63,11 +63,11 @@ export default function FeaturedCategories({
       <div className="flex flex-col items-center mx-auto px-0 sm:px-4 md:px-8 lg:px-16 w-full">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12 w-full">
           <div className="mb-6 md:mb-0 ">
-            <h2 className="text-5xl font-light mb-2 text-center">
+            <h2 className="text-5xl font-light mb-2 text-teal-700">
               {sectionTitle}
             </h2>
             {sectionSubtitle && (
-              <p className="text-gray-600 text-start mt-2 pt-2 ">
+              <p className="text-gray-600 text-start ml-2 pt-2 ">
                 {sectionSubtitle}
               </p>
             )}
@@ -92,7 +92,7 @@ export default function FeaturedCategories({
               href={`/${category.slug}`}
               className="group"
             >
-              <div className="relative overflow-hidden aspect-square rounded-xl mb-4">
+              <div className="relative overflow-hidden h-[650px]   rounded-xl mb-4">
                 <Image
                   src={
                     category.image ||
@@ -100,7 +100,7 @@ export default function FeaturedCategories({
                   }
                   alt={category.name}
                   fill
-                  className="object-fill group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover  group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <h3 className="text-center text-lg font-medium">

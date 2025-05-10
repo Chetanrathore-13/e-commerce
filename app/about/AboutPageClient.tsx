@@ -3,7 +3,11 @@
 import Image from "next/image";
 import { ChevronRight, Users, Award, Heart } from "lucide-react";
 import { motion } from "framer-motion";
-// import Storyimg from "../public/aboutimg/26845.jpg"
+import About from "@/public/aboutpage/80.jpg"
+import Prof1 from "@/public/aboutpage/21850.jpg"
+import Prof2 from "@/public/aboutpage/26982.jpg"
+import Prof3 from "@/public/aboutpage/60157.jpg"
+import Prof4 from "@/public/aboutpage/189532.jpg"
 
 export default function AboutPageClient() {
   const fadeIn = {
@@ -31,7 +35,7 @@ export default function AboutPageClient() {
               transition={{ duration: 0.5 }}
               className="max-w-2xl text-white"
             >
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 ml-5  ">
+              <h1 className="text-9xl md:text-5xl font-bold mb-4 ml-5  ">
                 Our Story
               </h1>
               <p className="text-lg md:text-xl opacity-90 ml-5">
@@ -43,8 +47,8 @@ export default function AboutPageClient() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-4 w-full">
-        <div className="max-w-7xl mx-auto">
+      <div className="container mx-auto px-4 mt-2 py-20  w-full">
+        <div className="max-w-8xl mx-auto">
           {/* Our Story */}
           <motion.section
             initial="hidden"
@@ -56,10 +60,10 @@ export default function AboutPageClient() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="order-2 md:order-1">
-                <div className="inline-block px-4 py-1 rounded-full bg-teal-100 text-teal-800 font-medium text-sm mb-4">
+                <div className="inline-block px-4 py-1 rounded-full bg-teal-100 text-teal-800 font-medium text-xl mb-4">
                   Our Journey
                 </div>
-                <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+                <h2 className="text-3xl md:text-3xl font-semibold mb-4">
                   From Small Boutique to Fashion Destination
                 </h2>
                 <p className="text-gray-700 mb-4">
@@ -79,9 +83,9 @@ export default function AboutPageClient() {
                 </p>
               </div>
               <div className="order-1 md:order-2">
-                <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl transform md:rotate-2 transition-transform hover:rotate-0 duration-300">
+                <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-xl transform md:rotate-2 transition-transform hover:rotate-0 duration-300">
                   <Image
-                    src=''
+                    src={About}
                     alt="Our Store"
                     fill
                     className="object-cover"
@@ -101,10 +105,10 @@ export default function AboutPageClient() {
             className="mb-16"
           >
             <div className=" mb-10 ">
-              <div className="inline-block px-4 py-1 rounded-full bg-teal-100 text-teal-800 font-medium text-sm mb-4">
+              <div className="inline-block px-4 py-1 rounded-full bg-teal-100 text-teal-800 font-medium text-xl mb-4">
                 Our Values
               </div>
-              <h2 className="text-2xl md:text-3xl font-semibold">
+              <h2 className="text-4xl md:text-3xl font-semibold">
                 What Drives Us
               </h2>
             </div>
@@ -158,7 +162,7 @@ export default function AboutPageClient() {
           </motion.section>
 
           {/* Our Team */}
-          <motion.section
+          {/* <motion.section
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -180,12 +184,12 @@ export default function AboutPageClient() {
                 whileHover={{ scale: 1.05 }}
                 className="bg-white rounded-2xl overflow-hidden shadow-md"
               >
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-[470px] overflow-hidden">
                   <Image
-                    src="/indian-woman-portrait.png"
+                    src={Prof4}
                     alt="Priya Sharma - Founder & CEO"
                     fill
-                    className="object-cover transition-transform hover:scale-110 duration-500"
+                    className="object-cover  transition-transform hover:scale-110 duration-500"
                   />
                 </div>
                 <div className="p-4 text-center">
@@ -198,9 +202,9 @@ export default function AboutPageClient() {
                 whileHover={{ scale: 1.05 }}
                 className="bg-white rounded-2xl overflow-hidden shadow-md"
               >
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-[470px] overflow-hidden">
                   <Image
-                    src="/indian-man-portrait.png"
+                    src={Prof1}
                     alt="Raj Malhotra - Creative Director"
                     fill
                     className="object-cover transition-transform hover:scale-110 duration-500"
@@ -216,9 +220,9 @@ export default function AboutPageClient() {
                 whileHover={{ scale: 1.05 }}
                 className="bg-white rounded-2xl overflow-hidden shadow-md"
               >
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-[470px] overflow-hidden">
                   <Image
-                    src="/professional-indian-woman.png"
+                    src={Prof2}
                     alt="Anjali Patel - Head of Design"
                     fill
                     className="object-cover transition-transform hover:scale-110 duration-500"
@@ -234,9 +238,9 @@ export default function AboutPageClient() {
                 whileHover={{ scale: 1.05 }}
                 className="bg-white rounded-2xl overflow-hidden shadow-md"
               >
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-[470px] overflow-hidden">
                   <Image
-                    src="/professional-indian-man.png"
+                    src={Prof3}
                     alt="Vikram Singh - Operations Manager"
                     fill
                     className="object-cover transition-transform hover:scale-110 duration-500"
@@ -248,17 +252,17 @@ export default function AboutPageClient() {
                 </div>
               </motion.div>
             </div>
-          </motion.section>
+          </motion.section> */}
 
           {/* Timeline */}
-          <motion.section
+          {/* <motion.section
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeIn}
             transition={{ duration: 0.6 }}
           >
-            <div className="text-center mb-10">
+            <div className="text-center mb-5">
               <div className="inline-block px-4 py-1 rounded-full bg-teal-100 text-teal-800 font-medium text-sm mb-4">
                 Our Journey
               </div>
@@ -268,8 +272,8 @@ export default function AboutPageClient() {
             </div>
 
             <div className="relative">
-              {/* Timeline line */}
-              <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 h-full w-1 bg-gradient-to-b from-teal-300 to-teal-700 rounded-full"></div>
+         
+              <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 h-full w-4 bg-gradient-to-b from-teal-300 to-teal-700 rounded-full"></div>
 
               <div className="space-y-12 relative">
                 <div className="flex flex-col md:flex-row">
@@ -291,8 +295,8 @@ export default function AboutPageClient() {
                     </motion.div>
                   </div>
                   <div className="flex items-center justify-center md:w-0">
-                    <div className="w-10 h-10 rounded-full bg-teal-600 border-4 border-white shadow-lg z-10 flex items-center justify-center text-white font-bold">
-                      1
+                    <div className="w-15  h-10 rounded-full border-2 p-5 border-gray-900   shadow-lg z-10 flex items-center justify-center text-white font-bold">
+                      1   
                     </div>
                   </div>
                   <div className="md:w-1/2 md:pl-12 mt-4 md:mt-0"></div>
@@ -376,7 +380,7 @@ export default function AboutPageClient() {
                 </div>
               </div>
             </div>
-          </motion.section>
+          </motion.section> */}
 
           {/* Call to Action */}
           <motion.section

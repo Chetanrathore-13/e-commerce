@@ -4,6 +4,7 @@ import Image from "next/image"
 import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Quote } from "lucide-react"
 import {
   getTestimonialsData
 } from "@/lib/api";
@@ -89,14 +90,14 @@ export default function Testimonials({
   }, [])
 
   return (
-    <section className="py-16">
+    <section className="py-18">
       <div className="container mx-auto px-4">
         {/* Section header */}
         {(sectionTitle || sectionSubtitle) && (
           <div className="flex flex-col md:flex-row items-center justify-between mb-12">
             <div className="mb-6 md:mb-0 md:max-w-xl">
-              <h2 className="text-5xl font-light mb-2 text-center">{sectionTitle}</h2>
-              <p className="text-gray-600 text-start mt-2 pt-2">{sectionSubtitle}</p>
+              <h2 className="text-5xl font-light mb-2 text-teal-700">{sectionTitle}</h2>
+              <p className="  text-start mt-2 pt-2">{sectionSubtitle}</p>
             </div>
 
             {sectionImage && (
@@ -138,20 +139,22 @@ export default function Testimonials({
                               className="object-cover object-center"
                             />
                           </div>
-                          <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col justify-between">
-                            <p className="text-gray-700 italic mb-6">{displayTestimonials[pairIndex * 2].content}</p>
-                            <div>
-                              <p className="font-medium text-center">{displayTestimonials[pairIndex * 2].name}</p>
-                              <p className="text-gray-500 text-center text-sm mb-4">
+                          <div className="w-full md:w-3/5  md:p-8 flex flex-col justify-center py-10">
+                              <Quote className="mx-auto h-10 w-24 mb-4 text-3xl text-teal-900" />
+                            <p className="text-gray-700 italic mb-6 text-center">
+                              {displayTestimonials[pairIndex * 2].content}</p>
+                            <div >
+                              <p className="font-large text-xl text-center  text-teal-800">{displayTestimonials[pairIndex * 2].name}</p>
+                              <p className="text-gray-700 text-center text-sm mb-4">
                                 {displayTestimonials[pairIndex * 2].role}
                               </p>
                               <div className="flex justify-center">
-                                <Button
+                                {/* <Button
                                   variant="outline"
                                   className="rounded-none border-gray-300 hover:bg-transparent hover:text-black"
                                 >
                                   VIEW PRODUCT
-                                </Button>
+                                </Button> */}
                               </div>
                             </div>
                           </div>
@@ -174,22 +177,23 @@ export default function Testimonials({
                               className="object-cover object-center"
                             />
                           </div>
-                          <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col justify-between">
-                            <p className="text-gray-700 italic mb-6 text-right">
+                          <div className="w-full md:w-3/5 py-20 md:p-8 flex flex-col justify-center">
+                              <Quote className="mx-auto h-10 w-24 mb-4 text-3xl text-teal-900" />
+                            <p className="text-gray-700 italic mb-6 text-center">
                               {displayTestimonials[pairIndex * 2 + 1].content}
                             </p>
                             <div>
-                              <p className="font-medium text-center">{displayTestimonials[pairIndex * 2 + 1].name}</p>
+                              <p className="font-medium text-xl text-teal-800 text-center">{displayTestimonials[pairIndex * 2 + 1].name}</p>
                               <p className="text-gray-500 text-center text-sm mb-4">
                                 {displayTestimonials[pairIndex * 2 + 1].role}
                               </p>
                               <div className="flex justify-center">
-                                <Button
+                                {/* <Button
                                   variant="outline"
                                   className="rounded-none border-gray-300 hover:bg-transparent hover:text-black"
                                 >
                                   VIEW PRODUCT
-                                </Button>
+                                </Button> */}
                               </div>
                             </div>
                           </div>
@@ -207,19 +211,19 @@ export default function Testimonials({
             <>
               <button
                 onClick={prevTestimonial}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 z-10"
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 bg-teal-900 rounded-full p-2 shadow-md hover:bg-teal-700 z-10"
                 aria-label="Previous testimonials"
                 disabled={isTransitioning}
               >
-                <ChevronLeft className="h-6 w-6 text-gray-600" />
+                <ChevronLeft className="h-6 w-6 text-white" />
               </button>
               <button
                 onClick={nextTestimonial}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 z-10"
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 bg-teal-900 rounded-full p-2 shadow-md hover:bg-teal-700 z-10"
                 aria-label="Next testimonials"
                 disabled={isTransitioning}
               >
-                <ChevronRight className="h-6 w-6 text-gray-600" />
+                <ChevronRight className="h-6 w-6 text-white" />
               </button>
             </>
           )}

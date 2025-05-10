@@ -542,32 +542,19 @@ export default function Header() {
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                 aria-label="Search"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-6 w-6" />
               </button>
 
-              <Link
-                href="/contact"
-                className="hidden md:flex items-center hover:text-teal-800"
-                aria-label="Contact"
-              >
-                <Phone className="h-5 w-5" />
-              </Link>
+              
 
-              <Link
-                href="https://wa.me/919876543210"
-                target="_blank"
-                className="hidden md:flex items-center hover:text-teal-800"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle className="h-5 w-5" />
-              </Link>
+             
 
               <Link
                 href="/wishlist"
                 className="hidden md:flex items-center hover:text-teal-800"
                 aria-label="Wishlist"
               >
-                <Heart className="h-5 w-5" />
+                <Heart className="h-6 w-6" />
               </Link>
 
               <div className="relative" ref={profileRef}>
@@ -576,7 +563,7 @@ export default function Header() {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   aria-label="User Account"
                 >
-                  <User className="h-5 w-5" />
+                  <User className="h-6 w-6" />
                 </button>
                 {isProfileOpen && <ProfileDropdown />}
               </div>
@@ -586,7 +573,7 @@ export default function Header() {
                 onClick={() => setIsCartOpen(true)}
                 aria-label="Shopping Cart"
               >
-                 <ShoppingBag className="h-5 w-5" />
+                 <ShoppingBag className="h-6 w-6" />
                 {cartItemCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-teal-800 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {cartItemCount}

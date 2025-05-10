@@ -151,3 +151,5 @@ export const Variation = mongoose.models.Variation || mongoose.model<IVariation>
 
 // Export interfaces
 export type { IUser, IBrand, ICategory, IProduct, IVariation }
+
+

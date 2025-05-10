@@ -6,7 +6,6 @@ import FeaturedCollections from "@/components/featured-collections";
 import Testimonials from "@/components/testimonials";
 import HeroBannerSlider from "@/components/hero-banner-slider"
 import Art from "../public/Banners/art.png";
-
 import {
   getHomepageSectionsData,
   getTestimonialsData,

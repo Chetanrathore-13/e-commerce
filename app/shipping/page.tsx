@@ -68,7 +68,7 @@ export default function ShippingPage() {
   return (
     <div className="bg-gradient-to-b from-neutral-50 to-neutral-100 min-h-screen py-12">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-8xl px-2 mx-auto">
           <motion.div
             className="text-center mb-12"
             initial={{ opacity: 0, y: -20 }}
@@ -79,7 +79,7 @@ export default function ShippingPage() {
             <p className="text-gray-600 max-w-2xl mx-auto">
               Everything you need to know about our shipping methods, delivery times, and return process.
             </p>
-            <p className="text-gray-500 mt-2">Last Updated: May 1, 2023</p>
+            <p className="text-gray-500 mt-2">Last Updated: May 1, 2025</p>
           </motion.div>
 
           {/* Tabs for Shipping and Returns */}
