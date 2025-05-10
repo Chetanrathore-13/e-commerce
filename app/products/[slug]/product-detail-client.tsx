@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
 import type { Product, Variation } from "@/types"
 import { addToCart, addToWishlist } from "@/lib/api"
+import ProductReviews from "@/components/product-reviews"
 
 interface ProductDetailClientProps {
   product: Product
@@ -328,6 +329,9 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           </div>
         </div>
       </div>
+
+      {/* Product Reviews */}
+      <ProductReviews productId={product._id} productSlug={product.slug} />
     </div>
   )
 }

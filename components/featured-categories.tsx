@@ -92,7 +92,7 @@ export default function FeaturedCategories({
               href={`/${category.slug}`}
               className="group"
             >
-              <div className="relative overflow-hidden   aspect-square mb-4">
+              <div className="relative overflow-hidden aspect-square rounded-xl mb-4">
                 <Image
                   src={
                     category.image ||
@@ -100,7 +100,7 @@ export default function FeaturedCategories({
                   }
                   alt={category.name}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="object-fill group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <h3 className="text-center text-lg font-medium">

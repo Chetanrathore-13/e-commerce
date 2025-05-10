@@ -174,7 +174,7 @@ export default function NewArrivals({
                       src={variation.image || `/placeholder.svg?height=256&width=256&query=${product.name}`}
                       alt={product.name}
                       fill
-                      className="object-cover transition-transform group-hover:scale-105 duration-500"
+                      className="object-fill transition-transform group-hover:scale-105 duration-500"
                     />
                     {discountPercentage > 0 && (
                       <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
