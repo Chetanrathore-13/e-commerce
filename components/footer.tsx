@@ -322,13 +322,13 @@ export default function Footer() {
             <span className="text-md text-white whitespace-nowrap">
               100% Secure Payments
             </span>
-            <div className="flex gap-1">
+            <div className="flex gap-4">
               <div className="bg-white rounded h-6 w-8 flex items-center justify-center">
                 <Image
                   src={Paytm}
                   alt="Paytm"
-                  width={28}
-                  height={20}
+                  width={100}
+                  height={40}
                   className="object-contain"
                 />
               </div>
@@ -336,7 +336,7 @@ export default function Footer() {
                 <Image
                   src={Cash}
                   alt="Cash"
-                  width={28}
+                  width={30}
                   height={20}
                   className="object-contain"
                 />
