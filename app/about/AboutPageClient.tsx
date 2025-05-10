@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ChevronRight, Users, Award, Heart } from "lucide-react";
 import { motion } from "framer-motion";
+// import Storyimg from "../public/aboutimg/26845.jpg"
 
 export default function AboutPageClient() {
   const fadeIn = {
@@ -11,17 +12,17 @@ export default function AboutPageClient() {
   };
 
   return (
-    <div className=" min-h-screen bg-gradient-to-b from-neutral-50 to-white w-full ml-5 mr-5 ">
+    <div className=" min-h-screen bg-gradient-to-b from-neutral-50 to-white w-full">
       {/* Hero Section */}
       <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
-        <Image
+        {/* <Image
           src="/placeholder.svg?key=cdn2v"
           alt="About Us Hero"
           fill
           className="object-cover brightness-75"
           priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-teal-900/70 to-transparent flex items-center">
+        /> */}
+        <div className="absolute inset-0 bg-teal-900 to-transparent flex items-center">
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
@@ -80,7 +81,7 @@ export default function AboutPageClient() {
               <div className="order-1 md:order-2">
                 <div className="relative h-80 rounded-2xl overflow-hidden shadow-xl transform md:rotate-2 transition-transform hover:rotate-0 duration-300">
                   <Image
-                    src="/placeholder.svg?key=1yll6"
+                    src=''
                     alt="Our Store"
                     fill
                     className="object-cover"
