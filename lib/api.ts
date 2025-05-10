@@ -1,5 +1,13 @@
 // Client-side API functions to fetch data from the server
-import type { Product, ProductListResponse, Category, CategoryWithSubcategories, Brand, MegaMenuContent } from "@/types"
+import type {
+  Product,
+  ProductListResponse,
+  Category,
+  CategoryWithSubcategories,
+  Brand,
+  MegaMenuContent,
+  ReviewResponse,
+} from "@/types"
 
 // Export the getBaseUrl function so it can be used in other components
 export function getBaseUrl() {
@@ -183,6 +191,7 @@ export async function getUserCart(): Promise<any> {
     }
 
     const data = await response.json()
+    console.log("Cart data fetched:", data)
     return data
   } catch (error) {
     console.error("Error fetching user cart:", error)
@@ -330,11 +339,9 @@ export async function getOrderDetails(orderId: string): Promise<any> {
 // Get order by ID (with option for admin mode)
 export async function getOrderById(orderId: string, isAdmin = false): Promise<any> {
   const url = `${getBaseUrl()}/api/${isAdmin ? "admin/" : ""}orders/${orderId}`
-   console.log(url)
 
   try {
     const response = await fetch(url)
-    console.log("response", response)
     return handleResponse<any>(response)
   } catch (error) {
     console.error(`Error fetching order ${orderId}:`, error)
@@ -496,21 +503,150 @@ export async function getCollectionBySlug(slug: string): Promise<any> {
   }
 }
 
+// Get product reviews
+export async function getProductReviews(productSlug: string, page = 1, sort = "newest"): Promise<ReviewResponse> {
+  const url = `${getBaseUrl()}/api/products/${productSlug}/reviews?page=${page}&sort=${sort}`
+
+  try {
+    const response = await fetch(url)
+    return handleResponse<ReviewResponse>(response)
+  } catch (error) {
+    console.error(`Error fetching reviews for product ${productSlug}:`, error)
+    return {
+      reviews: [],
+      totalReviews: 0,
+      totalPages: 0,
+      currentPage: 1,
+      averageRating: 0,
+      ratingCounts: [],
+      hasReviewed: false,
+    }
+  }
+}
+
+// Submit a product review
+export async function submitReview(
+  productId: string,
+  rating: number,
+  title: string,
+  comment: string,
+  pros: string[] = [],
+  cons: string[] = [],
+): Promise<any> {
+  const url = `${getBaseUrl()}/api/reviews`
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        product_id: productId,
+        rating,
+        title,
+        comment,
+        pros,
+        cons,
+      }),
+    })
+    return handleResponse<any>(response)
+  } catch (error) {
+    console.error("Error submitting review:", error)
+    throw new Error("Failed to submit review")
+  }
+}
+
+// Mark a review as helpful
+export async function markReviewAsHelpful(reviewId: string): Promise<any> {
+  const url = `${getBaseUrl()}/api/reviews`
+
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        review_id: reviewId,
+        helpful: true,
+      }),
+    })
+    return handleResponse<any>(response)
+  } catch (error) {
+    console.error("Error marking review as helpful:", error)
+    throw new Error("Failed to mark review as helpful")
+  }
+}
+
+// Get admin reviews
+export async function getAdminReviews(params: Record<string, any> = {}): Promise<any> {
+  const queryParams = new URLSearchParams()
+
+  // Add all params to query string
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      queryParams.append(key, value.toString())
+    }
+  })
+
+  const url = `${getBaseUrl()}/api/admin/reviews?${queryParams.toString()}`
+
+  try {
+    const response = await fetch(url)
+    return handleResponse<any>(response)
+  } catch (error) {
+    console.error("Error fetching admin reviews:", error)
+    return { reviews: [], totalReviews: 0, totalPages: 0, currentPage: 1 }
+  }
+}
+
+// Get admin review by ID
+export async function getAdminReviewById(reviewId: string): Promise<any> {
+  const url = `${getBaseUrl()}/api/admin/reviews/${reviewId}`
+
+  try {
+    const response = await fetch(url)
+    return handleResponse<any>(response)
+  } catch (error) {
+    console.error(`Error fetching admin review ${reviewId}:`, error)
+    return null
+  }
+}
+
+// Update review status
+export async function updateReviewStatus(reviewId: string, status: "pending" | "approved" | "rejected"): Promise<any> {
+  const url = `${getBaseUrl()}/api/admin/reviews/${reviewId}`
+
+  try {
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status,
+      }),
+    })
+    return handleResponse<any>(response)
+  } catch (error) {
+    console.error(`Error updating review ${reviewId} status:`, error)
+    throw new Error("Failed to update review status")
+  }
+}
+
 // Server-side data fetching functions with proper caching
 export async function getBannersData() {
   try {
-    const baseUrl = getBaseUrl()
-    const res = await fetch(`${baseUrl}/api/banners`, {
-      next: { revalidate: 3600 }, // Revalidate every hour
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/banners`, {
+      cache: "no-store",
     })
 
-    // Don't throw errors, just return empty data
-    if (!res.ok) {
-      console.error("Failed to fetch banners:", res.status)
-      return { banners: [] }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch banners: ${response.status}`)
     }
 
-    return await res.json()
+    return await response.json()
   } catch (error) {
     console.error("Error fetching banners:", error)
     return { banners: [] }
@@ -526,8 +662,8 @@ export async function getHomepageSectionsData() {
     if (!response.ok) {
       throw new Error(`Failed to fetch homepage sections: ${response.status}`)
     }
-    const data = await response.json()
-    return data
+
+    return response.json()
   } catch (error) {
     console.error("Error fetching homepage sections:", error)
     return { sections: [] }

@@ -126,3 +126,31 @@ export interface Address {
   country: string
   phone: string
 }
+
+
+// Review types
+export interface Review {
+  _id: string
+  product_id: string
+  user_id: string
+  user_name: string
+  rating: number
+  title: string
+  comment: string
+  pros?: string[]
+  cons?: string[]
+  helpful_votes: number
+  status: "pending" | "approved" | "rejected"
+  created_at: string
+  updated_at: string
+}
+
+export interface ReviewResponse {
+  reviews: Review[]
+  totalReviews: number
+  totalPages: number
+  currentPage: number
+  averageRating: number
+  ratingCounts: { rating: number; count: number }[]
+  hasReviewed: boolean
+}

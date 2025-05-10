@@ -111,7 +111,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               width={500}
               height={600}
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-fill object-center"
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-gray-100">

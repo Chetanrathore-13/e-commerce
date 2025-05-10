@@ -183,7 +183,7 @@ export default function BestSellers({
                       src={mainVariation.image || "/placeholder.svg?height=600&width=450&query=ethnic wear"}
                       alt={product.name}
                       fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-fill group-hover:scale-105 transition-transform duration-500"
                     />
                     <button
                       className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
