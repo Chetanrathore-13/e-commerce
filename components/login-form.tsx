@@ -14,117 +14,190 @@ import { Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+        email: z.string().email("Invalid email address"),
+        password: z.string().min(6, "Password must be at least 6 characters").max(20, "Password must be at most 20 characters"),
 })
 
 export function LoginForm() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const searchParams = useSearchParams()
+        const router = useRouter()
+        const { toast } = useToast()
+        const [isLoading, setIsLoading] = useState(false)
+        const [error, setError] = useState<string | null>(null)
+        const searchParams = useSearchParams()
 
-  // Check for error in URL query params
-  const errorParam = searchParams?.get("error")
+        const [isSignUp, setIsSignUp] = useState(false)
+        const [showPopup, setShowPopup] = useState(true) // Set to true by default
+        const [email, setEmail] = useState("")
+        const [password, setPassword] = useState("")
+        const [firstName, setFirstName] = useState("")
+        const [lastName, setLastName] = useState("")
+        const [confirmPassword, setConfirmPassword] = useState("")
+        const [acceptTerms, setAcceptTerms] = useState(false)
+        const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  })
+        const validateForm = () => {
+                const newErrors: Record<string, string> = {}
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    setError(null)
+                if (!email) newErrors.email = "Email is required"
+                else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email is invalid"
 
-    try {
-      const result = await signIn("credentials", {
-        email: values.email,
-        password: values.password,
-        redirect: false,
-      })
+                if (!password) newErrors.password = "Password is required"
+                else if (password.length < 6) newErrors.password = "Password must be at least 6 characters"
 
-      if (result?.error) {
-        setError("Invalid email or password")
-        toast({
-          title: "Error",
-          description: "Invalid email or password",
-          variant: "destructive",
+                if (isSignUp) {
+                        if (!firstName) newErrors.firstName = "First name is required"
+                        if (!lastName) newErrors.lastName = "Last name is required"
+                        if (!confirmPassword) newErrors.confirmPassword = "Please confirm your password"
+                        else if (confirmPassword !== password) newErrors.confirmPassword = "Passwords do not match"
+                        if (!acceptTerms) newErrors.terms = "You must accept the terms and conditions"
+                }
+
+                setErrors(newErrors)
+                return Object.keys(newErrors).length === 0
+        }
+
+        const handleSubmit = (e: React.FormEvent) => {
+                        e.preventDefault()
+        
+                        if (validateForm()) {
+                                // Here you would typically call your authentication API
+                                console.log("Form submitted:", { email, password, firstName, lastName })
+        
+                                // For demo purposes, just close the popup
+                                alert(`${isSignUp ? "Sign up" : "Sign in"} successful!`)
+                                setShowPopup(false)
+                        }
+                }
+        
+                const resetForm = () => {
+                        setEmail("")
+                        setPassword("")
+                        setFirstName("")
+                        setLastName("")
+                        setConfirmPassword("")
+                        setAcceptTerms(false)
+                        setErrors({})
+                }
+        
+                const toggleMode = () => {
+                        setIsSignUp(!isSignUp)
+                        resetForm()
+                }
+        
+                // Handle escape key to close popup
+                useEffect(() => {
+                        const handleEscKey = (event: KeyboardEvent) => {
+                                if (event.key === "Escape") {
+                                        setShowPopup(false)
+                                }
+                        }
+        
+                        window.addEventListener("keydown", handleEscKey)
+                        return () => window.removeEventListener("keydown", handleEscKey)
+                }, [])
+
+        // Check for error in URL query params
+        const errorParam = searchParams?.get("error")
+
+        const form = useForm<z.infer<typeof formSchema>>({
+                resolver: zodResolver(formSchema),
+                defaultValues: {
+                        email: "",
+                        password: "",
+                },
         })
-        return
-      }
 
-      toast({
-        title: "Success",
-        description: "Logged in successfully",
-      })
+        async function onSubmit(values: z.infer<typeof formSchema>) {
+                setIsLoading(true)
+                setError(null)
 
-      router.push("/dashboard")
-      router.refresh()
-    } catch (error) {
-      console.error("Login error:", error)
-      setError("Something went wrong. Please try again.")
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+                try {
+                        const result = await signIn("credentials", {
+                                email: values.email,
+                                password: values.password,
+                                redirect: false,
+                        })
 
-  return (
-    <Form {...form}>
-      {(error || errorParam) && (
-        <Alert variant="destructive" className="mb-4">
-          <AlertDescription>
-            {error || (errorParam === "CredentialsSignin" ? "Invalid email or password" : "An error occurred")}
-          </AlertDescription>
-        </Alert>
-      )}
+                        if (result?.error) {
+                                setError("Invalid email or password")
+                                toast({
+                                        title: "Error",
+                                        description: "Invalid email or password",
+                                        variant: "destructive",
+                                })
+                                return
+                        }
 
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="Enter your password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Logging in...
-            </>
-          ) : (
-            "Login"
-          )}
-        </Button>
-      </form>
-    </Form>
-  )
+                        toast({
+                                title: "Success",
+                                description: "Logged in successfully",
+                        })
+
+                        router.push("/dashboard")
+                        router.refresh()
+                } catch (error) {
+                        console.error("Login error:", error)
+                        setError("Something went wrong. Please try again.")
+                        toast({
+                                title: "Error",
+                                description: "Something went wrong. Please try again.",
+                                variant: "destructive",
+                        })
+                } finally {
+                        setIsLoading(false)
+                }
+        }
+
+        
+
+        return (
+                showPopup && <Form {...form}>
+                        {(error || errorParam) && (
+                                <Alert variant="destructive" className="mb-4">
+                                        <AlertDescription>
+                                                {error || (errorParam === "CredentialsSignin" ? "Invalid email or password" : "An error occurred")}
+                                        </AlertDescription>
+                                </Alert>
+                        )}
+
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                                <FormField
+                                        control={form.control}
+                                        name="email"
+                                        render={({ field }) => (
+                                                <FormItem>
+                                                        <FormLabel>Email</FormLabel>
+                                                        <FormControl>
+                                                                <Input placeholder="Enter your email" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                </FormItem>
+                                        )}
+                                />
+                                <FormField
+                                        control={form.control}
+                                        name="password"
+                                        render={({ field }) => (
+                                                <FormItem>
+                                                        <FormLabel>Password</FormLabel>
+                                                        <FormControl>
+                                                                <Input type="password" placeholder="Enter your password" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                </FormItem>
+                                        )}
+                                />
+                                <Button type="submit" className="w-full" disabled={isLoading}>
+                                        {isLoading ? (
+                                                <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Logging in...
+                                                </>
+                                        ) : (
+                                                "Login"
+                                        )}
+                                </Button>
+                        </form>
+                </Form>
+        )
 }

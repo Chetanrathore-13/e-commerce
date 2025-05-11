@@ -1,3 +1,4 @@
+import { signOut } from "next-auth/react"
 import Link from "next/link"
 
 export default function ProfileDropdown() {
@@ -20,7 +21,7 @@ export default function ProfileDropdown() {
         </Link>
       </div>
       <div className="py-2 px-4 border-t">
-        <Link href="/logout" className="block py-2 text-gray-700 hover:text-amber-700">
+        <Link onClick={() => signOut()} href="/" className="block py-2 text-gray-700 hover:text-amber-700">
           Logout
         </Link>
       </div>

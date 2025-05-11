@@ -1,48 +1,39 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-import { getToken } from "next-auth/jwt"
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-  // const { pathname } = request.nextUrl
+        const { pathname } = request.nextUrl;
+        const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
 
-  // // Check if the request is for a variation image
-  // if (pathname.startsWith("/variations/")) {
-  //   // Redirect to the correct path with /uploads prefix
-  //   const newUrl = request.nextUrl.clone()
-  //   newUrl.pathname = `/uploads${pathname}`
-  //   return NextResponse.redirect(newUrl)
-  // }
+        // Redirect variation image URLs
+        if (pathname.startsWith("/variations/")) {
+                const newUrl = request.nextUrl.clone();
+                newUrl.pathname = `/uploads${pathname}`;
+                return NextResponse.redirect(newUrl);
+        }
 
-  // // Check if the request is for an admin route
-  // if (pathname.startsWith("/admin")) {
-  //   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+        // Protect /admin routes
+        if (pathname.startsWith("/admin")) {
+                if (!token || token.role !== "admin") {
+                        const url = new URL("/login", request.url);
+                        url.searchParams.set("callbackUrl", encodeURI(request.url));
+                        return NextResponse.redirect(url);
+                }
+        }
 
-  //   // If not logged in or not an admin, redirect to login
-  //   if (!token || token.role !== "admin") {
-  //     const url = new URL("/login", request.url)
-  //     url.searchParams.set("callbackUrl", encodeURI(request.url))
-  //     return NextResponse.redirect(url)
-  //   }
-  // }
+        // Protect /dashboard routes (allow both admin and user)
+        if (pathname.startsWith("/dashboard")) {
+                if (!token || !["admin", "user"].includes(token.role)) {
+                        const url = new URL("/login", request.url);
+                        url.searchParams.set("callbackUrl", encodeURI(request.url));
+                        return NextResponse.redirect(url);
+                }
+        }
 
-  // // Check if the request is for a dashboard route
-  // if (pathname.startsWith("/dashboard")) {
-  //   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
-
-  //   // If not logged in, redirect to login
-  //   if (!token) {
-  //     const url = new URL("/login", request.url)
-  //     url.searchParams.set("callbackUrl", encodeURI(request.url))
-  //     return NextResponse.redirect(url)
-  //   }
-
-  //   // IMPORTANT: Remove any redirection from /dashboard/orders to /admin/orders
-  //   // This was likely causing the issue
-  // }
-
-  return NextResponse.next()
+        return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/variations/:path*", "/admin/:path*", "/dashboard/:path*"],
-}
+        matcher: ["/variations/:path*", "/admin/:path*", "/dashboard/:path*"],
+};

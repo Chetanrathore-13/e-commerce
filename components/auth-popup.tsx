@@ -1,230 +1,272 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import { X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import LoginImg from "../public/loginimage/login.jpg"
+import Image from "next/image";
+import { X, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-const AuthPopup = () => {
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [showPopup, setShowPopup] = useState(true) // Set to true by default
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [acceptTerms, setAcceptTerms] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+        Form,
+        FormControl,
+        FormField,
+        FormItem,
+        FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import LoginImg from "../public/loginimage/login.jpg";
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
+type AuthPopupProps = {
+        onClose: () => void;
+};
 
-    if (!email) newErrors.email = "Email is required"
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Email is invalid"
+const loginSchema = z.object({
+        email: z.string().email("Invalid email address"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
-    if (!password) newErrors.password = "Password is required"
-    else if (password.length < 6) newErrors.password = "Password must be at least 6 characters"
+const signupSchema = loginSchema.extend({
+        name: z.string().min(1, "Name is required"),
+        acceptTerms: z.literal(true, {
+                errorMap: () => ({
+                        message: "You must accept the terms and conditions",
+                }),
+        }),
+});
 
-    if (isSignUp) {
-      if (!firstName) newErrors.firstName = "First name is required"
-      if (!lastName) newErrors.lastName = "Last name is required"
-      if (!confirmPassword) newErrors.confirmPassword = "Please confirm your password"
-      else if (confirmPassword !== password) newErrors.confirmPassword = "Passwords do not match"
-      if (!acceptTerms) newErrors.terms = "You must accept the terms and conditions"
-    }
+export const AuthPopup = ({ onClose }: AuthPopupProps) => {
+        const [isSignUp, setIsSignUp] = useState(false);
+        const [showPopup, setShowPopup] = useState(true);
+        const [isLoading, setIsLoading] = useState(false);
+        const { toast } = useToast();
+        const router = useRouter();
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+        const form = useForm<z.infer<typeof signupSchema | typeof loginSchema>>({
+                resolver: zodResolver(isSignUp ? signupSchema : loginSchema),
+                defaultValues: {
+                        name: "",
+                        email: "",
+                        password: "",
+                        // acceptTerms: false,
+                },
+        });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+        const toggleMode = () => {
+                setIsSignUp((prev) => !prev);
+                form.reset();
+        };
 
-    if (validateForm()) {
-      // Here you would typically call your authentication API
-      console.log("Form submitted:", { email, password, firstName, lastName })
+        useEffect(() => {
+                const handleEscKey = (e: KeyboardEvent) => {
+                        if (e.key === "Escape") setShowPopup(false);
+                };
+                window.addEventListener("keydown", handleEscKey);
+                return () => window.removeEventListener("keydown", handleEscKey);
+        }, []);
 
-      // For demo purposes, just close the popup
-      alert(`${isSignUp ? "Sign up" : "Sign in"} successful!`)
-      setShowPopup(false)
-    }
-  }
+        const onSubmit = async (values: any) => {
+                setIsLoading(true);
+                try {
+                        if (isSignUp) {
+                                // TODO: Implement actual signup request
+                                console.log("Signup values:", values);
+                                toast({
+                                        title: "Account created!",
+                                        description: "You can now log in.",
+                                });
+                        } else {
+                                const result = await signIn("credentials", {
+                                        email: values.email,
+                                        password: values.password,
+                                        redirect: false,
+                                });
 
-  const resetForm = () => {
-    setEmail("")
-    setPassword("")
-    setFirstName("")
-    setLastName("")
-    setConfirmPassword("")
-    setAcceptTerms(false)
-    setErrors({})
-  }
+                                if (result?.error) {
+                                        toast({
+                                                title: "Login failed",
+                                                description: "Invalid email or password",
+                                                variant: "destructive",
+                                        });
+                                        return;
+                                }
 
-  const toggleMode = () => {
-    setIsSignUp(!isSignUp)
-    resetForm()
-  }
+                                toast({
+                                        title: "Login successful",
+                                        description: "Redirecting...",
+                                });
 
-  // Handle escape key to close popup
-  useEffect(() => {
-    const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setShowPopup(false)
-      }
-    }
+                                router.refresh();
+                        }
 
-    window.addEventListener("keydown", handleEscKey)
-    return () => window.removeEventListener("keydown", handleEscKey)
-  }, [])
+                        setShowPopup(false);
+                } catch (err) {
+                        console.error("Auth error:", err);
+                        toast({
+                                title: "Error",
+                                description: "Something went wrong. Please try again.",
+                                variant: "destructive",
+                        });
+                } finally {
+                        setIsLoading(false);
+                }
+        };
 
-  return (
-    <>
-      {/* Popup Form - Always visible */}
-      {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-          <div className="flex h-[90vh] w-full max-w-5xl bg-white rounded-lg overflow-hidden relative shadow-lg">
-            {/* Left Image Section */}
-            <div className="w-1/2 h-full hidden md:block bg-gray-100 relative">
-              <Image src={LoginImg} alt="login visual" fill className="object-cover" priority />
-            </div>
+        if (!showPopup) return null;
 
-            {/* Right Form Section */}
-            <div className="w-full md:w-1/2 flex justify-center items-center p-6 md:p-10 relative">
-              <div className="w-full max-w-md">
-                <button
-                  onClick={() => setShowPopup(false)}
-                  className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
-                  aria-label="Close"
-                >
-                  <X className="h-6 w-6" />
-                </button>
+        return (
+                <div className="fixed inset-0 backgroundcolor flex justify-center items-center z-50 p-4">
+                        <div className="flex h-[70vh] w-full max-w-5xl bg-white rounded-lg overflow-hidden relative shadow-lg">
+                                <div className="w-1/2 h-full hidden md:block bg-gray-100 relative">
+                                        <Image
+                                                src={LoginImg}
+                                                alt="login visual"
+                                                fill
+                                                className="object-cover"
+                                                priority
+                                        />
+                                </div>
 
-                <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-teal-900">
-                  {isSignUp ? "Create Account" : "Welcome Back"}
-                </h2>
+                                <div className="w-full md:w-1/2 flex justify-center items-center p-6 md:p-10 relative">
+                                        <div className="w-full max-w-md">
+                                                <button
+                                                        onClick={() => {
+                                                                setShowPopup(false);
+                                                                onClose();
+                                                        }}
+                                                        className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
+                                                        aria-label="Close"
+                                                >
+                                                        <X className="h-6 w-6" />
+                                                </button>
 
-                <form className="space-y-4" onSubmit={handleSubmit}>
-                  <div>
-                    <Input
-                      type="email"
-                      placeholder="E-mail address *"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className={`w-full p-3 border ${errors.email ? "border-red-500" : "border-gray-300"} rounded focus:outline-none focus:ring-2 focus:ring-teal-900`}
-                      required
-                    />
-                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-                  </div>
+                                                <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-teal-900">
+                                                        {isSignUp ? "Create Account" : "Welcome Back"}
+                                                </h2>
 
-                  {isSignUp && (
-                    <>
-                      <div>
-                        <Input
-                          type="text"
-                          placeholder="First name *"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          className={`w-full p-3 border ${errors.firstName ? "border-red-500" : "border-gray-300"} rounded focus:outline-none focus:ring-2 focus:ring-teal-900`}
-                          required
-                        />
-                        {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
-                      </div>
+                                                <Form {...form}>
+                                                        <form
+                                                                onSubmit={form.handleSubmit(onSubmit)}
+                                                                className="space-y-4"
+                                                        >
+                                                                {isSignUp && (
+                                                                        <FormField
+                                                                                name="name"
+                                                                                control={form.control}
+                                                                                render={({ field }) => (
+                                                                                        <FormItem>
+                                                                                                <FormControl>
+                                                                                                        <Input placeholder="Your name *" {...field} />
+                                                                                                </FormControl>
+                                                                                                <FormMessage />
+                                                                                        </FormItem>
+                                                                                )}
+                                                                        />
+                                                                )}
 
-                      <div>
-                        <Input
-                          type="text"
-                          placeholder="Last name *"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          className={`w-full p-3 border ${errors.lastName ? "border-red-500" : "border-gray-300"} rounded focus:outline-none focus:ring-2 focus:ring-teal-900`}
-                          required
-                        />
-                        {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
-                      </div>
-                    </>
-                  )}
+                                                                <FormField
+                                                                        name="email"
+                                                                        control={form.control}
+                                                                        render={({ field }) => (
+                                                                                <FormItem>
+                                                                                        <FormControl>
+                                                                                                <Input placeholder="E-mail address *" {...field} />
+                                                                                        </FormControl>
+                                                                                        <FormMessage />
+                                                                                </FormItem>
+                                                                        )}
+                                                                />
 
-                  <div>
-                    <Input
-                      type="password"
-                      placeholder="Password *"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className={`w-full p-3 border ${errors.password ? "border-red-500" : "border-gray-300"} rounded focus:outline-none focus:ring-2 focus:ring-teal-900`}
-                      required
-                    />
-                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                  </div>
+                                                                <FormField
+                                                                        name="password"
+                                                                        control={form.control}
+                                                                        render={({ field }) => (
+                                                                                <FormItem>
+                                                                                        <FormControl>
+                                                                                                <Input
+                                                                                                        type="password"
+                                                                                                        placeholder="Password *"
+                                                                                                        {...field}
+                                                                                                />
+                                                                                        </FormControl>
+                                                                                        <FormMessage />
+                                                                                </FormItem>
+                                                                        )}
+                                                                />
 
-                  {isSignUp && (
-                    <div>
-                      <Input
-                        type="password"
-                        placeholder="Confirm password *"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`w-full p-3 border ${errors.confirmPassword ? "border-red-500" : "border-gray-300"} rounded focus:outline-none focus:ring-2 focus:ring-teal-900`}
-                        required
-                      />
-                      {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
-                    </div>
-                  )}
+                                                                {!isSignUp && (
+                                                                        <div className="text-right">
+                                                                                <a
+                                                                                        href="#"
+                                                                                        className="text-sm text-gray-500 hover:text-teal-900"
+                                                                                >
+                                                                                        Forgot Password?
+                                                                                </a>
+                                                                        </div>
+                                                                )}
 
-                  {!isSignUp && (
-                    <a href="#" className="text-sm text-gray-500 block text-right hover:text-teal-900">
-                      Forgot Password?
-                    </a>
-                  )}
+                                                                {isSignUp && (
+                                                                        <FormField
+                                                                                name="acceptTerms"
+                                                                                control={form.control}
+                                                                                render={({ field }) => (
+                                                                                        <FormItem className="flex items-center gap-2">
+                                                                                                <FormControl>
+                                                                                                        <Checkbox
+                                                                                                                checked={field.value}
+                                                                                                                onCheckedChange={field.onChange}
+                                                                                                        />
+                                                                                                </FormControl>
+                                                                                                <Label htmlFor="acceptTerms" className="text-sm">
+                                                                                                        I agree to the{" "}
+                                                                                                        <a href="#" className="text-teal-600 underline">
+                                                                                                                Terms & Conditions
+                                                                                                        </a>
+                                                                                                </Label>
+                                                                                                <FormMessage />
+                                                                                        </FormItem>
+                                                                                )}
+                                                                        />
+                                                                )}
 
-                  {isSignUp && (
-                    <div className="flex items-start space-x-2">
-                      <Checkbox
-                        id="terms"
-                        checked={acceptTerms}
-                        onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                        className="mt-1"
-                      />
-                      <div>
-                        <Label htmlFor="terms" className="text-sm">
-                          I accept{" "}
-                          <a href="#" className="text-teal-900 underline">
-                            terms and conditions
-                          </a>{" "}
-                          *
-                        </Label>
-                        {errors.terms && <p className="text-red-500 text-xs mt-1">{errors.terms}</p>}
-                      </div>
-                    </div>
-                  )}
+                                                                <Button type="submit" className="w-full" disabled={isLoading}>
+                                                                        {isLoading ? (
+                                                                                <>
+                                                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                                                        {isSignUp ? "Creating account..." : "Logging in..."}
+                                                                                </>
+                                                                        ) : isSignUp ? (
+                                                                                "Sign Up"
+                                                                        ) : (
+                                                                                "Log In"
+                                                                        )}
+                                                                </Button>
 
-                  <Button
-                    type="submit"
-                    className="w-full bg-teal-900 hover:bg-teal-800 text-white p-3 rounded font-semibold"
-                  >
-                    {isSignUp ? "CREATE ACCOUNT" : "SIGN IN"}
-                  </Button>
-                </form>
-
-                <div className="text-center mt-6">
-                  <p className="text-sm text-gray-600">
-                    {isSignUp ? "Already have an account? " : "Don't have an account? "}
-                    <button onClick={toggleMode} className="text-teal-900 underline font-medium" type="button">
-                      {isSignUp ? "Sign in" : "Sign up"}
-                    </button>
-                  </p>
+                                                                <div className="text-center text-sm text-gray-600 mt-4">
+                                                                        {isSignUp
+                                                                                ? "Already have an account?"
+                                                                                : "Don't have an account?"}{" "}
+                                                                        <button
+                                                                                type="button"
+                                                                                onClick={toggleMode}
+                                                                                className="text-teal-700 hover:underline ml-1"
+                                                                        >
+                                                                                {isSignUp ? "Log In" : "Sign Up"}
+                                                                        </button>
+                                                                </div>
+                                                        </form>
+                                                </Form>
+                                        </div>
+                                </div>
+                        </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  )
-}
+        );
+};
 
-export default AuthPopup
+export default AuthPopup;

@@ -130,3 +130,7 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
+
+.backgroundcolor{
+  background-color: #00000055;
+}
