@@ -154,7 +154,7 @@ export default async function Home() {
       />
 
       {/* Featured Collections */}
-      <FeaturedCollections
+      {/* <FeaturedCollections
         sectionImage={featuredCollectionsSection?.image}
         sectionTitle={
           featuredCollectionsSection?.title || "Featured Collections"
@@ -163,7 +163,7 @@ export default async function Home() {
           featuredCollectionsSection?.subtitle ||
           "Explore our curated collections"
         }
-      />
+      /> */}
 
       {/* Testimonials */}
       <Testimonials

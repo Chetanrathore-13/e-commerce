@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/db"
-import { Wishlist } from "@/lib/models"
+import { Wishlist } from "@/lib/models/index"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"

@@ -7,7 +7,11 @@ import type {
   Brand,
   MegaMenuContent,
   ReviewResponse,
+  SearchResult,
+  WishlistItem,
+  CartItem,
 } from "@/types"
+import { toast } from "@/hooks/use-toast"
 
 // Export the getBaseUrl function so it can be used in other components
 export function getBaseUrl() {
@@ -60,6 +64,23 @@ export async function getProducts(params: Record<string, any> = {}): Promise<Pro
   }
 }
 
+// Search products
+export async function searchProducts(query: string, limit = 5): Promise<SearchResult> {
+  if (!query || query.trim().length < 2) {
+    return { products: [], totalResults: 0 }
+  }
+
+  const url = `${getBaseUrl()}/api/products/search?q=${encodeURIComponent(query)}&limit=${limit}`
+
+  try {
+    const response = await fetch(url)
+    return handleResponse<SearchResult>(response)
+  } catch (error) {
+    console.error("Error searching products:", error)
+    return { products: [], totalResults: 0 }
+  }
+}
+
 // Get a single product by slug
 export async function getProductBySlug(slug: string): Promise<Product> {
   const url = `${getBaseUrl()}/api/products/${slug}`
@@ -70,6 +91,20 @@ export async function getProductBySlug(slug: string): Promise<Product> {
   } catch (error) {
     console.error(`Error fetching product ${slug}:`, error)
     throw error
+  }
+}
+
+// Get related products
+export async function getRelatedProducts(productId: string, limit = 4): Promise<Product[]> {
+  const url = `${getBaseUrl()}/api/products/related/${productId}?limit=${limit}`
+
+  try {
+    const response = await fetch(url)
+    const data = await handleResponse<{ products: Product[] }>(response)
+    return data.products || []
+  } catch (error) {
+    console.error(`Error fetching related products for ${productId}:`, error)
+    return []
   }
 }
 
@@ -174,7 +209,12 @@ export async function getHomepageSections(): Promise<any[]> {
 }
 
 // Get user cart
-export async function getUserCart(): Promise<any> {
+export async function getUserCart(): Promise<{
+  items: CartItem[]
+  totalItems: number
+  totalQuantity: number
+  subtotal: number
+}> {
   const url = `${getBaseUrl()}/api/cart`
 
   try {
@@ -191,11 +231,15 @@ export async function getUserCart(): Promise<any> {
     }
 
     const data = await response.json()
-    console.log("Cart data fetched:", data)
-    return data
+    return {
+      items: data.items || [],
+      totalItems: data.items?.length || 0,
+      totalQuantity: data.items?.reduce((total: number, item: CartItem) => total + item.quantity, 0) || 0,
+      subtotal: data.subtotal || 0,
+    }
   } catch (error) {
     console.error("Error fetching user cart:", error)
-    return { items: [] }
+    return { items: [], totalItems: 0, totalQuantity: 0, subtotal: 0 }
   }
 }
 
@@ -215,9 +259,20 @@ export async function addToCart(productId: string, variationId: string, quantity
         quantity,
       }),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Added to cart",
+      description: "Item has been added to your cart",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error adding to cart:", error)
+    toast({
+      title: "Error",
+      description: "Failed to add item to cart",
+      variant: "destructive",
+    })
     throw new Error("Failed to add item to cart")
   }
 }
@@ -236,9 +291,20 @@ export async function updateCartItem(itemId: string, quantity: number): Promise<
         quantity,
       }),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Cart updated",
+      description: "Your cart has been updated",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error updating cart item:", error)
+    toast({
+      title: "Error",
+      description: "Failed to update cart item",
+      variant: "destructive",
+    })
     throw new Error("Failed to update cart item")
   }
 }
@@ -251,24 +317,49 @@ export async function removeCartItem(itemId: string): Promise<any> {
     const response = await fetch(url, {
       method: "DELETE",
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Item removed",
+      description: "Item has been removed from your cart",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error removing cart item:", error)
+    toast({
+      title: "Error",
+      description: "Failed to remove cart item",
+      variant: "destructive",
+    })
     throw new Error("Failed to remove cart item")
   }
 }
 
 // Get user wishlist
-export async function getUserWishlist(): Promise<any[]> {
+export async function getUserWishlist(): Promise<{ items: WishlistItem[]; totalItems: number }> {
   const url = `${getBaseUrl()}/api/wishlist`
 
   try {
     const response = await fetch(url)
-    const data = await handleResponse<{ items: any[] }>(response)
-    return data.items || []
+    const data = await handleResponse<{ items: WishlistItem[] }>(response)
+    return {
+      items: data.items || [],
+      totalItems: data.items?.length || 0,
+    }
   } catch (error) {
     console.error("Error fetching wishlist:", error)
-    return []
+    return { items: [], totalItems: 0 }
+  }
+}
+
+// Check if product is in wishlist
+export async function isProductInWishlist(productId: string, variationId?: string): Promise<boolean> {
+  try {
+    const { items } = await getUserWishlist()
+    return items.some((item) => item.product_id === productId && (!variationId || item.variation_id === variationId))
+  } catch (error) {
+    console.error("Error checking wishlist status:", error)
+    return false
   }
 }
 
@@ -287,9 +378,20 @@ export async function addToWishlist(productId: string, variationId: string): Pro
         variation_id: variationId,
       }),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Added to wishlist",
+      description: "Item has been added to your wishlist",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error adding to wishlist:", error)
+    toast({
+      title: "Error",
+      description: "Failed to add item to wishlist",
+      variant: "destructive",
+    })
     throw new Error("Failed to add item to wishlist")
   }
 }
@@ -302,10 +404,45 @@ export async function removeWishlistItem(itemId: string): Promise<any> {
     const response = await fetch(url, {
       method: "DELETE",
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Item removed",
+      description: "Item has been removed from your wishlist",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error removing wishlist item:", error)
+    toast({
+      title: "Error",
+      description: "Failed to remove from wishlist",
+      variant: "destructive",
+    })
     throw new Error("Failed to remove from wishlist")
+  }
+}
+
+// Toggle wishlist item (add if not in wishlist, remove if already in wishlist)
+export async function toggleWishlistItem(productId: string, variationId: string): Promise<{ added: boolean }> {
+  try {
+    const { items } = await getUserWishlist()
+    const existingItem = items.find((item) => item.product_id === productId && item.variation_id === variationId)
+
+    if (existingItem) {
+      await removeWishlistItem(existingItem._id)
+      return { added: false }
+    } else {
+      await addToWishlist(productId, variationId)
+      return { added: true }
+    }
+  } catch (error) {
+    console.error("Error toggling wishlist item:", error)
+    toast({
+      title: "Error",
+      description: "Failed to update wishlist",
+      variant: "destructive",
+    })
+    throw new Error("Failed to toggle wishlist item")
   }
 }
 
@@ -399,9 +536,20 @@ export async function updateOrderStatus(orderId: string, status: string, trackin
         ...(trackingNumber && { tracking_number: trackingNumber }),
       }),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Order updated",
+      description: `Order status changed to ${status}`,
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error(`Error updating order ${orderId} status:`, error)
+    toast({
+      title: "Error",
+      description: "Failed to update order status",
+      variant: "destructive",
+    })
     throw new Error("Failed to update order status")
   }
 }
@@ -418,9 +566,20 @@ export async function createOrder(orderData: any): Promise<any> {
       },
       body: JSON.stringify(orderData),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Order placed",
+      description: "Your order has been successfully placed",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error creating order:", error)
+    toast({
+      title: "Error",
+      description: "Failed to create order",
+      variant: "destructive",
+    })
     throw new Error("Failed to create order")
   }
 }
@@ -450,9 +609,20 @@ export async function updateUserProfile(profileData: any): Promise<any> {
       },
       body: JSON.stringify(profileData),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Profile updated",
+      description: "Your profile has been updated successfully",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error updating user profile:", error)
+    toast({
+      title: "Error",
+      description: "Failed to update profile",
+      variant: "destructive",
+    })
     throw new Error("Failed to update profile")
   }
 }
@@ -469,9 +639,20 @@ export async function updateUserPassword(passwordData: any): Promise<any> {
       },
       body: JSON.stringify(passwordData),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Password updated",
+      description: "Your password has been updated successfully",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error updating password:", error)
+    toast({
+      title: "Error",
+      description: "Failed to update password",
+      variant: "destructive",
+    })
     throw new Error("Failed to update password")
   }
 }
@@ -481,12 +662,25 @@ export async function getCollections(): Promise<any[]> {
   const url = `${getBaseUrl()}/api/collections`
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      // Add cache control to prevent stale data
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+
+    // Check if response is ok before trying to parse JSON
+    if (!response.ok) {
+      console.warn(`Collections API returned status: ${response.status}`)
+      return [] // Return empty array instead of throwing
+    }
+
     const data = await handleResponse<{ collections: any[] }>(response)
     return data.collections || []
   } catch (error) {
-    console.error("Error fetching collections:", error)
-    return []
+    // Log error but don't throw to prevent console errors
+    console.warn("Error fetching collections:", error)
+    return [] // Return empty array instead of throwing
   }
 }
 
@@ -550,9 +744,20 @@ export async function submitReview(
         cons,
       }),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Review submitted",
+      description: "Your review has been submitted successfully",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error submitting review:", error)
+    toast({
+      title: "Error",
+      description: "Failed to submit review",
+      variant: "destructive",
+    })
     throw new Error("Failed to submit review")
   }
 }
@@ -572,9 +777,20 @@ export async function markReviewAsHelpful(reviewId: string): Promise<any> {
         helpful: true,
       }),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Feedback recorded",
+      description: "Thank you for your feedback",
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error("Error marking review as helpful:", error)
+    toast({
+      title: "Error",
+      description: "Failed to record feedback",
+      variant: "destructive",
+    })
     throw new Error("Failed to mark review as helpful")
   }
 }
@@ -628,9 +844,20 @@ export async function updateReviewStatus(reviewId: string, status: "pending" | "
         status,
       }),
     })
-    return handleResponse<any>(response)
+    const result = await handleResponse<any>(response)
+    toast({
+      title: "Review updated",
+      description: `Review status changed to ${status}`,
+      variant: "success",
+    })
+    return result
   } catch (error) {
     console.error(`Error updating review ${reviewId} status:`, error)
+    toast({
+      title: "Error",
+      description: "Failed to update review status",
+      variant: "destructive",
+    })
     throw new Error("Failed to update review status")
   }
 }

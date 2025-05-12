@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 interface Product {
-  _id: string
-  name: string
-  slug: string
+  _id: string;
+  name: string;
+  slug: string;
   variations: Array<{
-    _id: string
-    image: string
-    price: number
-    salePrice?: number
-    color: string
-    size: string
-  }>
+    _id: string;
+    image: string;
+    price: number;
+    salePrice?: number;
+    color: string;
+    size: string;
+  }>;
 }
 
 interface NewArrivalsProps {
-  products: Product[]
-  sectionImage?: string
-  sectionTitle?: string
-  sectionSubtitle?: string
+  products: Product[];
+  sectionImage?: string;
+  sectionTitle?: string;
+  sectionSubtitle?: string;
 }
 
 export default function NewArrivals({
@@ -39,64 +39,71 @@ export default function NewArrivals({
   sectionSubtitle = "Check out our latest products",
 }: NewArrivalsProps) {
   // Ensure products is always an array
-  const safeProducts = Array.isArray(products) ? products : []
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
-  const router = useRouter()
-  const { toast } = useToast()
+  const safeProducts = Array.isArray(products) ? products : [];
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const router = useRouter();
+  const { toast } = useToast();
 
   const checkScrollButtons = () => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
-      setCanScrollLeft(scrollLeft > 0)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10) // 10px buffer
+      const { scrollLeft, scrollWidth, clientWidth } =
+        scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10); // 10px buffer
     }
-  }
+  };
 
   useEffect(() => {
-    const scrollContainer = scrollContainerRef.current
+    const scrollContainer = scrollContainerRef.current;
     if (scrollContainer) {
-      checkScrollButtons()
-      scrollContainer.addEventListener("scroll", checkScrollButtons)
-      window.addEventListener("resize", checkScrollButtons)
+      checkScrollButtons();
+      scrollContainer.addEventListener("scroll", checkScrollButtons);
+      window.addEventListener("resize", checkScrollButtons);
 
       return () => {
-        scrollContainer.removeEventListener("scroll", checkScrollButtons)
-        window.removeEventListener("resize", checkScrollButtons)
-      }
+        scrollContainer.removeEventListener("scroll", checkScrollButtons);
+        window.removeEventListener("resize", checkScrollButtons);
+      };
     }
-  }, [safeProducts])
+  }, [safeProducts]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const { clientWidth } = scrollContainerRef.current
-      const scrollAmount = direction === "left" ? -clientWidth / 2 : clientWidth / 2
-      scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" })
+      const { clientWidth } = scrollContainerRef.current;
+      const scrollAmount =
+        direction === "left" ? -clientWidth / 2 : clientWidth / 2;
+      scrollContainerRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
     }
-  }
+  };
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     // Add to cart logic here
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,
-    })
-  }
+    });
+  };
 
   const handleAddToWishlist = (e: React.MouseEvent, product: Product) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     // Add to wishlist logic here
     toast({
       title: "Added to wishlist",
       description: `${product.name} has been added to your wishlist.`,
-    })
-  }
+    });
+  };
+
+  
 
   // If no products are provided, use default ones
   const displayProducts =
@@ -118,15 +125,58 @@ export default function NewArrivals({
                 size: "M",
               },
             ],
-          }))
+          }));
+  
+  const handleAddToWishlist = async (e: React.MouseEvent, productId: string, variationId: string) => {
+      e.preventDefault()
+      e.stopPropagation()
+  
+      if (!session) {
+        router.push(`/login?redirect=/products`)
+        return
+      }
+  
+      try {
+        const response = await fetch("/api/wishlist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            product_id: productId,
+            variation_id: variationId,
+          }),
+        })
+  
+        if (!response.ok) {
+          throw new Error("Failed to add to wishlist")
+        }
+  
+        toast({
+          title: "Success",
+          description: "Added to wishlist",
+        })
+      } catch (error) {
+        console.error("Error adding to wishlist:", error)
+        toast({
+          title: "Error",
+          description: "Failed to add to wishlist",
+          variant: "destructive",
+        })
+      }
+    }        
 
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12">
           <div className="mb-6 md:mb-0 md:max-w-xl">
-            <h2 className="text-5xl font-light mb-2 text-center text-teal-600">{sectionTitle}</h2>
-            <p className="text-gray-600 text-start ml-2 pt-2">{sectionSubtitle}</p>
+            <h2 className="text-5xl font-light mb-2 text-center text-teal-600">
+              {sectionTitle}
+            </h2>
+            <p className="text-gray-600 text-start ml-2 pt-2">
+              {sectionSubtitle}
+            </p>
           </div>
 
           {sectionImage && (
@@ -158,10 +208,14 @@ export default function NewArrivals({
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {displayProducts.map((product) => {
-              const variation = product.variations[0]
+              const variation = product.variations[0];
               const discountPercentage = variation.salePrice
-                ? Math.round(((variation.price - variation.salePrice) / variation.price) * 100)
-                : 0
+                ? Math.round(
+                    ((variation.price - variation.salePrice) /
+                      variation.price) *
+                      100
+                  )
+                : 0;
 
               return (
                 <Card
@@ -171,16 +225,27 @@ export default function NewArrivals({
                 >
                   <div className="relative h-90 w-full group">
                     <Image
-                      src={variation.image || `/placeholder.svg?height=256&width=256&query=${product.name}`}
+                      src={
+                        variation.image ||
+                        `/placeholder.svg?height=256&width=256&query=${product.name}`
+                      }
                       alt={product.name}
                       fill
                       className="object-cover transition-transform group-hover:scale-105 duration-500"
                     />
-                    {discountPercentage > 0 && (
+                    <button
+                      className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 hover:cursor-pointer"
+                      onClick={(e) =>
+                        handleAddToWishlist(e, product._id, mainVariation._id)
+                      }
+                    >
+                      <Heart className="h-4 w-4 text-gray-600" />
+                    </button>
+                    {/* {discountPercentage > 0 && (
                       <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
                         {discountPercentage}% OFF
                       </div>
-                    )}
+                    )} */}
                     {/* <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 flex justify-center gap-2 py-3 translate-y-full group-hover:translate-y-0 transition-all duration-300">
                       <Button
                         size="sm"
@@ -205,8 +270,12 @@ export default function NewArrivals({
                     <div className="flex items-center gap-2">
                       {variation.salePrice ? (
                         <>
-                          <span className="font-bold text-teal-600">₹{variation.salePrice}</span>
-                          <span className="text-gray-500 line-through text-sm">₹{variation.price}</span>
+                          <span className="font-bold text-teal-600">
+                            ₹{variation.salePrice}
+                          </span>
+                          <span className="text-gray-500 line-through text-sm">
+                            ₹{variation.price}
+                          </span>
                         </>
                       ) : (
                         <span className="font-bold">₹{variation.price}</span>
@@ -214,7 +283,7 @@ export default function NewArrivals({
                     </div>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
 
@@ -230,11 +299,14 @@ export default function NewArrivals({
         </div>
 
         <div className="flex justify-center mt-8">
-          <Link href="/products" className="inline-block bg-teal-600 rounded-md px-10 shadow-md hover:bg-teal-500  py-4  transition-colors text-md font-semibold text-white">
+          <Link
+            href="/products"
+            className="inline-block bg-teal-600 rounded-md px-10 shadow-md hover:bg-teal-500  py-4  transition-colors text-md font-semibold text-white"
+          >
             VIEW ALL
           </Link>
         </div>
       </div>
     </section>
-  )
+  );
 }
