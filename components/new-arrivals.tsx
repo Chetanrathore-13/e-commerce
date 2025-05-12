@@ -127,45 +127,7 @@ export default function NewArrivals({
             ],
           }));
   
-  const handleAddToWishlist = async (e: React.MouseEvent, productId: string, variationId: string) => {
-      e.preventDefault()
-      e.stopPropagation()
-  
-      if (!session) {
-        router.push(`/login?redirect=/products`)
-        return
-      }
-  
-      try {
-        const response = await fetch("/api/wishlist", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            product_id: productId,
-            variation_id: variationId,
-          }),
-        })
-  
-        if (!response.ok) {
-          throw new Error("Failed to add to wishlist")
-        }
-  
-        toast({
-          title: "Success",
-          description: "Added to wishlist",
-        })
-      } catch (error) {
-        console.error("Error adding to wishlist:", error)
-        toast({
-          title: "Error",
-          description: "Failed to add to wishlist",
-          variant: "destructive",
-        })
-      }
-    }        
-
+        
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
@@ -235,9 +197,7 @@ export default function NewArrivals({
                     />
                     <button
                       className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 hover:cursor-pointer"
-                      onClick={(e) =>
-                        handleAddToWishlist(e, product._id, mainVariation._id)
-                      }
+                      
                     >
                       <Heart className="h-4 w-4 text-gray-600" />
                     </button>
