@@ -9,6 +9,7 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { LoadingProvider } from "@/components/loading-provider"
 import { getServerSession } from "next-auth"
+import { Toaster } from "@/components/ui/toaster"
 import { authOptions } from "@/lib/auth"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -48,6 +49,7 @@ export default async function RootLayout({
             </LoadingProvider>
           </ThemeProvider>
         </NextAuthSessionProvider>
+         <Toaster />
       </body>
     </html>
     </>
