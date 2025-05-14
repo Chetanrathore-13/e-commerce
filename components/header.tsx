@@ -360,7 +360,9 @@ export default function Header() {
   const handleCloseLoginPopup = () => {
     setShowLoginPopup(false)
   }
-
+ 
+ 
+ console.log(wishlistCount)
   return (
     <header className="sticky top-0 z-40 bg-background">
       {/* Announcement Bar */}

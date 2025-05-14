@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/db"
 import {  Product, Variation } from "@/lib/models"
-import { Wishlist } from "@/lib/models/index"
+import Wishlist from "@/lib/models/wishlist"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"
@@ -61,10 +61,10 @@ export async function GET() {
       }
     }
 
+    // Make sure the response includes the total count
     return NextResponse.json({
-      _id: wishlist._id?.toString(),
-      user_id: wishlist.user_id.toString(),
       items: populatedItems,
+      totalItems: populatedItems.length,
     })
   } catch (error) {
     console.error("Error fetching wishlist:", error)

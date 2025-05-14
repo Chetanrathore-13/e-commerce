@@ -340,7 +340,12 @@ export async function getUserWishlist(): Promise<{ items: WishlistItem[]; totalI
   const url = `${getBaseUrl()}/api/wishlist`
 
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      // Add cache control to prevent stale data
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
     const data = await handleResponse<{ items: WishlistItem[] }>(response)
     return {
       items: data.items || [],
