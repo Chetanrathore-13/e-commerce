@@ -31,7 +31,6 @@ export default async function Home() {
     getProductsData({ sort: "createdAt", limit: 8 }),
     getProductsData({ isBestSeller: true, limit: 6 }),
   ]);
-  console.log(bestSellersData)
   // Extract the data from the responses, handling potential rejections
   const sections =
     sectionsData.status === "fulfilled"

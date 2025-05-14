@@ -26,34 +26,34 @@ export default function Footer() {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
- useEffect(() => {
+  useEffect(() => {
     async function fetchCategories() {
       try {
-        setIsLoading(true)
-        const response = await getCategories()
+        setIsLoading(true);
+        const response = await getCategories();
         // Get top level categories and limit to 6 for the footer
-        console.log("Fetched categories:", response.categories)
-        const topCategories = response.categories.filter((cat: Category) => !cat.parent_category_id).slice(0, 6)
-        console.log("Top categories for footer:", topCategories)
-        setCategories(topCategories)
+
+        const topCategories = response.categories
+          .filter((cat: Category) => !cat.parent_category_id)
+          .slice(0, 6);
+        setCategories(topCategories);
       } catch (error) {
-        console.error("Error fetching categories for footer:", error)
+        console.error("Error fetching categories for footer:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    fetchCategories()
-   
-  }, [])
+    fetchCategories();
+  }, []);
 
   // Function to convert category name to URL-friendly format
   const getCategoryUrl = (name: string) => {
     return `/${name
       .toLowerCase()
       .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")}`
-  }
+      .replace(/[^a-z0-9-]/g, "")}`;
+  };
   const features = [
     {
       icon: MapPin,
@@ -235,13 +235,20 @@ export default function Footer() {
 
           {/* Categories - Now Dynamic */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-white">Categories</h3>
+            <h3 className="text-lg font-semibold mb-4 text-white">
+              Categories
+            </h3>
             <ul className="space-y-2">
               {isLoading ? (
                 // Skeleton loader for categories
                 Array(6)
                   .fill(0)
-                  .map((_, index) => <li key={index} className="h-5 bg-gray-200 rounded animate-pulse mb-2 w-3/4"></li>)
+                  .map((_, index) => (
+                    <li
+                      key={index}
+                      className="h-5 bg-gray-200 rounded animate-pulse mb-2 w-3/4"
+                    ></li>
+                  ))
               ) : categories.length > 0 ? (
                 // Render dynamic categories
                 categories.map((category) => (
