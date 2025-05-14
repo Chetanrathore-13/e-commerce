@@ -157,7 +157,7 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
   if (!showPopup) return null;
 
   return (
-    <div className="fixed inset-0 backgroundcolor flex justify-center items-center z-50 p-4">
+    <div className="fixed inset-0 backgroundcolor flex justify-center items-center z-40 p-4">
       <div className="flex h-[90vh] w-full max-w-5xl bg-white rounded-lg overflow-hidden relative shadow-lg">
         <div className="w-1/2 h-full hidden md:block bg-gray-100 relative">
           <Image

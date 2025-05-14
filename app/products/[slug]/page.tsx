@@ -67,19 +67,19 @@ export default async function ProductPage({ params }: { params: { slug: string }
     : { relatedProducts: [] }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+    <div className="container mx-auto px-4 py-6">
+      <div className="mb-4 ml-5">
         <nav className="flex" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-3">
             <li className="inline-flex items-center">
-              <Link href="/" className="text-sm text-gray-700 hover:text-amber-700">
+              <Link href="/" className="text-md text-gray-900 hover:text-amber-700">
                 Home
               </Link>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <Link href="/products" className="text-sm text-gray-700 hover:text-amber-700">
+                <Link href="/products" className="text-md text-gray-900 hover:text-amber-700">
                   Products
                 </Link>
               </div>
@@ -90,7 +90,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   <span className="mx-2 text-gray-400">/</span>
                   <Link
                     href={`/${product.category_id.name?.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="text-sm text-gray-700 hover:text-amber-700"
+                    className="text-md text-gray-900 hover:text-amber-700"
                   >
                     {product.category_id.name || "Category"}
                   </Link>
@@ -100,7 +100,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
             <li aria-current="page">
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <span className="text-sm text-gray-500">{product.name}</span>
+                <span className="text-md text-gray-900">{product.name}</span>
               </div>
             </li>
           </ol>
@@ -113,12 +113,12 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <div className="mt-16">
+        <div className="mt-16 mb-5">
           <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {relatedProducts.map((relatedProduct: any) => (
               <Link href={`/products/${relatedProduct.slug}`} key={relatedProduct._id} className="group">
-                <div className="relative h-64 overflow-hidden rounded-lg bg-gray-100">
+                <div className="relative h-90 overflow-hidden rounded-lg bg-gray-100">
                   {relatedProduct.variations && relatedProduct.variations[0]?.image ? (
                     <Image
                       src={fixImagePath(relatedProduct.variations[0].image) || "/placeholder.svg"}
@@ -134,8 +134,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   )}
                 </div>
                 <div className="mt-2">
-                  <h3 className="text-sm font-medium text-gray-900">{relatedProduct.name}</h3>
-                  <p className="text-sm text-gray-700 mt-1">
+                  <h3 className="text-md   font-medium text-gray-900">{relatedProduct.name}</h3>
+                  <p className="text-md text-teal-700 mt-1">
                     ₹{(relatedProduct.variations?.[0]?.price || 0).toLocaleString()}
                   </p>
                 </div>
