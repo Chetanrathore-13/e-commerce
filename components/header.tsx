@@ -504,20 +504,7 @@ export default function Header() {
                   </Link>
                 </nav>
 
-                {/* Mega Menu - Now inside the navigation container */}
-                {activeMenu && megaMenuContent[activeMenu] && (
-                  <div
-                    className="absolute left-0 right-0 top-full z-[100]"
-                    onMouseEnter={() => setActiveMenu(activeMenu)}
-                    onMouseLeave={handleMenuMouseLeave}
-                  >
-                    <MegaMenu
-                      sections={megaMenuContent[activeMenu].sections}
-                      featuredImage={megaMenuContent[activeMenu].featuredImage}
-                      featuredImageAlt={`${activeMenu} featured image`}
-                    />
-                  </div>
-                )}
+                
               </div>
             </div>
 
