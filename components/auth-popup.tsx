@@ -1,37 +1,31 @@
-"use client";
+"use client"
 
-import Image from "next/image";
-import { X, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image"
+import { X, Loader2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
-import LoginImg from "../public/loginimage/login.jpg";
-import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
+import { useToast } from "@/hooks/use-toast"
+import LoginImg from "../public/loginimage/login.jpg"
+import { useSession } from "next-auth/react"
 
 type AuthPopupProps = {
-  onClose: () => void;
-};
+  onClose: () => void
+}
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-});
+})
 
 const signupSchema = loginSchema.extend({
   name: z.string().min(1, "Name is required"),
@@ -40,16 +34,16 @@ const signupSchema = loginSchema.extend({
       message: "You must accept the terms and conditions",
     }),
   }),
-});
+})
 
 export const AuthPopup = ({ onClose }: AuthPopupProps) => {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [showPopup, setShowPopup] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const role = session?.user?.role;
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [showPopup, setShowPopup] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const role = session?.user?.role
   const form = useForm<z.infer<typeof signupSchema | typeof loginSchema>>({
     resolver: zodResolver(isSignUp ? signupSchema : loginSchema),
     defaultValues: {
@@ -58,108 +52,118 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
       password: "",
       // acceptTerms: false,
     },
-  });
+  })
 
   const toggleMode = () => {
-    setIsSignUp((prev) => !prev);
-    form.reset();
-  };
+    setIsSignUp((prev) => !prev)
+    form.reset()
+  }
 
   useEffect(() => {
     const handleEscKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowPopup(false);
-    };
-    window.addEventListener("keydown", handleEscKey);
-    return () => window.removeEventListener("keydown", handleEscKey);
-  }, []);
+      if (e.key === "Escape") setShowPopup(false)
+    }
+    window.addEventListener("keydown", handleEscKey)
+    return () => window.removeEventListener("keydown", handleEscKey)
+  }, [])
 
   const onSubmit = async (values: any) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       if (isSignUp) {
-        // TODO: Implement actual signup request
+        // Implement actual signup request
         const response = await fetch("/api/auth/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(values),
-        });
+        })
 
-        const data = await response.json();
+        const data = await response.json()
 
         if (!response.ok) {
           toast({
-            title: "Error",
-            description: data.error || "Something went wrong",
             variant: "destructive",
-          });
-          return;
+            title: "Registration failed",
+            description: data.error || "Something went wrong",
+          })
+          setIsLoading(false)
+          return
         }
 
         toast({
-          title: "Success",
-          description: "Account created successfully",
-        });
+          variant: "success",
+          title: "Welcome to Parpra!",
+          description: "Your account has been created successfully",
+        })
 
         // Auto login after registration
         await signIn("credentials", {
           email: values.email,
           password: values.password,
           redirect: false,
-        });
+        })
 
-        router.push("/");
-        router.refresh();
+        router.push("/")
+        router.refresh()
       } else {
         const result = await signIn("credentials", {
           email: values.email,
           password: values.password,
           redirect: false,
-        });
+        })
+
         if (result?.error) {
           toast({
-            title: "Login failed",
-            description: "Invalid email or password",
             variant: "destructive",
-          });
+            title: "Login failed",
+            description: "Invalid email or password. Please try again.",
+          })
+          setIsLoading(false)
+          return
         }
 
-        if (result?.ok) {
-          // Fetch session to get the role
-          const sessionRes = await fetch("/api/auth/session");
-          const session = await sessionRes.json();
-          if (session?.user?.role === "admin") router.push("/dashboard");
-        }
-
+        // Successful login
         toast({
-          title: "Login successful",
-          description: "Redirecting...",
-        });
-        router.refresh();
+          variant: "success",
+          title: "Welcome back!",
+          description: "You have successfully logged in",
+        })
+
+        // Fetch session to get the role
+        const sessionRes = await fetch("/api/auth/session")
+        const session = await sessionRes.json()
+
+        if (session?.user?.role === "admin") {
+          router.push("/dashboard")
+        }
+
+        router.refresh()
       }
 
-      setShowPopup(false);
+      setShowPopup(false)
+      onClose()
     } catch (err) {
-      console.error("Auth error:", err);
+      console.error("Auth error:", err)
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
         variant: "destructive",
-      });
+        title: "Authentication Error",
+        description: "An unexpected error occurred. Please try again later.",
+      })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  if (!showPopup) return null;
+  if (!showPopup) return null
 
   return (
-    <div className="fixed inset-0 backgroundcolor flex justify-center items-center z-40 p-4">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-40 p-4">
       <div className="flex h-[90vh] w-full max-w-5xl bg-white rounded-lg overflow-hidden relative shadow-lg">
         <div className="w-1/2 h-full hidden md:block bg-gray-100 relative">
           <Image
-            src={LoginImg}
+            src={LoginImg || "/placeholder.svg"}
             alt="login visual"
             fill
             className="object-cover object-center"
@@ -171,8 +175,8 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
           <div className="w-full max-w-md">
             <button
               onClick={() => {
-                setShowPopup(false);
-                onClose();
+                setShowPopup(false)
+                onClose()
               }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
               aria-label="Close"
@@ -185,10 +189,7 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
             </h2>
 
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 {isSignUp && (
                   <FormField
                     name="name"
@@ -223,11 +224,7 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="Password *"
-                          {...field}
-                        />
+                        <Input type="password" placeholder="Password *" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -236,10 +233,7 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
 
                 {!isSignUp && (
                   <div className="text-right">
-                    <a
-                      href="#"
-                      className="text-sm text-gray-500 hover:text-teal-900"
-                    >
+                    <a href="#" className="text-sm text-gray-500 hover:text-teal-900">
                       Forgot Password?
                     </a>
                   </div>
@@ -252,14 +246,11 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
                     render={({ field }) => (
                       <FormItem className="flex items-center gap-2">
                         <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
+                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                         </FormControl>
                         <Label htmlFor="acceptTerms" className="text-sm">
                           I agree to the{" "}
-                          <a href="#" className="text-teal-600 underline">
+                          <a href="/terms" className="text-teal-600 hover:underline">
                             Terms & Conditions
                           </a>
                         </Label>
@@ -269,7 +260,7 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
                   />
                 )}
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button type="submit" className="w-full bg-teal-700 hover:bg-teal-800" disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -283,14 +274,8 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
                 </Button>
 
                 <div className="text-center text-sm text-gray-900 mt-4">
-                  {isSignUp
-                    ? "Already have an account?"  
-                    : "Don't have an account?"}{" "}
-                  <button
-                    type="button"
-                    onClick={toggleMode}
-                    className="text-teal-700 hover:underline ml-1"
-                  >
+                  {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+                  <button type="button" onClick={toggleMode} className="text-teal-700 hover:underline ml-1">
                     {isSignUp ? "Log In" : "Sign Up"}
                   </button>
                 </div>
@@ -300,7 +285,7 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AuthPopup;
+export default AuthPopup
