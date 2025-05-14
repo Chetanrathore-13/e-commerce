@@ -141,7 +141,7 @@
                 size="icon"
                 onClick={() => scroll("left")}
                 disabled={!canScrollLeft}
-                className="rounded-full"
+                className="rounded-full bg-teal-900 hover:bg-teal-600 text-white"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -150,7 +150,7 @@
                 size="icon"
                 onClick={() => scroll("right")}
                 disabled={!canScrollRight}
-                className="rounded-full"
+                className="rounded-full bg-teal-900 hover:bg-teal-600 text-white"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
