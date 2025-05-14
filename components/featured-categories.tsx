@@ -89,7 +89,7 @@ export default function FeaturedCategories({
           {displayCategories.slice(0, 6).map((category) => (
             <Link
               key={category._id}
-              href={`/${category.slug}`}
+              href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
               className="group"
             >
               <div className="relative overflow-hidden h-[650px]   rounded-xl mb-4">

@@ -19,88 +19,6 @@ import { useToast } from "@/hooks/use-toast"
 import logo from "@/public/Logo/Parpra.png"
 import AuthPopup from "./auth-popup"
 
-// Hardcoded mega menu content to avoid hydration issues
-const defaultMegaMenuContent: Record<string, MegaMenuContent> = {
-  women: {
-    sections: [
-      {
-        title: "CATEGORIES",
-        items: [
-          { title: "Sarees", url: "/women/sarees" },
-          { title: "Lehenga", url: "/women/lehenga" },
-          { title: "Salwar Kameez", url: "/women/salwar-kameez" },
-          { title: "Gowns", url: "/women/gowns" },
-        ],
-      },
-      {
-        title: "COLLECTIONS",
-        items: [
-          { title: "Bridal Collection", url: "/women/bridal-collection" },
-          { title: "Designer Collection", url: "/women/designer-collection" },
-        ],
-      },
-    ],
-    featuredImage: "/placeholder.svg?key=qdmpt",
-  },
-  men: {
-    sections: [
-      {
-        title: "STYLE",
-        items: [
-          { title: "Sherwanis", url: "/men/sherwanis" },
-          { title: "Indo Western", url: "/men/indo-western" },
-          { title: "Kurta Pyjama", url: "/men/kurta-pyjama" },
-        ],
-      },
-      {
-        title: "OCCASION",
-        items: [
-          { title: "Wedding Outfits", url: "/men/wedding" },
-          { title: "Party Wear", url: "/men/party-wear" },
-        ],
-      },
-    ],
-    featuredImage: "/placeholder.svg?key=oc881",
-  },
-  sarees: {
-    sections: [
-      {
-        title: "FABRIC",
-        items: [
-          { title: "Silk Sarees", url: "/women/sarees/silk" },
-          { title: "Georgette Sarees", url: "/women/sarees/georgette" },
-        ],
-      },
-      {
-        title: "OCCASION",
-        items: [
-          { title: "Wedding Sarees", url: "/women/sarees/wedding" },
-          { title: "Party Wear Sarees", url: "/women/sarees/party-wear" },
-        ],
-      },
-    ],
-    featuredImage: "/elegant-woman-in-silk-saree.png",
-  },
-  lehenga: {
-    sections: [
-      {
-        title: "STYLE",
-        items: [
-          { title: "Bridal Lehenga", url: "/women/lehenga/bridal" },
-          { title: "Designer Lehenga", url: "/women/lehenga/designer" },
-        ],
-      },
-      {
-        title: "OCCASION",
-        items: [
-          { title: "Wedding Lehenga", url: "/women/lehenga/wedding" },
-          { title: "Reception Lehenga", url: "/women/lehenga/reception" },
-        ],
-      },
-    ],
-    featuredImage: "/placeholder.svg?key=insx1",
-  },
-}
 
 
 // Update the Header component to fetch categories from the database
@@ -112,7 +30,6 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [megaMenuContent, setMegaMenuContent] = useState<Record<string, MegaMenuContent>>(defaultMegaMenuContent)
   const [categories, setCategories] = useState<CategoryWithSubcategories[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const profileRef = useRef<HTMLDivElement>(null)
@@ -219,9 +136,6 @@ export default function Header() {
               }
             }
           })
-
-          // Merge with default content to ensure we have fallbacks
-          setMegaMenuContent((prev) => ({ ...prev, ...newMegaMenuContent }))
         }
       } catch (error) {
         console.error("Error fetching categories:", error)
@@ -232,14 +146,6 @@ export default function Header() {
 
     fetchCategories()
   }, [])
-
-  // Determine if we're on a women's section page
-  const isWomenActive =
-    pathname?.includes("/women") ||
-    pathname?.includes("/sarees") ||
-    pathname?.includes("/lehenga") ||
-    pathname?.includes("/salwar-kameez") ||
-    pathname?.includes("/gowns")
 
   // Fetch mega menu content
   useEffect(() => {
@@ -369,7 +275,6 @@ export default function Header() {
     }
   }
  
- console.log(wishlistCount)
   return (
     <header className="sticky top-0 z-40 bg-background">
       {/* Announcement Bar */}
@@ -659,7 +564,7 @@ export default function Header() {
     
                 <Heart className="h-6 w-6 hover:text-red-500 hover:cursor-pointer transition-colors"  onClick={gotowishlist}/>
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute top-22 right-37 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {wishlistCount}
                   </span>
                 )}
