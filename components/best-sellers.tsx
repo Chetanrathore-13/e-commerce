@@ -1,4 +1,4 @@
-  "use client"
+"use client"
 
   import type React from "react"
 
@@ -124,27 +124,6 @@
               {sectionSubtitle && <p className="text-gray-600 text-start ml-2 pt-2">{sectionSubtitle}</p>}
             </div>
 
-<<<<<<< HEAD
-          <div className="flex space-x-2 ">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => scroll("left")}
-              disabled={!canScrollLeft}
-              className="rounded-full bg-teal-900 hover:bg-teal-600 text-white" 
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => scroll("right")}
-              disabled={!canScrollRight}
-              className="rounded-full bg-teal-900 hover:bg-teal-600 text-white"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-=======
             {sectionImage && (
               <div className="w-full md:w-1/3 relative h-40 mb-6 md:mb-0">
                 <Image
@@ -176,7 +155,6 @@
                 <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
->>>>>>> 65b1e63634bd51592bd9994a406384e9ae7c5fed
           </div>
 
           <div
