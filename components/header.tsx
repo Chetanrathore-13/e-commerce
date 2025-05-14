@@ -147,34 +147,7 @@ export default function Header() {
     fetchCategories()
   }, [])
 
-  // Fetch mega menu content
-  useEffect(() => {
-    const fetchMegaMenuContent = async () => {
-      try {
-        // Prefetch mega menu content for common categories
-        const menuTypes = ["sarees", "lehenga", "salwar-kameez", "gowns", "men", "women"]
 
-        for (const type of menuTypes) {
-          try {
-            const response = await fetch(`/api/mega-menu?type=${type}`)
-            if (response.ok) {
-              const data = await response.json()
-              setMegaMenuContent((prev) => ({
-                ...prev,
-                [type]: data,
-              }))
-            }
-          } catch (error) {
-            console.error(`Error fetching mega menu content for ${type}:`, error)
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching mega menu content:", error)
-      }
-    }
-
-    fetchMegaMenuContent()
-  }, [])
 
   // Close profile dropdown when clicking outside
   useEffect(() => {

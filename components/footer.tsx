@@ -21,9 +21,10 @@ import Cash from "../public/Payment-icons/cash.png";
 import Upi from "../public/Payment-icons/upi.png";
 import Paytm from "../public/Payment-icons/Paytm.png";
 import { getCategories } from "@/lib/api";
+import { Category } from "@/types";
 
 export default function Footer() {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
