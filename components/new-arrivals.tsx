@@ -10,6 +10,8 @@ import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
+import AuthPopup from "./auth-popup";
 
 interface Product {
   _id: string;
@@ -43,8 +45,10 @@ export default function NewArrivals({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { data: session } = useSession();
 
   const checkScrollButtons = () => {
     if (scrollContainerRef.current) {
@@ -53,6 +57,9 @@ export default function NewArrivals({
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10); // 10px buffer
     }
+  };
+  const handleAuthPopupClose = () => {
+    setShowAuthPopup(false);
   };
 
   useEffect(() => {
@@ -92,16 +99,44 @@ export default function NewArrivals({
     });
   };
 
-  const handleAddToWishlist = (e: React.MouseEvent, product: Product) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Add to wishlist logic here
-    toast({
-      title: "Added to wishlist",
-      description: `${product.name} has been added to your wishlist.`,
-    });
-  };
+  const handleAddToWishlist = async (e: React.MouseEvent, productId: string, variationId: string) => {
+      e.preventDefault()
+      e.stopPropagation()
+  
+      if (!session) {
+        setShowAuthPopup(true)
+        return
+      }
+  
+      try {
+        const response = await fetch("/api/wishlist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            product_id: productId,
+            variation_id: variationId,
+          }),
+        })
+  
+        if (!response.ok) {
+          throw new Error("Failed to add to wishlist")
+        }
+  
+        toast({
+          title: "Success",
+          description: "Added to wishlist",
+        })
+      } catch (error) {
+        console.error("Error adding to wishlist:", error)
+        toast({
+          title: "Error",
+          description: "Failed to add to wishlist",
+          variant: "destructive",
+        })
+      }
+    }
 
   
 
@@ -152,7 +187,7 @@ export default function NewArrivals({
             </div>
           )}
         </div>
-
+        {showAuthPopup && <AuthPopup onClose={handleAuthPopupClose} />}
         <div className="relative">
           {canScrollLeft && (
             <button
@@ -197,9 +232,9 @@ export default function NewArrivals({
                     />
                     <button
                       className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 hover:cursor-pointer"
-                      
+                       onClick={(e) => handleAddToWishlist(e, product._id, variation._id)}
                     >
-                      <Heart className="h-4 w-4 text-gray-600" />
+                      <Heart className="h-4 w-4 text-gray-600 hover:text-red-500" />
                     </button>
                     {/* {discountPercentage > 0 && (
                       <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">

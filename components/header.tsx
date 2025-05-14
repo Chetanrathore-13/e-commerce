@@ -162,6 +162,7 @@ export default function Header() {
   }, [status])
 
   // Fetch wishlist count
+  // Fetch wishlist count
   useEffect(() => {
     const fetchWishlistCount = async () => {
       if (status !== "authenticated") {
@@ -170,8 +171,9 @@ export default function Header() {
       }
 
       try {
-        const wishlistItems = await getUserWishlist()
-        setWishlistCount(wishlistItems.length || 0)
+        const wishlistData = await getUserWishlist()
+        // Make sure we're getting the correct count
+        setWishlistCount(wishlistData.totalItems || wishlistData.items?.length || 0)
       } catch (error) {
         console.error("Error fetching wishlist count:", error)
         setWishlistCount(0)
