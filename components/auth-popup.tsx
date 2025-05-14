@@ -123,16 +123,16 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
             title: "Login failed",
             description: "Invalid email or password",
             variant: "destructive",
-          })};
-          
-          if (result?.ok) {
-            // Fetch session to get the role
-            const sessionRes = await fetch("/api/auth/session");
-            const session = await sessionRes.json();
-            console.log("session", session);
-            if (session?.user?.role === "admin") router.push("/dashboard");
-          }
-        
+          });
+        }
+
+        if (result?.ok) {
+          // Fetch session to get the role
+          const sessionRes = await fetch("/api/auth/session");
+          const session = await sessionRes.json();
+          console.log("session", session);
+          if (session?.user?.role === "admin") router.push("/dashboard");
+        }
 
         toast({
           title: "Login successful",
@@ -158,13 +158,13 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
 
   return (
     <div className="fixed inset-0 backgroundcolor flex justify-center items-center z-50 p-4">
-      <div className="flex h-[70vh] w-full max-w-5xl bg-white rounded-lg overflow-hidden relative shadow-lg">
+      <div className="flex h-[90vh] w-full max-w-5xl bg-white rounded-lg overflow-hidden relative shadow-lg">
         <div className="w-1/2 h-full hidden md:block bg-gray-100 relative">
           <Image
             src={LoginImg}
             alt="login visual"
             fill
-            className="object-cover"
+            className="object-cover object-center"
             priority
           />
         </div>
@@ -284,9 +284,9 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
                   )}
                 </Button>
 
-                <div className="text-center text-sm text-gray-600 mt-4">
+                <div className="text-center text-sm text-gray-900 mt-4">
                   {isSignUp
-                    ? "Already have an account?"
+                    ? "Already have an account?"  
                     : "Don't have an account?"}{" "}
                   <button
                     type="button"
