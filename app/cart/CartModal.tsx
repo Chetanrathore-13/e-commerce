@@ -181,8 +181,8 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end">
-      <div className="bg-white w-full max-w-md h-full overflow-y-auto">
+    <div className="fixed inset-0 bg-[#0000005f] bg-opacity-50 z-50 flex justify-end">
+      <div className="bg-white w-full max-w-md h-full overflow-y-auto py-4 px-2">
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-medium">MY CART</h2>
           <div className="flex items-center">

@@ -306,8 +306,8 @@ export default function ProductsPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="relative w-full md:w-1/3">
           <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={18}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600"
+            size={20}
           />
           <Input
             type="text"
