@@ -451,9 +451,9 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <div className="mt-8 space-y-4">
+                <div className="mt-8 space-y-4 ">
                   <Link href="/checkout">
-                    <Button className="w-full bg-teal-700 hover:bg-teal-800 text-lg py-6">Checkout</Button>
+                    <Button className="w-full bg-teal-700 hover:bg-teal-800 text-lg py-6 mb-4">Checkout</Button>
                   </Link>
                   <Link href="/products">
                     <Button className="w-full border border-teal-700 bg-white text-teal-700 hover:bg-teal-50 text-lg py-6">

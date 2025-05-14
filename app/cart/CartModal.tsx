@@ -361,16 +361,16 @@ if (status === "unauthenticated") {
 
               <div className="space-y-4">
                 <Link href="/checkout" onClick={onClose}>
-                  <Button className="w-full bg-teal-700 hover:bg-teal-800">
+                  <Button className="w-full bg-teal-700 hover:bg-teal-800 mb-4">
                     Checkout
                   </Button>
                 </Link>
                 <Link href="/cart" onClick={onClose}>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full mb-4 hover:bg-teal-600 hover:text-white ">
                     View Cart
                   </Button>
                 </Link>
-                <Button variant="link" onClick={onClose} className="w-full">
+                <Button variant="link" onClick={onClose} className="w-full border no-underline  hover:bg-teal-600  hover:text-white">
                   Continue Shopping
                 </Button>
               </div>
