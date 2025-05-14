@@ -6,15 +6,6 @@ import Order from "@/lib/models/order"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // const session = await getServerSession(authOptions)
-    //  console.log("session", session)
-    // if (!session) {
-    //   return NextResponse.json({ success: false, error: "Not authenticated" }, { status: 401 })
-    // }
-
-    // if (session.user.role !== "admin") {
-    //   return NextResponse.json({ success: false, error: "Unauthorized - Admin access required" }, { status: 403 })
-    // }
 
     const { id } = await  params
 

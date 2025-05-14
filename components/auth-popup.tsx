@@ -117,7 +117,6 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
           password: values.password,
           redirect: false,
         });
-        console.log("result", result);
         if (result?.error) {
           toast({
             title: "Login failed",
@@ -130,7 +129,6 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
           // Fetch session to get the role
           const sessionRes = await fetch("/api/auth/session");
           const session = await sessionRes.json();
-          console.log("session", session);
           if (session?.user?.role === "admin") router.push("/dashboard");
         }
 

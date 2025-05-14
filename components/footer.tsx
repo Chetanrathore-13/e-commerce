@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -13,13 +14,47 @@ import {
   HandMetal,
   Globe,
 } from "lucide-react";
-
+import { useEffect, useState } from "react";
 import Logo from "../public/Logo/ParPraWhite.png";
 import PhonePe from "../public/Payment-icons/PhonePe.png";
 import Cash from "../public/Payment-icons/cash.png";
 import Upi from "../public/Payment-icons/upi.png";
 import Paytm from "../public/Payment-icons/Paytm.png";
+import { getCategories } from "@/lib/api";
+import { Category } from "@/types";
+
 export default function Footer() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        setIsLoading(true);
+        const response = await getCategories();
+        // Get top level categories and limit to 6 for the footer
+
+        const topCategories = response.categories
+          .filter((cat: Category) => !cat.parent_category_id)
+          .slice(0, 6);
+        setCategories(topCategories);
+      } catch (error) {
+        console.error("Error fetching categories for footer:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
+  // Function to convert category name to URL-friendly format
+  const getCategoryUrl = (name: string) => {
+    return `/${name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")}`;
+  };
   const features = [
     {
       icon: MapPin,
@@ -199,60 +234,38 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Categories */}
+          {/* Categories - Now Dynamic */}
           <div>
-            <h3 className="text-2xl font-semibold mb-4 text-white">
+            <h3 className="text-lg font-semibold mb-4 text-white">
               Categories
             </h3>
             <ul className="space-y-2">
-              <li>
-                <Link
-                  href="/women/sarees"
-                  className="text-white hover:text-teal-300"
-                >
-                  Sarees
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/women/lehenga"
-                  className="text-white hover:text-teal-300"
-                >
-                  Lehenga
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/women/salwar-kameez"
-                  className="text-white hover:text-teal-300"
-                >
-                  Salwar Kameez
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/women/gowns"
-                  className="text-white hover:text-teal-300"
-                >
-                  Gowns
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/men/sherwanis"
-                  className="text-white hover:text-teal-300"
-                >
-                  Sherwanis
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/men/kurta-pyjama"
-                  className="text-white hover:text-teal-300"
-                >
-                  Kurta Pyjama
-                </Link>
-              </li>
+              {isLoading ? (
+                // Skeleton loader for categories
+                Array(6)
+                  .fill(0)
+                  .map((_, index) => (
+                    <li
+                      key={index}
+                      className="h-5 bg-gray-200 rounded animate-pulse mb-2 w-3/4"
+                    ></li>
+                  ))
+              ) : categories.length > 0 ? (
+                // Render dynamic categories
+                categories.map((category) => (
+                  <li key={category._id} className="text-white">
+                    <Link
+                      href={getCategoryUrl(category.name)}
+                      className="text-white hover:text-teal-300 transition-colors"
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                // Fallback if no categories are found
+                <li className="text-gray-600">No categories available</li>
+              )}
             </ul>
           </div>
 

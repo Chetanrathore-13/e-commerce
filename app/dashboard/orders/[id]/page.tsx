@@ -11,7 +11,6 @@ export default async function OrderDetailPage({ params }) {
   const { id } = await params
   try {
     const order = await getOrderById(id, true) // true for admin mode
-    console.log("order", order)
     if (!order) {
       notFound()
     }

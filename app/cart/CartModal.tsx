@@ -1,78 +1,78 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Heart, Minus, Plus, X, ShoppingBag } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useToast } from "@/hooks/use-toast"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useSession } from "next-auth/react"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Heart, Minus, Plus, X, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useSession } from "next-auth/react";
 
 interface CartItem {
-  _id: string
-  product_id: string
-  variation_id: string
-  quantity: number
+  _id: string;
+  product_id: string;
+  variation_id: string;
+  quantity: number;
   product: {
-    _id: string
-    name: string
-    slug: string
-  }
+    _id: string;
+    name: string;
+    slug: string;
+  };
   variation: {
-    _id: string
-    price: number
-    salePrice?: number
-    image: string
-    size: string
-    color: string
-  }
+    _id: string;
+    price: number;
+    salePrice?: number;
+    image: string;
+    size: string;
+    color: string;
+  };
 }
 
 interface CartModalProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
-  const { data: session, status } = useSession()
-  const { toast } = useToast()
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [promoCode, setPromoCode] = useState("")
+  const { data: session, status } = useSession();
+  const { toast } = useToast();
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [promoCode, setPromoCode] = useState("");
 
-  useEffect(() => {
-    if (isOpen && status === "authenticated") {
-      fetchCartItems()
-    }
-  }, [isOpen, status])
+   useEffect(() => {
+  if (isOpen && status === "authenticated" && cartItems.length === 0) {
+    fetchCartItems()
+  }
+}, [isOpen, status])
 
   const fetchCartItems = async () => {
     try {
-      setLoading(true)
-      const response = await fetch("/api/cart")
+      setLoading(true);
+      const response = await fetch("/api/cart");
 
       if (!response.ok) {
-        throw new Error("Failed to fetch cart items")
+        throw new Error("Failed to fetch cart items");
       }
 
-      const data = await response.json()
-      setCartItems(data.items || [])
+      const data = await response.json();
+      setCartItems(data.items || []);
     } catch (error) {
-      console.error("Error fetching cart:", error)
+      console.error("Error fetching cart:", error);
       toast({
         title: "Error",
         description: "Failed to load cart items",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) return
+    if (newQuantity < 1) return;
 
     try {
       const response = await fetch(`/api/cart/${itemId}`, {
@@ -81,49 +81,57 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ quantity: newQuantity }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to update quantity")
+        throw new Error("Failed to update quantity");
       }
 
-      setCartItems(cartItems.map((item) => (item._id === itemId ? { ...item, quantity: newQuantity } : item)))
+      setCartItems(
+        cartItems.map((item) =>
+          item._id === itemId ? { ...item, quantity: newQuantity } : item
+        )
+      );
     } catch (error) {
-      console.error("Error updating quantity:", error)
+      console.error("Error updating quantity:", error);
       toast({
         title: "Error",
         description: "Failed to update quantity",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const removeItem = async (itemId: string) => {
     try {
       const response = await fetch(`/api/cart/${itemId}`, {
         method: "DELETE",
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to remove item from cart")
+        throw new Error("Failed to remove item from cart");
       }
 
-      setCartItems(cartItems.filter((item) => item._id !== itemId))
+      setCartItems(cartItems.filter((item) => item._id !== itemId));
       toast({
         title: "Success",
         description: "Item removed from cart",
-      })
+      });
     } catch (error) {
-      console.error("Error removing item:", error)
+      console.error("Error removing item:", error);
       toast({
         title: "Error",
         description: "Failed to remove item from cart",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
-  const moveToWishlist = async (productId: string, variationId: string, cartItemId: string) => {
+  const moveToWishlist = async (
+    productId: string,
+    variationId: string,
+    cartItemId: string
+  ) => {
     try {
       // Add to wishlist
       const wishlistResponse = await fetch("/api/wishlist", {
@@ -135,50 +143,64 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
           product_id: productId,
           variation_id: variationId,
         }),
-      })
+      });
 
       if (!wishlistResponse.ok) {
-        throw new Error("Failed to add item to wishlist")
+        throw new Error("Failed to add item to wishlist");
       }
 
       // Remove from cart
-      await removeItem(cartItemId)
+      await removeItem(cartItemId);
 
       toast({
         title: "Success",
         description: "Item moved to wishlist",
-      })
+      });
     } catch (error) {
-      console.error("Error moving to wishlist:", error)
+      console.error("Error moving to wishlist:", error);
       toast({
         title: "Error",
         description: "Failed to move item to wishlist",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const applyPromoCode = () => {
     // In a real implementation, this would validate the promo code with the server
     toast({
       title: "Promo Code",
       description: `Promo code "${promoCode}" applied!`,
-    })
-  }
+    });
+  };
 
   const subtotal = cartItems.reduce((total, item) => {
-    const price = item.variation.salePrice || item.variation.price
-    return total + price * item.quantity
-  }, 0)
+    const price = item.variation.salePrice || item.variation.price;
+    return total + price * item.quantity;
+  }, 0);
 
   const fixImagePath = (path: string) => {
-    if (!path) return "/placeholder.svg"
-    if (path.startsWith("http")) return path
-    if (path.startsWith("/")) return path
-    return `/${path}`
-  }
+    if (!path) return "/placeholder.svg";
+    return path.startsWith("http") || path.startsWith("/") ? path : `/${path}`;
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
+  // Handle unauthenticated state
+if (status === "unauthenticated") {
+  return (
+    <div className="fixed inset-0 bg-[#0000005f] bg-opacity-50 z-50 flex justify-end">
+      <div className="bg-white w-full max-w-md h-full overflow-y-auto py-4 px-2">
+        <div className="flex justify-between items-center p-4 border-b">
+          <h2 className="text-xl font-medium">MY CART</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-4 text-center text-gray-500">You are not logged in.</div>
+      </div>
+    </div>
+  )
+}
 
   return (
     <div className="fixed inset-0 bg-[#0000005f] bg-opacity-50 z-50 flex justify-end">
@@ -186,8 +208,13 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-medium">MY CART</h2>
           <div className="flex items-center">
-            <span className="mr-4 text-gray-600">{cartItems.length} ITEMS IN YOUR CART</span>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-800">
+            <span className="mr-4 text-gray-600">
+              {cartItems.length} ITEMS IN YOUR CART
+            </span>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-800"
+            >
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -247,9 +274,10 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                   <div key={item._id} className="flex gap-4 border-b pb-4">
                     <div className="relative h-32 w-24 flex-shrink-0">
                       <Image
-                        src={fixImagePath(item.variation.image) || "/placeholder.svg"}
+                        src={fixImagePath(item.variation.image)}
                         alt={item.product.name}
                         fill
+                        sizes="(max-width: 768px) 100vw, 200px"
                         className="object-cover"
                       />
                     </div>
@@ -271,32 +299,48 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
                         </button>
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        Size: {item.variation.size}, Color: {item.variation.color}
+                        Size: {item.variation.size}, Color:{" "}
+                        {item.variation.color}
                       </p>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-center border rounded-md">
                           <button
-                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                            onClick={() =>
+                              updateQuantity(item._id, item.quantity - 1)
+                            }
                             className="px-2 py-0.5 hover:bg-gray-100"
                             disabled={item.quantity <= 1}
                           >
                             <Minus className="h-3 w-3" />
                           </button>
-                          <span className="w-8 text-center text-sm">{item.quantity}</span>
+                          <span className="w-8 text-center text-sm">
+                            {item.quantity}
+                          </span>
                           <button
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                            onClick={() =>
+                              updateQuantity(item._id, item.quantity + 1)
+                            }
                             className="px-2 py-0.5 hover:bg-gray-100"
                           >
                             <Plus className="h-3 w-3" />
                           </button>
                         </div>
                         <p className="font-medium">
-                          ₹{(item.variation.salePrice || item.variation.price).toLocaleString("en-IN")}
+                          ₹
+                          {(
+                            item.variation.salePrice || item.variation.price
+                          ).toLocaleString("en-IN")}
                         </p>
                       </div>
                       <button
                         className="mt-2 text-xs text-teal-700 hover:text-teal-800 flex items-center"
-                        onClick={() => moveToWishlist(item.product._id, item.variation._id, item._id)}
+                        onClick={() =>
+                          moveToWishlist(
+                            item.product._id,
+                            item.variation._id,
+                            item._id
+                          )
+                        }
                       >
                         <Heart className="h-3 w-3 mr-1" />
                         Move to Wishlist
@@ -317,7 +361,9 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
 
               <div className="space-y-4">
                 <Link href="/checkout" onClick={onClose}>
-                  <Button className="w-full bg-teal-700 hover:bg-teal-800">Checkout</Button>
+                  <Button className="w-full bg-teal-700 hover:bg-teal-800">
+                    Checkout
+                  </Button>
                 </Link>
                 <Link href="/cart" onClick={onClose}>
                   <Button variant="outline" className="w-full">
@@ -333,5 +379,5 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
 
   // Protect /dashboard routes (allow both admin and user)
   if (pathname.startsWith("/dashboard")) {
-    if (!token || !["admin", "user"].includes(token.role)) {
+    if (!token || !["admin"].includes(token.role)) {
       const url = new URL("/", request.url);
 
       return NextResponse.redirect(url);
