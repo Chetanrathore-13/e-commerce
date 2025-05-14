@@ -129,13 +129,13 @@ export default function BestSellers({
             </div>
           )}
 
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 ">
             <Button
               variant="outline"
               size="icon"
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
-              className="rounded-full"
+              className="rounded-full bg-teal-900 hover:bg-teal-600 text-white" 
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
@@ -144,7 +144,7 @@ export default function BestSellers({
               size="icon"
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
-              className="rounded-full"
+              className="rounded-full bg-teal-900 hover:bg-teal-600 text-white"
             >
               <ChevronRight className="h-5 w-5" />
             </Button>
