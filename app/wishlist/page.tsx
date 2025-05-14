@@ -39,9 +39,6 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login?redirect=/wishlist")
-    }
 
     if (status === "authenticated") {
       fetchWishlist()
