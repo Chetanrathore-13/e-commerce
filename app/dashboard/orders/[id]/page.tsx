@@ -7,7 +7,7 @@ export const metadata = {
   description: "View and manage order details",
 }
 
-export default async function OrderDetailPage({ params }) {
+export default async function OrderDetailPage({ params }: { params: { id: string } }) {
   const { id } = await params
   try {
     const order = await getOrderById(id, true) // true for admin mode
