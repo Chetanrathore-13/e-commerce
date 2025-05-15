@@ -539,7 +539,7 @@ function DesktopFilters({
     <div className="space-y-6">
       <div>
         <h3 className="font-medium mb-4">Price Range</h3>
-        <div className="px-2">
+        <div className="px-2 ">
           <Slider
             defaultValue={priceRange}
             min={0}
@@ -547,7 +547,7 @@ function DesktopFilters({
             step={1000}
             value={priceRange}
             onValueChange={setPriceRange}
-            className="mb-6"
+            className="mb-6 text-teal-500"
           />
           <div className="flex items-center justify-between">
             <span>₹{priceRange[0].toLocaleString("en-US")}</span>

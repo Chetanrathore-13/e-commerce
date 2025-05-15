@@ -13,6 +13,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types";
 
+
+
 interface ProductCardProps {
   product: Product;
 }
@@ -129,11 +131,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-2 h-8 w-8 rounded-full bg-white/80 hover:bg-red-900"
+          className="absolute right-2 top-2 h-8 w-8 rounded-full bg-white/80 transition-colors duration-200  hover:cursor-pointer"
           onClick={addToWishlist}
           disabled={isAddingToWishlist}
         >
-          <Heart className="h-4 w-4 text-black hover:text-white" />
+          <Heart className="h-4 w-4 text-black hover:text-red-600 transition-colors duration-200" />
           <span className="sr-only">Add to wishlist</span>
         </Button>
 
