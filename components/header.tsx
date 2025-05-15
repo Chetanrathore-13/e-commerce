@@ -271,7 +271,7 @@ export default function Header() {
                 <div className="flex flex-col h-full">
                   <div className="py-4 border-b">
                     <Link href="/" className="flex items-center gap-2 font-semibold">
-                      <Image src="/parpra-logo.png" alt="PARPRA" width={120} height={40} />
+                      <Image src="/parpra-logo.png" alt="PARPRA"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                     </Link>
                   </div>
 
@@ -482,7 +482,7 @@ export default function Header() {
                   )}
 
                   <Link
-                    href="/collections"
+                    href="/products"
                     className={`text-sm hover:text-teal-800 ${
                       isActive("/collections") ? "text-teal-800 font-medium" : ""
                     }`}
