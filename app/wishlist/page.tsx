@@ -236,7 +236,7 @@ export default function WishlistPage() {
                           </div>
                           <div className="mt-2 md:mt-0">
                             <Button
-                              className="w-full md:w-auto border bg-teal-50 text-black hover:bg-amber-700 hover:text-white "
+                              className="w-full md:w-auto border bg-amber-700 hover:bg-teal-700 text-white"
                               onClick={() =>
                                 addToCart(item.product._id, item.variation._id)
                               }

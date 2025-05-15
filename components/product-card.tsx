@@ -149,20 +149,20 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div> */}
       </div>
 
-      <div className="mt-4">
-        <h3 className="text-sm font-medium text-gray-900">
+      <div className="mt-2">
+        <h3 className="text-md   font-medium text-gray-900">
           <Link href={`/products/${product.slug}`}>{product.name}</Link>
         </h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-600">
           {product.brand_id?.name || "Unknown Brand"}
         </p>
-        <div className="mt-2">
+        <div className="mt-4">
           {hasDiscount ? (
             <>
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-teal-900">
                 ₹{salePrice?.toLocaleString() || "0"}
               </span>
-              <span className="ml-2 text-sm text-gray-500 line-through">
+              <span className="ml-2 text-sm text-teal-500 line-through">
                 ₹{price?.toLocaleString() || "0"}
               </span>
             </>
