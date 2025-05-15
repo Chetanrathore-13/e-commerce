@@ -72,7 +72,7 @@ export default function AdminReviewDetailPage({ params }: { params: { id: string
           description: "Failed to load review",
           variant: "destructive",
         })
-        router.push("/admin/reviews")
+        router.push("/dashboard/reviews")
       } finally {
         setLoading(false)
       }
@@ -188,7 +188,7 @@ export default function AdminReviewDetailPage({ params }: { params: { id: string
         description: "Review deleted successfully",
       })
 
-      router.push("/admin/reviews")
+      router.push("/dashboard/reviews")
     } catch (error) {
       console.error("Error deleting review:", error)
       toast({
@@ -223,7 +223,7 @@ export default function AdminReviewDetailPage({ params }: { params: { id: string
     return (
       <div className="text-center py-8">
         <p className="text-gray-500">Review not found</p>
-        <Button variant="outline" onClick={() => router.push("/admin/reviews")} className="mt-4">
+        <Button variant="outline" onClick={() => router.push("/dashboard/reviews")} className="mt-4">
           Back to Reviews
         </Button>
       </div>
@@ -233,7 +233,7 @@ export default function AdminReviewDetailPage({ params }: { params: { id: string
   return (
     <div>
       <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/admin/reviews")} className="mr-4">
+        <Button variant="ghost" onClick={() => router.push("/dashboard/reviews")} className="mr-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>

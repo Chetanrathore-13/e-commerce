@@ -23,7 +23,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/hooks/use-toast"
 
-export function OrderDetail({ order }) {
+export function OrderDetail({ order }: { order: any }) {
+  console.log("Order Detail Component - Order Data:", order)
   const router = useRouter()
   const [isUpdating, setIsUpdating] = useState(false)
   const [currentStatus, setCurrentStatus] = useState(order.status)
@@ -64,7 +65,7 @@ export function OrderDetail({ order }) {
       })
 
       const data = await response.json()
-
+      console.log("Update response:", data)
       if (data.success) {
         toast({
           title: "Order updated",
@@ -251,7 +252,7 @@ export function OrderDetail({ order }) {
             <dl className="space-y-4">
               <div>
                 <dt className="text-sm font-medium text-gray-500">Customer Name</dt>
-                <dd>{order.shipping_address.full_name}</dd>
+                <dd>{order.shipping_address?.full_name}</dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-gray-500">Email</dt>
@@ -259,7 +260,7 @@ export function OrderDetail({ order }) {
               </div>
               <div>
                 <dt className="text-sm font-medium text-gray-500">Phone</dt>
-                <dd>{order.shipping_address.phone}</dd>
+                <dd>{order.shipping_address?.phone}</dd>
               </div>
             </dl>
           </CardContent>
@@ -275,19 +276,19 @@ export function OrderDetail({ order }) {
                 <dt className="text-sm font-medium text-gray-500">Shipping Address</dt>
                 <dd>
                   <address className="not-italic">
-                    {order.shipping_address.full_name}
+                    {order.shipping_address?.full_name}
                     <br />
-                    {order.shipping_address.address_line1}
+                    {order.shipping_address?.address_line1}
                     <br />
-                    {order.shipping_address.address_line2 && (
+                    {order.shipping_address?.address_line2 && (
                       <>
-                        {order.shipping_address.address_line2}
+                        {order.shipping_address?.address_line2}
                         <br />
                       </>
                     )}
-                    {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}
+                    {order.shipping_address?.city}, {order.shipping_address?.state} {order.shipping_address?.postal_code}
                     <br />
-                    {order.shipping_address.country}
+                    {order.shipping_address?.country}
                   </address>
                 </dd>
               </div>
@@ -321,7 +322,7 @@ export function OrderDetail({ order }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {order.items.map((item) => (
+                {order.items?.map((item) => (
                   <tr key={item._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
@@ -344,7 +345,7 @@ export function OrderDetail({ order }) {
                     </td>
                     <td className="px-6 py-4">₹{item.price.toFixed(2)}</td>
                     <td className="px-6 py-4">{item.quantity}</td>
-                    <td className="px-6 py-4 text-right">₹{(item.price * item.quantity).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right">₹{(item.price * item.quantity)?.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -354,7 +355,7 @@ export function OrderDetail({ order }) {
                     Subtotal
                   </th>
                   <td className="px-6 py-4 text-right">
-                    ₹{order.subtotal ? order.subtotal.toFixed(2) : order.total.toFixed(2)}
+                    ₹{order.subtotal ? order.subtotal?.toFixed(2) : order.total?.toFixed(2)}
                   </td>
                 </tr>
                 {order.discount > 0 && (
@@ -362,14 +363,14 @@ export function OrderDetail({ order }) {
                     <th colSpan={3} className="px-6 py-4 text-right">
                       Discount {order.coupon_code && `(${order.coupon_code})`}
                     </th>
-                    <td className="px-6 py-4 text-right text-red-600">-₹{order.discount.toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right text-red-600">-₹{order.discount?.toFixed(2)}</td>
                   </tr>
                 )}
                 <tr className="border-t font-bold">
                   <th colSpan={3} className="px-6 py-4 text-right">
                     Total
                   </th>
-                  <td className="px-6 py-4 text-right">₹{order.total.toFixed(2)}</td>
+                  <td className="px-6 py-4 text-right">₹{order.total?.toFixed(2)}</td>
                 </tr>
               </tfoot>
             </table>

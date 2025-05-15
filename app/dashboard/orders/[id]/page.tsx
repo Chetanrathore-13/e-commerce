@@ -11,13 +11,14 @@ export default async function OrderDetailPage({ params }) {
   const { id } = await params
   try {
     const order = await getOrderById(id, true) // true for admin mode
+    console.log("Fetched order:", order)
     if (!order) {
       notFound()
     }
 
     return (
       <div className="container mx-auto px-4 py-8">
-        <OrderDetail order={order} />
+        <OrderDetail order={order.order} />
       </div>
     )
   } catch (error) {
