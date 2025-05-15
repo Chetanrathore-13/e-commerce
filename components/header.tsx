@@ -26,7 +26,6 @@ export default function Header() {
   const { status } = useSession()
   const router = useRouter()
   const pathname = usePathname()
-  const [showAuthPopup, setAuthLoginPopup] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
