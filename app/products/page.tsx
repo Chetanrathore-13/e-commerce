@@ -303,81 +303,81 @@ export default function ProductsPage() {
       <h1 className="text-3xl font-bold mb-8">Products</h1>
 
       {/* Search and Sort Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div className="relative w-full md:w-1/3">
-          <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600"
-            size={20}
-          />
-          <Input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="outline" className="md:hidden">
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="left"
-              className="w-[300px] sm:w-[350px] overflow-y-auto"
-            >
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-              </SheetHeader>
-              <div className="py-4">
-                <MobileFilters
-                  categories={categories || []}
-                  brands={brands || []}
-                  materials={materials || []}
-                  colors={colors || []}
-                  sizes={sizes || []}
-                  selectedCategories={selectedCategories}
-                  selectedBrands={selectedBrands}
-                  selectedMaterials={selectedMaterials}
-                  selectedColors={selectedColors}
-                  selectedSizes={selectedSizes}
-                  priceRange={priceRange}
-                  toggleCategory={toggleCategory}
-                  toggleBrand={toggleBrand}
-                  toggleMaterial={toggleMaterial}
-                  toggleColor={toggleColor}
-                  toggleSize={toggleSize}
-                  setPriceRange={setPriceRange}
-                  clearAllFilters={clearAllFilters}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
-
-          <div className="flex-1 md:flex-none">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="featured">Featured</SelectItem>
-                <SelectItem value="bestseller">Best Seller</SelectItem>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="price-low-high">
-                  Price: Low to High
-                </SelectItem>
-                <SelectItem value="price-high-low">
-                  Price: High to Low
-                </SelectItem>
-              </SelectContent>
-            </Select>
+        {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div className="relative w-full md:w-1/3">
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600"
+              size={20}
+            />
+            <Input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
-        </div>
-      </div>
+
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="md:hidden">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filters
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="left"
+                className="w-[300px] sm:w-[350px] overflow-y-auto"
+              >
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="py-4">
+                  <MobileFilters
+                    categories={categories || []}
+                    brands={brands || []}
+                    materials={materials || []}
+                    colors={colors || []}
+                    sizes={sizes || []}
+                    selectedCategories={selectedCategories}
+                    selectedBrands={selectedBrands}
+                    selectedMaterials={selectedMaterials}
+                    selectedColors={selectedColors}
+                    selectedSizes={selectedSizes}
+                    priceRange={priceRange}
+                    toggleCategory={toggleCategory}
+                    toggleBrand={toggleBrand}
+                    toggleMaterial={toggleMaterial}
+                    toggleColor={toggleColor}
+                    toggleSize={toggleSize}
+                    setPriceRange={setPriceRange}
+                    clearAllFilters={clearAllFilters}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <div className="flex-1 md:flex-none">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="featured">Featured</SelectItem>
+                  <SelectItem value="bestseller">Best Seller</SelectItem>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="price-low-high">
+                    Price: Low to High
+                  </SelectItem>
+                  <SelectItem value="price-high-low">
+                    Price: High to Low
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div> */}
 
       {/* Active Filters */}
       {activeFilters.length > 0 && (
