@@ -17,10 +17,18 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
   }
+  // Protect /account routes (allow both admin and user)
+  if (pathname.startsWith("/account")) {
+    if (!token || !["user"].includes(token.role)) {
+      const url = new URL("/", request.url);
+
+      return NextResponse.redirect(url);
+    }
+  }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/account/:path*"],
 };
