@@ -427,6 +427,7 @@ export default function Header() {
                     </Link>
 
                     <div className="flex items-center mt-4 px-2">
+                        <div className="relative mr-4">
                         <Heart className="h-5 w-5 text-gray-700 hover:text-red-500" onClick={gotowishlist} />
                         {wishlistCount > 0 && (
                           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -434,6 +435,7 @@ export default function Header() {
                           </span>
                         )}
                         <span className="ml-2">Wishlist</span>
+                      </div>
                       
 
                       <button
@@ -521,14 +523,18 @@ export default function Header() {
               </div>
 
     
-                <Heart className="h-6 w-6 hover:text-red-500 hover:cursor-pointer transition-colors"  onClick={gotowishlist}/>
+               <div className="relative">
+                <Heart
+                  className="h-6 w-6 hover:text-red-500 hover:cursor-pointer transition-colors"
+                  onClick={gotowishlist}
+                  aria-label="Wishlist"
+                />
                 {wishlistCount > 0 && (
-                  <span className="absolute top-22 right-37 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {wishlistCount}
                   </span>
                 )}
-            
-
+              </div>
               <div className="relative" ref={profileRef}>
                 <button
                   className="flex items-center hover:text-teal-800"
