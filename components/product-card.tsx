@@ -156,7 +156,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="mt-1 text-sm text-gray-600">
           {product.brand_id?.name || "Unknown Brand"}
         </p>
-        <div className="mt-4">
+        <div className="mt-2">
           {hasDiscount ? (
             <>
               <span className="text-sm font-medium text-teal-900">
