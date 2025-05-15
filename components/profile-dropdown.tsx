@@ -10,7 +10,7 @@ export default function ProfileDropdown() {
         </Link>
       </div>
       <div className="py-2 px-4">
-        <Link href="/account/shipping" className="block py-2 text-gray-700 hover:text-amber-700">
+        <Link href="/account/addresses" className="block py-2 text-gray-700 hover:text-amber-700">
           My Shipping Details
         </Link>
         <Link href="/account/orders" className="block py-2 text-gray-700 hover:text-amber-700">

@@ -27,16 +27,23 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("")
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login?redirect=/account/profile")
-    }
+  if (status === "unauthenticated") {
+    router.push("/login?redirect=/account/profile")
+  }
 
-    if (status === "authenticated" && session.user) {
-      setName(session.user.name || "")
-      setEmail(session.user.email || "")
-      setLoading(false)
-    }
-  }, [status, router, session])
+  const fetchUser = async () => {
+    const res = await fetch("/api/user/profile")
+    const data = await res.json()
+    setName(data.user.name || "")
+    setEmail(data.user.email || "")
+    setLoading(false)
+  }
+
+  if (status === "authenticated") {
+    fetchUser()
+  }
+}, [status, router])
+
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
