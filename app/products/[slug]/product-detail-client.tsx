@@ -164,7 +164,7 @@ export default function ProductDetailClient({
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 ">
+    <div className="container mx-auto px-4 py-8 mb-14">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Product Images */}
         <div className="w-[800px]    md:w-1/2">

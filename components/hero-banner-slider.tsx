@@ -97,6 +97,7 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
         //       : "justify-center text-center"
 
         return (
+          <Link  href="/products" key={banner._id}> 
           <div
             key={banner._id}
             className={`absolute inset-0 transition-opacity duration-1000 ${
@@ -113,6 +114,7 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
             <div className={`absolute inset-0 bg-black/30 flex items-center  p-4 md:p-8`}>
             </div>
           </div>
+          </Link>
         )
       })}
 

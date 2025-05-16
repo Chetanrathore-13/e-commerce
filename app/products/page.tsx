@@ -299,7 +299,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8  mb-16">
       <h1 className="text-3xl font-bold mb-8">Products</h1>
 
       {/* Search and Sort Bar */}
@@ -536,7 +536,7 @@ function DesktopFilters({
   setPriceRange,
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ">
       <div>
         <h3 className="font-medium mb-4">Price Range</h3>
         <div className="px-2 ">
@@ -686,7 +686,7 @@ function DesktopFilters({
         <AccordionItem value="sizes">
           <AccordionTrigger>Sizes</AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-2">
+            <div className="space-y-2 S">
               {sizes && sizes.length > 0 ? (
                 sizes.map((size) => (
                   <div key={size} className="flex items-center space-x-2">
