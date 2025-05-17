@@ -169,7 +169,7 @@ export default function ProductDetailClient({
         {/* Product Images */}
         <div className="w-[800px]    md:w-1/2">
           {/* Main Image */}
-          <div className="relative w-full h-[700px] overflow-hidden rounded-lg">
+          <div className="relative w-full aspect-[3/4] overflow-hidden rounded-lg">
             {selectedVariation && (
               <Image
                 src={
