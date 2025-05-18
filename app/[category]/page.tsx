@@ -44,7 +44,7 @@ export default async function CategoryPage({ params }: { params: { category: str
   const { products = [] } = await getProductsByCategory(category._id)
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-14 ml-5 mb-14">
+    <div className="container mx-auto px-4 py-8 mt-14  mb-14">
       <h1 className="text-3xl font-bold mb-8">{category.name}</h1>
 
       {category.description && <p className="text-gray-600 mb-8">{category.description}</p>}
