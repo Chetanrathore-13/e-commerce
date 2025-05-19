@@ -22,6 +22,13 @@ export interface Address {
   phone: string
 }
 
+export interface StatusHistoryEntry {
+  status: string
+  timestamp: Date
+  user_id: string
+  user_email: string
+}
+
 export interface IOrder extends Document {
   user_id: mongoose.Types.ObjectId
   order_number: string
@@ -30,16 +37,28 @@ export interface IOrder extends Document {
   subtotal: number
   discount: number
   coupon_code?: string
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded"
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "returned" | "return_requested"
   payment_method: "credit-card" | "paypal" | "bank-transfer" | "cod"
   payment_status: "pending" | "processing" | "completed" | "failed" | "refunded"
   shipping_address: Address
   billing_address: Address
   tracking_number?: string
   notes?: string
+  cancel_reason?: string
+  return_reason?: string
+  additionalComments?: string
+  return_items?: string[]
+  status_history?: StatusHistoryEntry[]
   createdAt: Date
   updatedAt: Date
 }
+
+const StatusHistorySchema = new Schema<StatusHistoryEntry>({
+  status: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+  user_id: { type: String, required: true },
+  user_email: { type: String, required: true },
+})
 
 const OrderSchema = new Schema<IOrder>(
   {
@@ -63,7 +82,7 @@ const OrderSchema = new Schema<IOrder>(
     coupon_code: { type: String },
     status: {
       type: String,
-      enum: ["pending", "processing", "shipped", "delivered", "cancelled", "refunded"],
+      enum: ["pending", "processing", "shipped", "delivered", "cancelled", "returned", "return_requested"],
       default: "pending",
     },
     payment_method: {
@@ -98,6 +117,11 @@ const OrderSchema = new Schema<IOrder>(
     },
     tracking_number: { type: String },
     notes: { type: String },
+    cancel_reason: { type: String },
+    return_reason: { type: String },
+    additionalComments: { type: String },
+    return_items: [{ type: String }],
+    status_history: [StatusHistorySchema],
   },
   { timestamps: true },
 )
