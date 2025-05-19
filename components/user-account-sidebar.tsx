@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { signOut } from "next-auth/react"
 import { User, Package, Heart, MapPin, CreditCard, LogOut } from "lucide-react";
 
 interface UserAccountSidebarProps {
@@ -70,7 +71,7 @@ export default function UserAccountSidebar({
           ))}
           <li>
             <Link
-              href="/logout"
+            onClick={() => signOut( { callbackUrl: "/" })} href="/"
               className="flex items-center px-4 py-3 rounded-md text-teal-700 hover:bg-teal-600 hover:text-white"
             >
               <span className="mr-3">

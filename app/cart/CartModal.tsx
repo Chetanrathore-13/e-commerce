@@ -215,7 +215,7 @@ if (status === "unauthenticated") {
               onClick={onClose}
               className="text-gray-500 hover:text-gray-800"
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6 " />
             </button>
           </div>
         </div>
