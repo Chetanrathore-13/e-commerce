@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link"
 import FeaturedCategories from "@/components/featured-categories";
 import NewArrivals from "@/components/new-arrivals";
 import BestSellers from "@/components/best-sellers";
@@ -128,9 +129,14 @@ export default async function Home() {
       />
 
       {/* Banners-img */}
+      <Link href="/products/floor-length-anarkali-with-gold-foil-print">
       <section className="relative h-[70vh] md:h-[80vh] w-full bg-amber-700">
         <Image src={Art} alt="" fill className="object-cover" priority />
       </section>
+
+      </Link>
+
+      {/* Featured Categories */}
 
       {/* New Arrivals */}
       <NewArrivals

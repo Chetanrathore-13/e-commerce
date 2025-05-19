@@ -1,4 +1,3 @@
-import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
@@ -8,9 +7,7 @@ import LayoutWrapper from "@/components/layout-wrapper"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { LoadingProvider } from "@/components/loading-provider"
-import { getServerSession } from "next-auth"
 import { Toaster } from "@/components/ui/toaster"
-import { authOptions } from "@/lib/auth"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,16 +19,12 @@ export const metadata: Metadata = {
   },
 }
 
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const session = await getServerSession(authOptions)
-  const role = session?.user?.role || "null"
   return (
-    <>
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <NextAuthSessionProvider>
@@ -43,15 +36,14 @@ export default async function RootLayout({
             enableColorScheme={true}
           >
             <LoadingProvider>
-              {role !== "admin" && <Header />}
-              <LayoutWrapper>{children}</LayoutWrapper>       
-              {role !== "admin" &&  <Footer />}
+              <Header /> {/* Role-based logic should be inside Header */}
+              <LayoutWrapper>{children}</LayoutWrapper>
+              <Footer /> {/* Role-based logic should be inside Footer */}
             </LoadingProvider>
           </ThemeProvider>
         </NextAuthSessionProvider>
-         <Toaster />
+        <Toaster />
       </body>
     </html>
-    </>
   )
 }

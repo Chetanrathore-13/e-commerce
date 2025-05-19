@@ -779,12 +779,12 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <Link href="/" className="flex items-center justify-center">
+          {/* <Link href="/" className="flex items-center justify-center">
             <Image src="/parpra-logo.png" alt="PARPRA" width={180} height={60} />
-          </Link>
+          </Link> */}
           <div className="hidden md:flex items-center">
-            <Link href="/cart" className="text-gray-600 hover:text-teal-700 flex items-center">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+            <Link href="/cart" className="text-teal-600 hover:text-teal-800 text-2xl flex items-center">
+              <ArrowLeft className="h-5 w-5 mr-2" />
               Back to cart
             </Link>
           </div>

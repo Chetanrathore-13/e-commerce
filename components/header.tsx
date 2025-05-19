@@ -1,121 +1,125 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { usePathname, useRouter } from "next/navigation"
-import Link from "next/link"
-import Image from "next/image"
-import { Search, ShoppingBag, Heart, User, MenuIcon, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import ProfileDropdown from "@/components/profile-dropdown"
-import CartModal from "@/app/cart/CartModal"
-import MegaMenu from "@/components/mega-menu"
-import type { MegaMenuContent, CategoryWithSubcategories } from "@/types"
-import { getCategoryTree, getUserWishlist } from "@/lib/api"
-import { useSession } from "next-auth/react"
-import AnnouncementBar from "./announcement-bar"
-import { useToast } from "@/hooks/use-toast"
-import logo from "@/public/Logo/Parpra.png"
-import AuthPopup from "./auth-popup"
-
-
+import { useState, useRef, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { Search, ShoppingBag, Heart, User, MenuIcon, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import ProfileDropdown from "@/components/profile-dropdown";
+import CartModal from "@/app/cart/CartModal";
+import MegaMenu from "@/components/mega-menu";
+import type { MegaMenuContent, CategoryWithSubcategories } from "@/types";
+import { getCategoryTree, getUserWishlist } from "@/lib/api";
+import { useSession } from "next-auth/react";
+import AnnouncementBar from "./announcement-bar";
+import { useToast } from "@/hooks/use-toast";
+import logo from "@/public/Logo/Parpra.png";
+import AuthPopup from "./auth-popup";
 
 // Update the Header component to fetch categories from the database
 export default function Header() {
-  const { status } = useSession()
-  const router = useRouter()
-  const pathname = usePathname()
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isCartOpen, setIsCartOpen] = useState(false)
-  const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [categories, setCategories] = useState<CategoryWithSubcategories[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const profileRef = useRef<HTMLDivElement>(null)
-  const [cartItemCount, setCartItemCount] = useState(0)
-  const navRef = useRef<HTMLDivElement>(null)
-  const [wishlistCount, setWishlistCount] = useState(0)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<any[]>([])
-  const [isSearching, setIsSearching] = useState(false)
-  const [showSearchResults, setShowSearchResults] = useState(false)
-  const searchRef = useRef<HTMLDivElement>(null)
-  const [showLoginPopup, setShowLoginPopup] = useState(false)
-  const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const { toast } = useToast()
+  const { status } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [categories, setCategories] = useState<CategoryWithSubcategories[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const [cartItemCount, setCartItemCount] = useState(0);
+  const navRef = useRef<HTMLDivElement>(null);
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { toast } = useToast();
 
   // Fetch cart item count
   useEffect(() => {
     const fetchCartCount = async () => {
       if (status !== "authenticated") {
-        setCartItemCount(0)
-        return
+        setCartItemCount(0);
+        return;
       }
 
       try {
-        const response = await fetch("/api/cart")
+        const response = await fetch("/api/cart");
         if (!response.ok) {
-          throw new Error("Failed to fetch cart")
+          throw new Error("Failed to fetch cart");
         }
 
-        const data = await response.json()
+        const data = await response.json();
         // Calculate total quantity considering item quantities
-        const count = data.items?.reduce((total: number, item: any) => total + item.quantity, 0) || 0
-        setCartItemCount(count)
+        const count =
+          data.items?.reduce(
+            (total: number, item: any) => total + item.quantity,
+            0
+          ) || 0;
+        setCartItemCount(count);
       } catch (error) {
-        console.error("Error fetching cart count:", error)
-        setCartItemCount(0)
+        console.error("Error fetching cart count:", error);
+        setCartItemCount(0);
       }
-    }
+    };
 
-    fetchCartCount()
+    fetchCartCount();
 
     // Setup an interval to refresh the cart count every minute
-    const intervalId = setInterval(fetchCartCount, 60000)
+    const intervalId = setInterval(fetchCartCount, 60000);
 
     // Clean up on component unmount
-    return () => clearInterval(intervalId)
-  }, [status])
+    return () => clearInterval(intervalId);
+  }, [status]);
 
   // Fetch wishlist count
   // Fetch wishlist count
   useEffect(() => {
     const fetchWishlistCount = async () => {
       if (status !== "authenticated") {
-        setWishlistCount(0)
-        return
+        setWishlistCount(0);
+        return;
       }
 
       try {
-        const wishlistData = await getUserWishlist()
+        const wishlistData = await getUserWishlist();
         // Make sure we're getting the correct count
-        setWishlistCount(wishlistData.totalItems || wishlistData.items?.length || 0)
+        setWishlistCount(
+          wishlistData.totalItems || wishlistData.items?.length || 0
+        );
       } catch (error) {
-        console.error("Error fetching wishlist count:", error)
-        setWishlistCount(0)
+        console.error("Error fetching wishlist count:", error);
+        setWishlistCount(0);
       }
-    }
+    };
 
-    fetchWishlistCount()
+    fetchWishlistCount();
 
     // Setup an interval to refresh the wishlist count every minute
-    const intervalId = setInterval(fetchWishlistCount, 60000)
+    const intervalId = setInterval(fetchWishlistCount, 60000);
 
     // Clean up on component unmount
-    return () => clearInterval(intervalId)
-  }, [status])
+    return () => clearInterval(intervalId);
+  }, [status]);
 
   // Fetch categories from the database
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        setIsLoading(true)
-        const categoryTree = await getCategoryTree()
+        setIsLoading(true);
+        const categoryTree = await getCategoryTree();
         if (categoryTree && categoryTree.length > 0) {
-          setCategories(categoryTree)
+          setCategories(categoryTree);
 
           // Also update mega menu content based on categories
-          const newMegaMenuContent: Record<string, MegaMenuContent> = {}
+          const newMegaMenuContent: Record<string, MegaMenuContent> = {};
 
           categoryTree.forEach((category) => {
             if (category.subcategories && category.subcategories.length > 0) {
@@ -124,137 +128,147 @@ export default function Header() {
                   title: category.name.toUpperCase(),
                   items: category.subcategories.map((sub) => ({
                     title: sub.name,
-                    url: `/${category.name.toLowerCase()}/${sub.name.toLowerCase().replace(/\s+/g, "-")}`,
+                    url: `/${category.name.toLowerCase()}/${sub.name
+                      .toLowerCase()
+                      .replace(/\s+/g, "-")}`,
                   })),
                 },
-              ]
+              ];
 
               newMegaMenuContent[category.name.toLowerCase()] = {
                 sections,
-                featuredImage: category.image || `/placeholder.svg?height=400&width=300&query=${category.name}`,
-              }
+                featuredImage:
+                  category.image ||
+                  `/placeholder.svg?height=400&width=300&query=${category.name}`,
+              };
             }
-          })
+          });
         }
       } catch (error) {
-        console.error("Error fetching categories:", error)
+        console.error("Error fetching categories:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchCategories()
-  }, [])
-
-
+    fetchCategories();
+  }, []);
 
   // Close profile dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
-        setIsProfileOpen(false)
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileOpen(false);
       }
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowSearchResults(false)
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowSearchResults(false);
       }
 
       if (navRef.current && !navRef.current.contains(event.target as Node)) {
-        setActiveMenu(null)
+        setActiveMenu(null);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // Handle search
   const handleSearch = async (query: string) => {
-    setSearchQuery(query)
+    setSearchQuery(query);
 
     if (query.length < 2) {
-      setSearchResults([])
-      setShowSearchResults(false)
-      return
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
     }
 
-    setIsSearching(true)
-    setShowSearchResults(true)
+    setIsSearching(true);
+    setShowSearchResults(true);
 
     try {
-      const response = await fetch(`/api/products?search=${encodeURIComponent(query)}&limit=5`)
-      if (!response.ok) throw new Error("Search failed")
+      const response = await fetch(
+        `/api/products?search=${encodeURIComponent(query)}&limit=5`
+      );
+      if (!response.ok) throw new Error("Search failed");
 
-      const data = await response.json()
-      setSearchResults(data.products || [])
+      const data = await response.json();
+      setSearchResults(data.products || []);
     } catch (error) {
-      console.error("Search error:", error)
-      setSearchResults([])
+      console.error("Search error:", error);
+      setSearchResults([]);
     } finally {
-      setIsSearching(false)
+      setIsSearching(false);
     }
-  }
+  };
 
   // View all search results
   const viewAllSearchResults = () => {
-    router.push(`/products?search=${encodeURIComponent(searchQuery)}`)
-    setShowSearchResults(false)
-    setIsSearchOpen(false)
+    router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+    setShowSearchResults(false);
+    setIsSearchOpen(true);
     toast({
       title: "Searching products",
       description: `Showing results for "${searchQuery}"`,
-    })
-  }
+    });
+  };
 
   // Toggle mega menu visibility
   const handleMenuMouseEnter = (menu: string) => {
     // Small delay to prevent accidental triggers
     setTimeout(() => {
-      setActiveMenu(menu)
-    }, 50)
-  }
+      setActiveMenu(menu);
+    }, 50);
+  };
 
   // Add this function to handle mouse leave
   const handleMenuMouseLeave = () => {
-    setActiveMenu(null)
-  }
+    setActiveMenu(null);
+  };
 
   // Check if a nav item is active
   const isActive = (path: string) => {
     if (path === "/") {
-      return pathname === "/"
+      return pathname === "/";
     }
-    return pathname?.includes(path)
-  }
+    return pathname?.includes(path);
+  };
 
   const handleOpenLoginPopup = () => {
     if (status === "unauthenticated") {
-      setShowLoginPopup(true)
+      setShowLoginPopup(true);
     } else {
-      setIsProfileOpen(!isProfileOpen)
+      setIsProfileOpen(!isProfileOpen);
     }
-  }
+  };
 
   const handleCloseLoginPopup = () => {
-    setShowLoginPopup(false)
-  }
-  
+    setShowLoginPopup(false);
+  };
+
   const gotowishlist = () => {
     if (status === "authenticated") {
-      router.push("/wishlist")
-    }else {
-      setShowLoginPopup(true)
+      router.push("/wishlist");
+    } else {
+      setShowLoginPopup(true);
     }
-  }
- 
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-background">
       {/* Announcement Bar */}
       <div>
         <AnnouncementBar />
       </div>
-     {/* Auth Popup */}
-     {showLoginPopup && <AuthPopup onClose={handleCloseLoginPopup} />}
+      {/* Auth Popup */}
+      {showLoginPopup && <AuthPopup onClose={handleCloseLoginPopup} />}
       {/* Main Header */}
       <div className="border-b">
         <div className="container mx-auto px-4 py-4">
@@ -270,8 +284,15 @@ export default function Header() {
               <SheetContent side="left" className="w-[300px] overflow-y-auto">
                 <div className="flex flex-col h-full">
                   <div className="py-4 border-b">
-                    <Link href="/" className="flex items-center gap-2 font-semibold">
-                      <Image src="/parpra-logo.png" alt="PARPRA"  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                    <Link
+                      href="/"
+                      className="flex items-center gap-2 font-semibold"
+                    >
+                      <Image
+                        src="/parpra-logo.png"
+                        alt="PARPRA"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
                     </Link>
                   </div>
 
@@ -293,32 +314,43 @@ export default function Header() {
                                 href={`/products/${product.slug}`}
                                 className="flex items-center p-2 hover:bg-gray-50 rounded"
                                 onClick={() => {
-                                  setShowSearchResults(false)
+                                  setShowSearchResults(false);
                                   toast({
                                     title: "Product selected",
                                     description: `Viewing ${product.name}`,
-                                  })
+                                  });
                                 }}
                               >
                                 <div className="relative w-10 h-10 mr-3">
                                   <Image
-                                    src={product.variations[0]?.image || "/placeholder.svg"}
+                                    src={
+                                      product.variations[0]?.image ||
+                                      "/placeholder.svg"
+                                    }
                                     alt={product.name}
                                     fill
                                     className="object-cover rounded"
                                   />
                                 </div>
                                 <div className="flex-1">
-                                  <p className="text-sm font-medium truncate">{product.name}</p>
+                                  <p className="text-sm font-medium truncate">
+                                    {product.name}
+                                  </p>
                                   <p className="text-xs text-gray-500">
-                                    ₹{product.variations[0]?.salePrice || product.variations[0]?.price}
+                                    ₹
+                                    {product.variations[0]?.salePrice ||
+                                      product.variations[0]?.price}
                                   </p>
                                 </div>
                               </Link>
                             </li>
                           ))}
                         </ul>
-                        <Button variant="outline" className="w-full mt-3" onClick={viewAllSearchResults}>
+                        <Button
+                          variant="outline"
+                          className="w-full mt-3"
+                          onClick={viewAllSearchResults}
+                        >
                           View all results
                         </Button>
                       </div>
@@ -329,7 +361,9 @@ export default function Header() {
                     <Link
                       href="/"
                       className={`px-2 py-3 ${
-                        pathname === "/" ? "text-teal-800 font-medium" : "text-gray-700"
+                        pathname === "/"
+                          ? "text-teal-800 font-medium"
+                          : "text-gray-700"
                       } hover:text-teal-800 border-b`}
                     >
                       Home
@@ -348,42 +382,60 @@ export default function Header() {
                         .map((category) => (
                           <div key={category._id} className="collapsible">
                             <Link
-                              href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
+                              href={`/${category.name
+                                .toLowerCase()
+                                .replace(/\s+/g, "-")}`}
                               className={`px-2 py-3 flex justify-between items-center ${
-                                isActive(`/${category.name.toLowerCase().replace(/\s+/g, "-")}`)
+                                isActive(
+                                  `/${category.name
+                                    .toLowerCase()
+                                    .replace(/\s+/g, "-")}`
+                                )
                                   ? "text-teal-800 font-medium"
                                   : "text-gray-700"
                               } hover:text-teal-800 border-b`}
                             >
                               {category.name}
-                              
                             </Link>
-                            {category.subcategories && category.subcategories.length > 0 && (
-                              <div className="pl-4">
-                                {category.subcategories.map((subcategory) => (
-                                  <Link
-                                    key={subcategory._id}
-                                    href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}/${subcategory.name
-                                      .toLowerCase()
-                                      .replace(/\s+/g, "-")}`}
-                                    className={`px-2 py-2 block ${
-                                      isActive(
-                                        `/${category.name.toLowerCase().replace(/\s+/g, "-")}/${subcategory.name
-                                          .toLowerCase()
-                                          .replace(/\s+/g, "-")}`,
-                                      )
-                                        ? "text-teal-800 font-medium"
-                                        : "text-gray-700"
-                                    } hover:text-teal-800`}
-                                  >
-                                    {subcategory.name}
-                                    {subcategory.description && (
-                                      <p className="text-xs text-gray-500 mt-1">{subcategory.description}</p>
-                                    )}
-                                  </Link>
-                                ))}
-                              </div>
-                            )}
+                            {category.subcategories &&
+                              category.subcategories.length > 0 && (
+                                <div className="pl-4">
+                                  {category.subcategories.map((subcategory) => (
+                                    <Link
+                                      key={subcategory._id}
+                                      href={`/${category.name
+                                        .toLowerCase()
+                                        .replace(
+                                          /\s+/g,
+                                          "-"
+                                        )}/${subcategory.name
+                                        .toLowerCase()
+                                        .replace(/\s+/g, "-")}`}
+                                      className={`px-2 py-2 block ${
+                                        isActive(
+                                          `/${category.name
+                                            .toLowerCase()
+                                            .replace(
+                                              /\s+/g,
+                                              "-"
+                                            )}/${subcategory.name
+                                            .toLowerCase()
+                                            .replace(/\s+/g, "-")}`
+                                        )
+                                          ? "text-teal-800 font-medium"
+                                          : "text-gray-700"
+                                      } hover:text-teal-800`}
+                                    >
+                                      {subcategory.name}
+                                      {subcategory.description && (
+                                        <p className="text-xs text-gray-500 mt-1">
+                                          {subcategory.description}
+                                        </p>
+                                      )}
+                                    </Link>
+                                  ))}
+                                </div>
+                              )}
                           </div>
                         ))
                     )}
@@ -391,7 +443,9 @@ export default function Header() {
                     <Link
                       href="/bridal"
                       className={`px-2 py-3 ${
-                        isActive("/bridal") ? "text-teal-800 font-medium" : "text-gray-700"
+                        isActive("/bridal")
+                          ? "text-teal-800 font-medium"
+                          : "text-gray-700"
                       } hover:text-teal-800 border-b`}
                     >
                       Bridal
@@ -399,7 +453,9 @@ export default function Header() {
                     <Link
                       href="/collections"
                       className={`px-2 py-3 ${
-                        isActive("/collections") ? "text-teal-800 font-medium" : "text-gray-700"
+                        isActive("/collections")
+                          ? "text-teal-800 font-medium"
+                          : "text-gray-700"
                       } hover:text-teal-800 border-b`}
                     >
                       Collections
@@ -407,15 +463,20 @@ export default function Header() {
                     <Link
                       href="/contact"
                       className={`px-2 py-3 ${
-                        isActive("/contact") ? "text-teal-800 font-medium" : "text-gray-700"
+                        isActive("/contact")
+                          ? "text-teal-800 font-medium"
+                          : "text-gray-700"
                       } hover:text-teal-800 border-b`}
                     >
                       Contact
                     </Link>
 
                     <div className="flex items-center mt-4 px-2">
-                        <div className="relative mr-4">
-                        <Heart className="h-5 w-5 text-gray-700 hover:text-red-500" onClick={gotowishlist} />
+                      <div className="relative mr-4">
+                        <Heart
+                          className="h-5 w-5 text-gray-700 hover:text-red-500"
+                          onClick={gotowishlist}
+                        />
                         {wishlistCount > 0 && (
                           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                             {wishlistCount}
@@ -423,13 +484,14 @@ export default function Header() {
                         )}
                         <span className="ml-2">Wishlist</span>
                       </div>
-                      
 
                       <button
                         className="flex items-center relative"
                         onClick={() => {
-                          setIsCartOpen(true)
-                          document.querySelector('[data-state="open"]')?.setAttribute("data-state", "closed")
+                          setIsCartOpen(true);
+                          document
+                            .querySelector('[data-state="open"]')
+                            ?.setAttribute("data-state", "closed");
                         }}
                       >
                         <ShoppingBag className="h-5 w-5 text-gray-700" />
@@ -452,7 +514,10 @@ export default function Header() {
             </Link>
 
             {/* Secondary Navigation */}
-            <div className="hidden md:block overflow-x-auto relative" ref={navRef}>
+            <div
+              className="hidden md:block overflow-x-auto relative"
+              ref={navRef}
+            >
               <div className="container mx-auto px-4 relative">
                 <nav className="flex items-center space-x-8 py-3 whitespace-nowrap">
                   {/* Dynamic Categories */}
@@ -468,13 +533,21 @@ export default function Header() {
                     categories.map((category) => (
                       <Link
                         key={category._id}
-                        href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
+                        href={`/${category.name
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
                         className={`text-sm hover:text-teal-800 ${
-                          isActive(`/${category.name.toLowerCase().replace(/\s+/g, "-")}`)
+                          isActive(
+                            `/${category.name
+                              .toLowerCase()
+                              .replace(/\s+/g, "-")}`
+                          )
                             ? "text-teal-800 font-medium"
                             : ""
                         }`}
-                        onMouseEnter={() => handleMenuMouseEnter(category.name.toLowerCase())}
+                        onMouseEnter={() =>
+                          handleMenuMouseEnter(category.name.toLowerCase())
+                        }
                       >
                         {category.name.toUpperCase()}
                       </Link>
@@ -484,15 +557,15 @@ export default function Header() {
                   <Link
                     href="/products"
                     className={`text-sm hover:text-teal-800 ${
-                      isActive("/collections") ? "text-teal-800 font-medium" : ""
+                      isActive("/collections")
+                        ? "text-teal-800 font-medium"
+                        : ""
                     }`}
                     onMouseEnter={() => setActiveMenu(null)}
                   >
                     COLLECTION
                   </Link>
                 </nav>
-
-                
               </div>
             </div>
 
@@ -509,8 +582,7 @@ export default function Header() {
                 </button>
               </div>
 
-    
-               <div className="relative">
+              <div className="relative">
                 <Heart
                   className="h-6 w-6 hover:text-red-500 hover:cursor-pointer transition-colors"
                   onClick={gotowishlist}
@@ -527,12 +599,13 @@ export default function Header() {
                   className="flex items-center hover:text-teal-800"
                   onClick={handleOpenLoginPopup}
                   aria-label="User Account"
-                  
                 >
                   <User className="h-6 w-6" />
                 </button>
-                
-                {isProfileOpen && status === "authenticated" && <ProfileDropdown />}
+
+                {isProfileOpen && status === "authenticated" && (
+                  <ProfileDropdown />
+                )}
               </div>
 
               <button
@@ -554,7 +627,10 @@ export default function Header() {
           {isSearchOpen && (
             <div className="py-4 border-t mt-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
                 <Input
                   type="text"
                   placeholder="Search products..."
@@ -566,9 +642,9 @@ export default function Header() {
                 <button
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                   onClick={() => {
-                    setIsSearchOpen(false)
-                    setSearchQuery("")
-                    setShowSearchResults(false)
+                    setIsSearchOpen(false);
+                    setSearchQuery("");
+                    setShowSearchResults(false);
                   }}
                 >
                   <X size={18} />
@@ -584,33 +660,44 @@ export default function Header() {
                           href={`/products/${product.slug}`}
                           className="flex items-center p-2 hover:bg-gray-50 rounded"
                           onClick={() => {
-                            setShowSearchResults(false)
-                            setIsSearchOpen(false)
+                            setShowSearchResults(false);
+                            setIsSearchOpen(false);
                             toast({
                               title: "Product selected",
                               description: `Viewing ${product.name}`,
-                            })
+                            });
                           }}
                         >
                           <div className="relative w-10 h-10 mr-3">
                             <Image
-                              src={product.variations[0]?.image || "/placeholder.svg"}
+                              src={
+                                product.variations[0]?.image ||
+                                "/placeholder.svg"
+                              }
                               alt={product.name}
                               fill
                               className="object-cover rounded"
                             />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium truncate">{product.name}</p>
+                            <p className="text-sm font-medium truncate">
+                              {product.name}
+                            </p>
                             <p className="text-xs text-gray-500">
-                              ₹{product.variations[0]?.salePrice || product.variations[0]?.price}
+                              ₹
+                              {product.variations[0]?.salePrice ||
+                                product.variations[0]?.price}
                             </p>
                           </div>
                         </Link>
                       </li>
                     ))}
                   </ul>
-                  <Button variant="outline" className="w-full mt-3" onClick={viewAllSearchResults}>
+                  <Button
+                    variant="outline"
+                    className="w-full mt-3"
+                    onClick={viewAllSearchResults}
+                  >
                     View all results
                   </Button>
                 </div>
@@ -623,5 +710,5 @@ export default function Header() {
       {/* Cart Modal */}
       <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
-  )
+  );
 }

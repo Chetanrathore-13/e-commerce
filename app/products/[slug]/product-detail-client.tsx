@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+import AuthPopup from "@/components/auth-popup";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Check } from "lucide-react";
@@ -33,6 +34,7 @@ export default function ProductDetailClient({
   const [addingToCart, setAddingToCart] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [addedToWishlist, setAddedToWishlist] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   // Get unique sizes and colors from variations
   const sizes = Array.from(new Set(product.variations.map((v) => v.size)));
@@ -99,7 +101,7 @@ export default function ProductDetailClient({
     }
 
     if (status !== "authenticated") {
-      router.push(`/login?redirect=/products/${product.slug}`);
+      setShowPopup(true);
       return;
     }
 
@@ -136,7 +138,7 @@ export default function ProductDetailClient({
     }
 
     if (status !== "authenticated") {
-      router.push(`/login?redirect=/products/${product.slug}`);
+      setShowPopup(true);
       return;
     }
 
@@ -164,12 +166,12 @@ export default function ProductDetailClient({
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 ">
+    <div className="container mx-auto px-4 py-8 mb-14">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Product Images */}
         <div className="w-[800px]    md:w-1/2">
           {/* Main Image */}
-          <div className="relative w-full h-[700px] overflow-hidden rounded-lg">
+          <div className="relative w-full aspect-[3/4] overflow-hidden rounded-lg">
             {selectedVariation && (
               <Image
                 src={
@@ -182,6 +184,9 @@ export default function ProductDetailClient({
               />
             )}
           </div>
+          {showPopup && (
+            <AuthPopup onClose={() => setShowPopup(false)} />
+          )}
 
           {/* Gallery Images */}
           <div className="grid grid-cols-4 gap-2 mt-4">

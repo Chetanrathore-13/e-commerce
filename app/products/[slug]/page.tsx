@@ -1,70 +1,73 @@
-import { Suspense } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { Skeleton } from "@/components/ui/skeleton"
-import ProductDetailClient from "./product-detail-client"
+import { Suspense } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import ProductDetailClient from "./product-detail-client";
 
 async function getProduct(slug: string) {
-
   try {
     // Use absolute URL to avoid path issues
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-   
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
     const res = await fetch(`${baseUrl}/api/products/${slug}`, {
       cache: "no-store", // Disable cache to always get fresh data
-    })
-    
+    });
 
     if (!res.ok) {
-      console.error(`Failed to fetch product: ${res.status} ${res.statusText}`)
+      console.error(`Failed to fetch product: ${res.status} ${res.statusText}`);
       if (res.status === 404) {
-        return null
+        return null;
       }
-      throw new Error(`Failed to fetch product: ${res.status}`)
+      throw new Error(`Failed to fetch product: ${res.status}`);
     }
 
-    return await res.json()
+    return await res.json();
   } catch (error) {
-    console.error("Error loading product:", error)
-    return null
+    console.error("Error loading product:", error);
+    return null;
   }
 }
 
 async function getRelatedProducts(categoryId: string, productId: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-    const res = await fetch(`${baseUrl}/api/products?category=${categoryId}&exclude=${productId}&limit=4`, {
-      cache: "no-store",
-    })
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const res = await fetch(
+      `${baseUrl}/api/products?category=${categoryId}&exclude=${productId}&limit=4`,
+      {
+        cache: "no-store",
+      }
+    );
 
     if (!res.ok) {
-      throw new Error("Failed to fetch related products")
+      throw new Error("Failed to fetch related products");
     }
 
-    const data = await res.json()
-    return { relatedProducts: data.products || [] }
+    const data = await res.json();
+    return { relatedProducts: data.products || [] };
   } catch (error) {
-    console.error("Error loading related products:", error)
-    return { relatedProducts: [] }
+    console.error("Error loading related products:", error);
+    return { relatedProducts: [] };
   }
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const product = await getProduct(params.slug)
+export default async function ProductPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
+  const product = await getProduct(params.slug);
 
   if (!product) {
-    console.error(`Product not found for slug: ${params.slug}`)
-    notFound()
+    console.error(`Product not found for slug: ${params.slug}`);
+    notFound();
   }
 
-  
-
   // Get related products based on category if available
-  const categoryId = product.category_id?._id || product.category_id
+  const categoryId = product.category_id?._id || product.category_id;
   const { relatedProducts = [] } = categoryId
     ? await getRelatedProducts(categoryId, product._id)
-    : { relatedProducts: [] }
+    : { relatedProducts: [] };
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -72,14 +75,20 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <nav className="flex" aria-label="Breadcrumb">
           <ol className="inline-flex items-center space-x-1 md:space-x-3">
             <li className="inline-flex items-center">
-              <Link href="/" className="text-md text-gray-900 hover:text-amber-700">
+              <Link
+                href="/"
+                className="text-md text-gray-900 hover:text-amber-700"
+              >
                 Home
               </Link>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <Link href="/products" className="text-md text-gray-900 hover:text-amber-700">
+                <Link
+                  href="/products"
+                  className="text-md text-gray-900 hover:text-amber-700"
+                >
                   Products
                 </Link>
               </div>
@@ -89,7 +98,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 <div className="flex items-center">
                   <span className="mx-2 text-gray-400">/</span>
                   <Link
-                    href={`/${product.category_id.name?.toLowerCase().replace(/\s+/g, "-")}`}
+                    href={`/${product.category_id.name
+                      ?.toLowerCase()
+                      .replace(/\s+/g, "-")}`}
                     className="text-md text-gray-900 hover:text-amber-700"
                   >
                     {product.category_id.name || "Category"}
@@ -113,15 +124,23 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <div className="mt-16 mb-5">
+        <div className="mt-16 mb-20">
           <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {relatedProducts.map((relatedProduct: any) => (
-              <Link href={`/products/${relatedProduct.slug}`} key={relatedProduct._id} className="group">
-                <div className="relative h-90 overflow-hidden rounded-lg bg-gray-100">
-                  {relatedProduct.variations && relatedProduct.variations[0]?.image ? (
+              <Link
+                href={`/products/${relatedProduct.slug}`}
+                key={relatedProduct._id}
+                className="group"
+              >
+                <div className="relative h-[450px] overflow-hidden rounded-lg bg-gray-100">
+                  {relatedProduct.variations &&
+                  relatedProduct.variations[0]?.image ? (
                     <Image
-                      src={fixImagePath(relatedProduct.variations[0].image) || "/placeholder.svg"}
+                      src={
+                        fixImagePath(relatedProduct.variations[0].image) ||
+                        "/placeholder.svg"
+                      }
                       alt={relatedProduct.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -133,10 +152,16 @@ export default async function ProductPage({ params }: { params: { slug: string }
                     </div>
                   )}
                 </div>
+
                 <div className="mt-2">
-                  <h3 className="text-md   font-medium text-gray-900">{relatedProduct.name}</h3>
+                  <h3 className="text-md   font-medium text-gray-900">
+                    {relatedProduct.name}
+                  </h3>
                   <p className="text-md text-teal-700 mt-1">
-                    ₹{(relatedProduct.variations?.[0]?.price || 0).toLocaleString()}
+                    ₹
+                    {(
+                      relatedProduct.variations?.[0]?.price || 0
+                    ).toLocaleString()}
                   </p>
                 </div>
               </Link>
@@ -145,20 +170,20 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // Helper function to fix image paths
 function fixImagePath(path: string) {
-  if (!path) return "/diverse-products-still-life.png"
+  if (!path) return "/diverse-products-still-life.png";
 
   // If it's already a full URL or starts with /, return as is
   if (path.startsWith("http") || path.startsWith("/")) {
-    return path
+    return path;
   }
 
   // Otherwise, add /uploads/ prefix
-  return `/uploads/${path}`
+  return `/uploads/${path}`;
 }
 
 function ProductDetailSkeleton() {
@@ -200,5 +225,5 @@ function ProductDetailSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
