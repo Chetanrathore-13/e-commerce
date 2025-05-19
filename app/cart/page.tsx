@@ -299,19 +299,19 @@ export default function CartPage() {
                 <div className="p-4 border-b">
                   <h2 className="text-lg font-semibold">Cart Items ({cartItems.length})</h2>
                 </div>
-                <div className="divide-y">
+                <div className="divide-y h-90">
                   {cartItems.map((item) => (
                     <div key={item._id} className="p-4 flex flex-col sm:flex-row">
                       <div className="sm:w-1/4 mb-4 sm:mb-0">
                         <Link
                           href={`/products/${item.product.slug}`}
-                          className="block relative h-32 rounded overflow-hidden"
+                          className="block relative h-34 rounded overflow-hidden"
                         >
                           <Image
                             src={fixImagePath(item.variation.image) || "/placeholder.svg"}
                             alt={item.product.name}
                             fill
-                            className="object-cover"
+                            className="object-contain"
                           />
                         </Link>
                       </div>
