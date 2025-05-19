@@ -4,14 +4,11 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Minus, Plus, X, ShoppingBag, Tag, AlertCircle } from "lucide-react"
+import { Trash2, Heart, Minus, Plus, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import AuthModal from "@/components/auth-modal"
 
 interface CartItem {
   _id: string
@@ -35,55 +32,40 @@ interface CartItem {
   }
 }
 
-interface Cart {
-  _id: string
-  user_id: string
-  items: CartItem[]
-  total: number
-}
-
-interface Coupon {
-  _id: string
-  code: string
-  discount_type: "percentage" | "fixed"
-  discount_value: number
-  description: string
-}
-
 export default function CartPage() {
-  const { data: session, status } = useSession()
   const router = useRouter()
-  const { toast } = useToast()
-  const [cart, setCart] = useState<Cart | null>(null)
+  const { data: session, status } = useSession()
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [promoCode, setPromoCode] = useState("")
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null)
-  const [discountAmount, setDiscountAmount] = useState(0)
-  const [couponError, setCouponError] = useState<string | null>(null)
-  const [applyingCoupon, setApplyingCoupon] = useState(false)
+  const [subtotal, setSubtotal] = useState(0)
+  const [couponCode, setCouponCode] = useState("")
+  const [discount, setDiscount] = useState(0)
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState("")
+  const [couponSuccess, setCouponSuccess] = useState("")
+  const [updatingItems, setUpdatingItems] = useState<Record<string, boolean>>({})
+  const { toast } = useToast()
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login?redirect=/cart")
-      return
-    }
-
-    if (status === "authenticated") {
+      // Redirect to login if not authenticated
+      setIsAuthModalOpen(true)
+    } else if (status === "authenticated") {
       fetchCart()
     }
-  }, [status, router])
+  }, [status])
 
   const fetchCart = async () => {
+    setLoading(true)
     try {
-      setLoading(true)
       const response = await fetch("/api/cart")
-
       if (!response.ok) {
         throw new Error("Failed to fetch cart")
       }
-
       const data = await response.json()
-      setCart(data)
+      setCartItems(data.items || [])
+      calculateSubtotal(data.items || [])
     } catch (error) {
       console.error("Error fetching cart:", error)
       toast({
@@ -96,16 +78,19 @@ export default function CartPage() {
     }
   }
 
-  // Fix image paths if needed
-  const fixImagePath = (path: string) => {
-    if (!path) return "/diverse-products-still-life.png"
-    if (path.startsWith("http")) return path
-    if (path.startsWith("/")) return path
-    return `/${path}`
+  const calculateSubtotal = (items: CartItem[]) => {
+    const total = items.reduce((sum, item) => {
+      const price = item.variation.salePrice || item.variation.price
+      return sum + price * item.quantity
+    }, 0)
+    setSubtotal(total)
   }
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return
+
+    // Set this item as updating
+    setUpdatingItems((prev) => ({ ...prev, [itemId]: true }))
 
     try {
       const response = await fetch(`/api/cart/${itemId}`, {
@@ -120,27 +105,16 @@ export default function CartPage() {
         throw new Error("Failed to update quantity")
       }
 
-      // Update cart locally
-      setCart((prevCart) => {
-        if (!prevCart) return null
-
-        const updatedItems = prevCart.items.map((item) =>
-          item._id === itemId ? { ...item, quantity: newQuantity } : item,
-        )
-
-        const newTotal = updatedItems.reduce((total, item) => total + item.price * item.quantity, 0)
-
-        return {
-          ...prevCart,
-          items: updatedItems,
-          total: newTotal,
+      // Update local state
+      const updatedItems = cartItems.map((item) => {
+        if (item._id === itemId) {
+          return { ...item, quantity: newQuantity }
         }
+        return item
       })
 
-      // Reset coupon when cart changes
-      if (appliedCoupon) {
-        validateCoupon(appliedCoupon.code)
-      }
+      setCartItems(updatedItems)
+      calculateSubtotal(updatedItems)
     } catch (error) {
       console.error("Error updating quantity:", error)
       toast({
@@ -148,67 +122,107 @@ export default function CartPage() {
         description: "Failed to update quantity",
         variant: "destructive",
       })
+    } finally {
+      setUpdatingItems((prev) => ({ ...prev, [itemId]: false }))
     }
   }
 
   const removeItem = async (itemId: string) => {
+    // Set this item as updating
+    setUpdatingItems((prev) => ({ ...prev, [itemId]: true }))
+
     try {
       const response = await fetch(`/api/cart/${itemId}`, {
         method: "DELETE",
       })
 
       if (!response.ok) {
-        throw new Error("Failed to remove item from cart")
+        throw new Error("Failed to remove item")
       }
 
-      // Update cart locally
-      setCart((prevCart) => {
-        if (!prevCart) return null
-
-        const updatedItems = prevCart.items.filter((item) => item._id !== itemId)
-        const newTotal = updatedItems.reduce((total, item) => total + item.price * item.quantity, 0)
-
-        return {
-          ...prevCart,
-          items: updatedItems,
-          total: newTotal,
-        }
-      })
+      const updatedItems = cartItems.filter((item) => item._id !== itemId)
+      setCartItems(updatedItems)
+      calculateSubtotal(updatedItems)
 
       toast({
-        title: "Success",
-        description: "Item removed from cart",
+        title: "Item removed",
+        description: "Item has been removed from your cart",
       })
-
-      // Reset coupon when cart changes
-      if (appliedCoupon) {
-        validateCoupon(appliedCoupon.code)
-      }
     } catch (error) {
-      console.error("Error removing from cart:", error)
+      console.error("Error removing item:", error)
       toast({
         title: "Error",
-        description: "Failed to remove item from cart",
+        description: "Failed to remove item",
         variant: "destructive",
       })
+    } finally {
+      setUpdatingItems((prev) => ({ ...prev, [itemId]: false }))
     }
   }
 
-  const validateCoupon = async (code: string) => {
-    if (!code) return
+  const moveToWishlist = async (item: CartItem) => {
+    // Set this item as updating
+    setUpdatingItems((prev) => ({ ...prev, [item._id]: true }))
 
     try {
-      setApplyingCoupon(true)
-      setCouponError(null)
-
-      const response = await fetch("/api/coupons/validate", {
+      // First add to wishlist
+      const wishlistResponse = await fetch(`/api/wishlist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          code,
-          cartTotal: cart?.total || 0,
+          product_id: item.product_id,
+          variation_id: item.variation_id,
+        }),
+      })
+
+      if (!wishlistResponse.ok) {
+        const errorData = await wishlistResponse.json()
+        // If item is already in wishlist, continue with removal from cart
+        if (!errorData.message?.includes("already in wishlist")) {
+          throw new Error("Failed to add item to wishlist")
+        }
+      }
+
+      // Then remove from cart
+      await removeItem(item._id)
+
+      toast({
+        title: "Moved to wishlist",
+        description: "Item moved to your wishlist",
+      })
+    } catch (error) {
+      console.error("Error moving item to wishlist:", error)
+      toast({
+        title: "Error",
+        description: "Failed to move item to wishlist",
+        variant: "destructive",
+      })
+    } finally {
+      setUpdatingItems((prev) => ({ ...prev, [item._id]: false }))
+    }
+  }
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code")
+      return
+    }
+
+    setCouponLoading(true)
+    setCouponError("")
+    setCouponSuccess("")
+
+    try {
+      const response = await fetch("/api/coupons/apply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: couponCode,
+          subtotal,
         }),
       })
 
@@ -216,256 +230,220 @@ export default function CartPage() {
 
       if (!response.ok) {
         setCouponError(data.error || "Invalid coupon code")
-        setAppliedCoupon(null)
-        setDiscountAmount(0)
+        setDiscount(0)
         return
       }
 
-      setAppliedCoupon(data.coupon)
-      setDiscountAmount(data.discountAmount)
-
-      toast({
-        title: "Coupon Applied",
-        description: `Coupon "${data.coupon.code}" applied successfully!`,
-      })
+      setCouponSuccess(`Coupon applied! You saved ₹${data.discount}`)
+      setDiscount(data.discount)
     } catch (error) {
-      console.error("Error validating coupon:", error)
-      setCouponError("Failed to validate coupon")
-      setAppliedCoupon(null)
-      setDiscountAmount(0)
+      console.error("Error applying coupon:", error)
+      setCouponError("Failed to apply coupon")
+      setDiscount(0)
     } finally {
-      setApplyingCoupon(false)
+      setCouponLoading(false)
     }
   }
 
-  const applyPromoCode = () => {
-    if (!promoCode) {
+  const proceedToCheckout = () => {
+    if (cartItems.length === 0) {
       toast({
-        title: "Error",
-        description: "Please enter a coupon code",
+        title: "Empty Cart",
+        description: "Your cart is empty. Add items before checkout.",
         variant: "destructive",
       })
       return
     }
 
-    validateCoupon(promoCode)
+    router.push("/checkout")
   }
 
-  const removeCoupon = () => {
-    setAppliedCoupon(null)
-    setDiscountAmount(0)
-    setPromoCode("")
-    setCouponError(null)
-
-    toast({
-      title: "Coupon Removed",
-      description: "Coupon has been removed from your cart",
-    })
+  // Fix image paths if needed
+  const fixImagePath = (path: string) => {
+    if (!path) return "/placeholder.svg"
+    if (path.startsWith("http")) return path
+    if (path.startsWith("/")) return path
+    return `/${path}`
   }
 
-  if (status === "loading" || (status === "authenticated" && loading)) {
+  if (loading) {
     return (
-      <div className="bg-white min-h-screen py-12">
-        <div className="container mx-auto px-4">
-          <Skeleton className="h-12 w-1/3 mx-auto mb-8" />
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-              {[1, 2].map((i) => (
-                <Skeleton key={i} className="h-[200px] w-full rounded-md" />
-              ))}
-            </div>
-            <div className="lg:col-span-1">
-              <Skeleton className="h-[400px] w-full rounded-md" />
-            </div>
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-700"></div>
         </div>
       </div>
     )
   }
 
-  const cartItems = cart?.items || []
-  const subtotal = cart?.total || 0
-  const shipping = 0 // Free shipping
-  const finalTotal = subtotal - discountAmount + shipping
-
   return (
-    <div className="bg-white min-h-screen py-12">
-      <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-light text-center mb-8">My Cart</h1>
+    <>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">Shopping Cart</h1>
 
         {cartItems.length === 0 ? (
-          <div className="text-center py-16">
-            <h2 className="text-2xl font-light mb-4">Your cart is empty</h2>
-            <p className="text-gray-500 mb-8">Looks like you haven't added any products to your cart yet.</p>
-            <div className="flex justify-center">
-              <ShoppingBag className="h-24 w-24 text-gray-300 mb-6" />
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <div className="flex justify-center mb-4">
+              <ShoppingBag className="h-16 w-16 text-gray-400" />
             </div>
-            <Link href="/products">
-              <Button className="bg-teal-700 hover:bg-teal-800">Continue Shopping</Button>
-            </Link>
+            <h2 className="text-xl font-semibold mb-2">Your cart is empty</h2>
+            <p className="text-gray-600 mb-4">Looks like you haven't added anything to your cart yet.</p>
+            <Button onClick={() => router.push("/products")} className="bg-teal-700 hover:bg-teal-800">
+              Continue Shopping
+            </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-6">
-              {cartItems.map((item) => (
-                <div key={item._id} className="bg-white p-6 rounded-md shadow-sm border">
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="w-full md:w-1/4">
-                      <Link
-                        href={`/products/${item.product.slug}`}
-                        className="block relative aspect-square rounded-md overflow-hidden"
-                      >
-                        <Image
-                          src={fixImagePath(item.variation.image) || "/placeholder.svg"}
-                          alt={item.product.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </Link>
-                    </div>
-                    <div className="flex-1 flex flex-col">
-                      <div className="flex justify-between mb-2">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="lg:w-2/3">
+              <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="p-4 border-b">
+                  <h2 className="text-lg font-semibold">Cart Items ({cartItems.length})</h2>
+                </div>
+                <div className="divide-y">
+                  {cartItems.map((item) => (
+                    <div key={item._id} className="p-4 flex flex-col sm:flex-row">
+                      <div className="sm:w-1/4 mb-4 sm:mb-0">
                         <Link
                           href={`/products/${item.product.slug}`}
-                          className="text-lg font-medium hover:text-teal-700 line-clamp-2"
+                          className="block relative h-32 rounded overflow-hidden"
                         >
-                          {item.product.name}
+                          <Image
+                            src={fixImagePath(item.variation.image) || "/placeholder.svg"}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                          />
                         </Link>
-                        <button
-                          onClick={() => removeItem(item._id)}
-                          className="text-gray-400 hover:text-gray-600 flex-shrink-0"
-                          aria-label="Remove from cart"
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
                       </div>
-                      <p className="text-gray-500 text-sm">
-                        Size: {item.variation.size}, Color: {item.variation.color}
-                      </p>
-                      <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <p className="font-medium text-lg">₹{item.price.toLocaleString("en-IN")}</p>
-                        <div className="flex items-center border rounded-md">
-                          <button
-                            onClick={() => updateQuantity(item._id, item.quantity - 1)}
-                            className="px-3 py-1 hover:bg-gray-100"
-                            disabled={item.quantity <= 1}
+                      <div className="sm:w-3/4 sm:pl-4 flex flex-col">
+                        <div className="flex justify-between mb-2">
+                          <Link
+                            href={`/products/${item.product.slug}`}
+                            className="text-lg font-medium hover:text-teal-700"
                           >
-                            <Minus className="h-4 w-4" />
-                          </button>
-                          <span className="w-10 text-center">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                            className="px-3 py-1 hover:bg-gray-100"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </button>
+                            {item.product.name}
+                          </Link>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => moveToWishlist(item)}
+                              className="text-gray-500 hover:text-red-500 transition-colors"
+                              disabled={updatingItems[item._id]}
+                            >
+                              <Heart className="h-5 w-5" />
+                            </button>
+                            <button
+                              onClick={() => removeItem(item._id)}
+                              className="text-gray-500 hover:text-red-500 transition-colors"
+                              disabled={updatingItems[item._id]}
+                            >
+                              <Trash2 className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-600 mb-2">
+                          {item.variation.color}, {item.variation.size}
+                        </div>
+                        <div className="mt-auto flex flex-wrap justify-between items-center">
+                          <div className="flex items-center border rounded mb-2 sm:mb-0">
+                            <button
+                              onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                              className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                              disabled={item.quantity <= 1 || updatingItems[item._id]}
+                            >
+                              <Minus className="h-4 w-4" />
+                            </button>
+                            <span className="px-3 py-1">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                              className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                              disabled={updatingItems[item._id]}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </button>
+                          </div>
+                          <div className="flex items-center">
+                            {updatingItems[item._id] && (
+                              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-teal-700 mr-2"></div>
+                            )}
+                            <div className="text-lg font-semibold">
+                              {item.variation.salePrice ? (
+                                <>
+                                  <span>₹{item.variation.salePrice * item.quantity}</span>
+                                  <span className="text-sm text-gray-500 line-through ml-2">
+                                    ₹{item.variation.price * item.quantity}
+                                  </span>
+                                </>
+                              ) : (
+                                <span>₹{item.variation.price * item.quantity}</span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
 
-            {/* Order Summary */}
-            <div className="lg:col-span-1">
-              <div className="bg-white p-6 rounded-md shadow-sm border sticky top-20">
-                <h2 className="text-xl font-medium mb-6">Order Summary</h2>
-
-                {/* Promo Code */}
-                <div className="mb-6">
-                  <p className="font-medium mb-2">PROMOCODE?</p>
-                  <div className="flex">
-                    <Input
-                      type="text"
-                      placeholder="Enter coupon code here"
-                      value={promoCode}
-                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                      className="rounded-r-none"
-                      disabled={!!appliedCoupon}
-                    />
-                    {appliedCoupon ? (
-                      <Button className="rounded-l-none bg-red-600 hover:bg-red-700" onClick={removeCoupon}>
-                        Remove
-                      </Button>
-                    ) : (
-                      <Button
-                        className="rounded-l-none bg-teal-700 hover:bg-teal-800"
-                        onClick={applyPromoCode}
-                        disabled={!promoCode || applyingCoupon}
-                      >
-                        {applyingCoupon ? "Applying..." : "Apply"}
-                      </Button>
-                    )}
-                  </div>
-
-                  {couponError && (
-                    <Alert variant="destructive" className="mt-2">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>{couponError}</AlertDescription>
-                    </Alert>
-                  )}
-
-                  {appliedCoupon && (
-                    <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
-                      <div className="flex items-start">
-                        <Tag className="h-4 w-4 text-green-600 mt-0.5 mr-2" />
-                        <div>
-                          <p className="text-sm font-medium text-green-800">{appliedCoupon.code}</p>
-                          <p className="text-xs text-green-700">{appliedCoupon.description}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <Separator className="my-4" />
-
-                {/* Order Details */}
-                <div className="space-y-3">
+            <div className="lg:w-1/3">
+              <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+                <div className="space-y-4">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Sub Total</span>
-                    <span className="font-medium">₹{subtotal.toLocaleString("en-IN")}</span>
+                    <span>Subtotal</span>
+                    <span>₹{subtotal.toLocaleString()}</span>
                   </div>
 
-                  {appliedCoupon && (
+                  {discount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span className="flex items-center">
-                        <Tag className="h-4 w-4 mr-1" /> Discount
-                        {appliedCoupon.discount_type === "percentage" && ` (${appliedCoupon.discount_value}%)`}
-                      </span>
-                      <span className="font-medium">-₹{discountAmount.toLocaleString("en-IN")}</span>
+                      <span>Discount</span>
+                      <span>-₹{discount.toLocaleString()}</span>
                     </div>
                   )}
 
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium text-green-600">FREE</span>
+                  <div className="border-t pt-4 flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>₹{(subtotal - discount).toLocaleString()}</span>
                   </div>
-                  <Separator className="my-2" />
-                  <div className="flex justify-between">
-                    <span className="text-lg font-medium">Order Total</span>
-                    <span className="text-lg font-medium">₹{finalTotal.toLocaleString("en-IN")}</span>
-                  </div>
-                </div>
 
-                <div className="mt-8 space-y-4 ">
-                  <Link href="/checkout">
-                    <Button className="w-full bg-teal-700 hover:bg-teal-800 text-lg py-6 mb-4">Checkout</Button>
-                  </Link>
-                  <Link href="/products">
-                    <Button className="w-full border border-teal-700 bg-white text-teal-700 hover:bg-teal-50 text-lg py-6">
-                      Continue Shopping
-                    </Button>
-                  </Link>
+                  <div className="pt-4">
+                    <div className="flex space-x-2 mb-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                        placeholder="Enter coupon code"
+                        className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                      <Button onClick={applyCoupon} disabled={couponLoading} className="bg-teal-700 hover:bg-teal-800">
+                        {couponLoading ? "Applying..." : "Apply"}
+                      </Button>
+                    </div>
+                    {couponError && <p className="text-red-500 text-sm">{couponError}</p>}
+                    {couponSuccess && <p className="text-green-500 text-sm">{couponSuccess}</p>}
+                  </div>
+
+                  <Button
+                    onClick={proceedToCheckout}
+                    className="w-full bg-teal-700 hover:bg-teal-800"
+                    disabled={cartItems.length === 0}
+                  >
+                    Proceed to Checkout
+                  </Button>
+
+                  <Button variant="outline" className="w-full" onClick={() => router.push("/products")}>
+                    Continue Shopping
+                  </Button>
                 </div>
               </div>
             </div>
           </div>
         )}
       </div>
-    </div>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialView="login" />
+    </>
   )
 }

@@ -40,131 +40,174 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const { toast } = useToast();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0)
+  const [updatingItems, setUpdatingItems] = useState<Record<string, boolean>>({})
   const [promoCode, setPromoCode] = useState("");
 
    useEffect(() => {
   if (isOpen && status === "authenticated" && cartItems.length === 0) {
-    fetchCartItems()
+    fetchCart()
   }
 }, [isOpen, status])
 
-  const fetchCartItems = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("/api/cart");
+  const fetchCart = async () => {
+    setLoading(true)
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch cart items");
+    if (status === "authenticated") {
+      // Fetch cart from API for logged-in users
+      try {
+        const response = await fetch("/api/cart")
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch cart")
+        }
+
+        const data = await response.json()
+        setCartItems(data.items || [])
+        calculateTotal(data.items || [])
+      } catch (error) {
+        console.error("Error fetching cart:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load cart items",
+          variant: "destructive",
+        })
+        setCartItems([])
+        setTotal(0)
+      } finally {
+        setLoading(false)
       }
-
-      const data = await response.json();
-      setCartItems(data.items || []);
-    } catch (error) {
-      console.error("Error fetching cart:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load cart items",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
     }
-  };
+  }
 
-  const updateQuantity = async (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
+   const calculateTotal = (items: CartItem[]) => {
+    let sum = 0
+    items.forEach((item) => {
+      const price = item.variation.salePrice || item.variation.price
+      sum += price * item.quantity
+    })
+    setTotal(sum)
+  }
+
+   const updateQuantity = async (item: CartItem, newQuantity: number) => {
+    if (newQuantity < 1) return
+
+    // Set this item as updating
+    setUpdatingItems((prev) => ({ ...prev, [item._id || ""]: true }))
 
     try {
-      const response = await fetch(`/api/cart/${itemId}`, {
-        method: "PUT",
+      const response = await fetch(`/api/cart/${item._id}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ quantity: newQuantity }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Failed to update quantity");
+        throw new Error("Failed to update quantity")
       }
 
-      setCartItems(
-        cartItems.map((item) =>
-          item._id === itemId ? { ...item, quantity: newQuantity } : item
-        )
-      );
+      // Update local state
+      const updatedItems = cartItems.map((cartItem) => {
+        if (cartItem._id === item._id) {
+          return { ...cartItem, quantity: newQuantity }
+        }
+        return cartItem
+      })
+
+      setCartItems(updatedItems)
+      calculateTotal(updatedItems)
     } catch (error) {
-      console.error("Error updating quantity:", error);
+      console.error("Error updating quantity:", error)
       toast({
         title: "Error",
         description: "Failed to update quantity",
         variant: "destructive",
-      });
+      })
+    } finally {
+      setUpdatingItems((prev) => ({ ...prev, [item._id || ""]: false }))
     }
-  };
+  }
 
-  const removeItem = async (itemId: string) => {
+  const removeItem = async (item: CartItem) => {
+    // Set this item as updating
+    setUpdatingItems((prev) => ({ ...prev, [item._id || ""]: true }))
+
     try {
-      const response = await fetch(`/api/cart/${itemId}`, {
+      // Use item _id for API calls
+      const response = await fetch(`/api/cart/${item._id}`, {
         method: "DELETE",
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Failed to remove item from cart");
+        throw new Error("Failed to remove item from cart")
       }
 
-      setCartItems(cartItems.filter((item) => item._id !== itemId));
+      // Update local state
+      const updatedItems = cartItems.filter((cartItem) => cartItem._id !== item._id)
+      setCartItems(updatedItems)
+      calculateTotal(updatedItems)
+
       toast({
-        title: "Success",
+        title: "Item removed",
         description: "Item removed from cart",
-      });
+      })
     } catch (error) {
-      console.error("Error removing item:", error);
+      console.error("Error removing item from cart:", error)
       toast({
         title: "Error",
         description: "Failed to remove item from cart",
         variant: "destructive",
-      });
+      })
+    } finally {
+      setUpdatingItems((prev) => ({ ...prev, [item._id || ""]: false }))
     }
-  };
+  }
 
-  const moveToWishlist = async (
-    productId: string,
-    variationId: string,
-    cartItemId: string
-  ) => {
+  const moveToWishlist = async (item: CartItem) => {
+    // Set this item as updating
+    setUpdatingItems((prev) => ({ ...prev, [item._id || ""]: true }))
+
     try {
-      // Add to wishlist
-      const wishlistResponse = await fetch("/api/wishlist", {
+      // First add to wishlist
+      const wishlistResponse = await fetch(`/api/wishlist`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          product_id: productId,
-          variation_id: variationId,
+          product_id: item.product_id,
+          variation_id: item.variation_id,
         }),
-      });
+      })
 
       if (!wishlistResponse.ok) {
-        throw new Error("Failed to add item to wishlist");
+        const errorData = await wishlistResponse.json()
+        // If item is already in wishlist, continue with removal from cart
+        if (!errorData.message?.includes("already in wishlist")) {
+          throw new Error("Failed to add item to wishlist")
+        }
       }
 
-      // Remove from cart
-      await removeItem(cartItemId);
+      // Then remove from cart
+      await removeItem(item)
 
       toast({
-        title: "Success",
-        description: "Item moved to wishlist",
-      });
+        title: "Moved to wishlist",
+        description: "Item moved to your wishlist",
+      })
     } catch (error) {
-      console.error("Error moving to wishlist:", error);
+      console.error("Error moving item to wishlist:", error)
       toast({
         title: "Error",
         description: "Failed to move item to wishlist",
         variant: "destructive",
-      });
+      })
+    } finally {
+      setUpdatingItems((prev) => ({ ...prev, [item._id || ""]: false }))
     }
-  };
+  }
 
   const applyPromoCode = () => {
     // In a real implementation, this would validate the promo code with the server
@@ -291,7 +334,7 @@ if (status === "unauthenticated") {
                           {item.product.name}
                         </Link>
                         <button
-                          onClick={() => removeItem(item._id)}
+                          onClick={() => removeItem(item)}
                           className="text-gray-400 hover:text-gray-600 flex-shrink-0"
                           aria-label="Remove from cart"
                         >
@@ -306,7 +349,7 @@ if (status === "unauthenticated") {
                         <div className="flex items-center border rounded-md">
                           <button
                             onClick={() =>
-                              updateQuantity(item._id, item.quantity - 1)
+                              updateQuantity(item, item.quantity - 1)
                             }
                             className="px-2 py-0.5 hover:bg-gray-100"
                             disabled={item.quantity <= 1}
@@ -318,7 +361,7 @@ if (status === "unauthenticated") {
                           </span>
                           <button
                             onClick={() =>
-                              updateQuantity(item._id, item.quantity + 1)
+                              updateQuantity(item, item.quantity + 1)
                             }
                             className="px-2 py-0.5 hover:bg-gray-100"
                           >
@@ -336,9 +379,7 @@ if (status === "unauthenticated") {
                         className="mt-2 text-xs text-teal-700 hover:text-teal-800 flex items-center"
                         onClick={() =>
                           moveToWishlist(
-                            item.product._id,
-                            item.variation._id,
-                            item._id
+                            item
                           )
                         }
                       >
