@@ -262,7 +262,7 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-background">
+    <header className="sticky top-0 z-40 bg-background ">
       {/* Announcement Bar */}
       <div>
         <AnnouncementBar />
@@ -471,7 +471,7 @@ export default function Header() {
                       Contact
                     </Link>
 
-                    <div className="flex items-center mt-4 px-2">
+                    <div className="flex items-center mt-4 px-2 cursor-pointer">
                       <div className="relative mr-4">
                         <Heart
                           className="h-5 w-5 text-gray-700 hover:text-red-500"
@@ -494,7 +494,7 @@ export default function Header() {
                             ?.setAttribute("data-state", "closed");
                         }}
                       >
-                        <ShoppingBag className="h-5 w-5 text-gray-700" />
+                        <ShoppingBag className="h-5 w-5 text-gray-700 cursor-pointer" />
                         {cartItemCount > 0 && (
                           <span className="absolute -top-2 -right-2 bg-teal-800 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                             {cartItemCount}
@@ -574,7 +574,7 @@ export default function Header() {
               {/* Search */}
               <div className="relative" ref={searchRef}>
                 <button
-                  className="hidden md:flex items-center hover:text-teal-800"
+                  className="hidden md:flex items-center hover:text-teal-800 cursor-pointer"
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
                   aria-label="Search"
                 >
@@ -584,7 +584,7 @@ export default function Header() {
 
               <div className="relative">
                 <Heart
-                  className="h-6 w-6 hover:text-red-500 hover:cursor-pointer transition-colors"
+                  className="h-6 w-6 hover:text-red-500 hover:cursor-pointer transition-colors cursor-pointer"
                   onClick={gotowishlist}
                   aria-label="Wishlist"
                 />
@@ -596,7 +596,7 @@ export default function Header() {
               </div>
               <div className="relative" ref={profileRef}>
                 <button
-                  className="flex items-center hover:text-teal-800"
+                  className="flex items-center hover:text-teal-800 cursor-pointer"
                   onClick={handleOpenLoginPopup}
                   aria-label="User Account"
                 >
@@ -613,7 +613,7 @@ export default function Header() {
                 onClick={() => setIsCartOpen(true)}
                 aria-label="Shopping Cart"
               >
-                <ShoppingBag className="h-6 w-6" />
+                <ShoppingBag className="h-6 w-6 cursor-pointer" />
                 {cartItemCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-teal-800 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {cartItemCount}
@@ -625,7 +625,7 @@ export default function Header() {
 
           {/* Search Bar */}
           {isSearchOpen && (
-            <div className="py-4 border-t mt-4">
+            <div className="py-4 border-t mt-4 cursor-pointer">
               <div className="relative">
                 <Search
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
