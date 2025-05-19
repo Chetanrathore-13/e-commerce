@@ -130,7 +130,7 @@ export async function POST(request: Request) {
       shipping_address: data.shipping_address,
       billing_address: data.billing_address,
       payment_method: data.payment_method,
-      payment_status: "pending", // In a real app, this would be updated after payment processing
+      payment_status: data.payment_method === "cod" ? "pending" : "processing",
     })
 
     await order.save()

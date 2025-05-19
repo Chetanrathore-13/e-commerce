@@ -15,6 +15,8 @@ import {
   PlusCircle,
   Tag,
   AlertCircle,
+  Truck,
+  Banknote,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -92,6 +94,15 @@ interface Coupon {
   description: string
 }
 
+interface PaymentSettings {
+  cod_enabled: boolean
+  cod_min_order_value: number
+  cod_max_order_value: number
+  online_payment_enabled: boolean
+  paypal_enabled: boolean
+  bank_transfer_enabled: boolean
+}
+
 export default function CheckoutPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -104,6 +115,8 @@ export default function CheckoutPage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [loadingAddresses, setLoadingAddresses] = useState(false)
   const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(false)
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings | null>(null)
+  const [loadingPaymentSettings, setLoadingPaymentSettings] = useState(false)
 
   // Coupon state
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null)
@@ -147,6 +160,7 @@ export default function CheckoutPage() {
       fetchCart()
       fetchAddresses()
       fetchPaymentMethods()
+      fetchPaymentSettings()
       if (session.user?.email) {
         setEmail(session.user.email)
       }
@@ -251,6 +265,24 @@ export default function CheckoutPage() {
       console.error("Error fetching payment methods:", error)
     } finally {
       setLoadingPaymentMethods(false)
+    }
+  }
+
+  const fetchPaymentSettings = async () => {
+    try {
+      setLoadingPaymentSettings(true)
+      const response = await fetch("/api/payment-settings")
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch payment settings")
+      }
+
+      const data = await response.json()
+      setPaymentSettings(data)
+    } catch (error) {
+      console.error("Error fetching payment settings:", error)
+    } finally {
+      setLoadingPaymentSettings(false)
     }
   }
 
@@ -486,6 +518,14 @@ export default function CheckoutPage() {
     }
   }
 
+  // Check if COD is available for the current order
+  const isCodAvailable = () => {
+    if (!paymentSettings || !paymentSettings.cod_enabled) return false
+
+    const orderTotal = cart?.total || 0
+    return orderTotal >= paymentSettings.cod_min_order_value && orderTotal <= paymentSettings.cod_max_order_value
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -509,7 +549,7 @@ export default function CheckoutPage() {
     }
 
     // Validate that a payment method is selected or entered
-    if (!selectedPaymentMethodId && paymentMethods.length > 0 && !newPaymentMode) {
+    if (paymentMethod !== "cod" && !selectedPaymentMethodId && paymentMethods.length > 0 && !newPaymentMode) {
       toast({
         title: "Error",
         description: "Please select a payment method",
@@ -531,7 +571,7 @@ export default function CheckoutPage() {
     }
 
     // Validate payment details if using new payment method
-    if (newPaymentMode || paymentMethods.length === 0) {
+    if (paymentMethod !== "cod" && (newPaymentMode || paymentMethods.length === 0)) {
       if (paymentMethod === "credit-card" && (!cardNumber || !expiryDate || !cardHolder)) {
         toast({
           title: "Error",
@@ -576,8 +616,12 @@ export default function CheckoutPage() {
         }
       }
 
+      // If using COD
+      if (paymentMethod === "cod") {
+        selectedPaymentType = "cod"
+      }
       // If using a saved payment method
-      if (selectedPaymentMethodId && selectedPaymentMethodId !== "new" && !newPaymentMode) {
+      else if (selectedPaymentMethodId && selectedPaymentMethodId !== "new" && !newPaymentMode) {
         const savedPayment = paymentMethods.find((method) => method._id === selectedPaymentMethodId)
         if (savedPayment) {
           selectedPaymentType = savedPayment.type
@@ -614,7 +658,8 @@ export default function CheckoutPage() {
         discount_amount: discountAmount,
       }
 
-  
+      // Log the data being sent for debugging
+      console.log("Sending order data:", orderData)
 
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -624,7 +669,9 @@ export default function CheckoutPage() {
         body: JSON.stringify(orderData),
       })
 
-      
+      // Log the raw response for debugging
+      console.log("Order API response status:", response.status)
+      console.log("Order API response headers:", Object.fromEntries([...response.headers.entries()]))
 
       // Try to parse the response as JSON, but handle non-JSON responses
       let errorData = {}
@@ -632,7 +679,7 @@ export default function CheckoutPage() {
 
       try {
         responseText = await response.text()
-        
+        console.log("Raw response text:", responseText)
 
         if (responseText) {
           try {
@@ -680,8 +727,12 @@ export default function CheckoutPage() {
       }
 
       toast({
-        title: "Success",
-        description: "Your order has been placed successfully!",
+        variant: "success",
+        title: "Order Placed Successfully",
+        description:
+          paymentMethod === "cod"
+            ? "Your order has been placed with Cash on Delivery. You'll pay when you receive your items."
+            : "Your order has been placed successfully!",
       })
 
       // Redirect to order confirmation page
@@ -926,8 +977,84 @@ export default function CheckoutPage() {
               <div className="bg-white p-6 rounded-md shadow-sm mb-6">
                 <h2 className="text-xl font-medium mb-4">Payment Method</h2>
 
+                {/* Payment Method Selection */}
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="mb-6">
+                  <div className="space-y-4">
+                    {/* Cash on Delivery Option */}
+                    {isCodAvailable() && (
+                      <div
+                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "cod" ? "border-teal-500 bg-teal-50" : ""}`}
+                      >
+                        <RadioGroupItem value="cod" id="cod" />
+                        <Label htmlFor="cod" className="flex items-center cursor-pointer">
+                          <Banknote className="h-5 w-5 mr-2 text-teal-700" />
+                          Cash on Delivery (COD)
+                        </Label>
+                      </div>
+                    )}
+
+                    {/* Credit Card Option */}
+                    {paymentSettings?.online_payment_enabled && (
+                      <div
+                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "credit-card" ? "border-teal-500 bg-teal-50" : ""}`}
+                      >
+                        <RadioGroupItem value="credit-card" id="credit-card" />
+                        <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
+                          <CreditCard className="h-5 w-5 mr-2" />
+                          Credit/Debit Card
+                        </Label>
+                      </div>
+                    )}
+
+                    {/* PayPal Option */}
+                    {paymentSettings?.paypal_enabled && (
+                      <div
+                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "paypal" ? "border-teal-500 bg-teal-50" : ""}`}
+                      >
+                        <RadioGroupItem value="paypal" id="paypal" />
+                        <Label htmlFor="paypal" className="flex items-center cursor-pointer">
+                          <PaypalLogo className="h-5 w-5 mr-2" />
+                          PayPal
+                        </Label>
+                      </div>
+                    )}
+
+                    {/* Bank Transfer Option */}
+                    {paymentSettings?.bank_transfer_enabled && (
+                      <div
+                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "bank-transfer" ? "border-teal-500 bg-teal-50" : ""}`}
+                      >
+                        <RadioGroupItem value="bank-transfer" id="bank-transfer" />
+                        <Label htmlFor="bank-transfer" className="flex items-center cursor-pointer">
+                          <Truck className="h-5 w-5 mr-2" />
+                          Bank Transfer
+                        </Label>
+                      </div>
+                    )}
+                  </div>
+                </RadioGroup>
+
+                {/* COD Information */}
+                {paymentMethod === "cod" && (
+                  <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+                    <h3 className="font-medium text-amber-800 mb-2">Cash on Delivery Information</h3>
+                    <p className="text-sm text-amber-700 mb-2">
+                      Pay with cash when your order is delivered to your doorstep.
+                    </p>
+                    <ul className="text-xs text-amber-600 list-disc list-inside space-y-1">
+                      <li>Please keep the exact amount ready for a smooth delivery experience</li>
+                      <li>Our delivery partner will provide a receipt upon payment</li>
+                      <li>
+                        COD is available for orders between ₹
+                        {paymentSettings?.cod_min_order_value.toLocaleString("en-IN")} and ₹
+                        {paymentSettings?.cod_max_order_value.toLocaleString("en-IN")}
+                      </li>
+                    </ul>
+                  </div>
+                )}
+
                 {/* Saved Payment Methods */}
-                {paymentMethods.length > 0 && !newPaymentMode && (
+                {paymentMethod !== "cod" && paymentMethods.length > 0 && !newPaymentMode && (
                   <div className="mb-6">
                     <Label htmlFor="savedPayment" className="mb-2 block">
                       Select a Saved Payment Method
@@ -969,30 +1096,8 @@ export default function CheckoutPage() {
                 )}
 
                 {/* New Payment Method Form */}
-                {(newPaymentMode || paymentMethods.length === 0) && (
+                {paymentMethod !== "cod" && (newPaymentMode || paymentMethods.length === 0) && (
                   <>
-                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                      <div className="space-y-4">
-                        <div className="flex items-center space-x-2 border rounded-md p-4">
-                          <RadioGroupItem value="credit-card" id="credit-card" />
-                          <Label htmlFor="credit-card" className="flex items-center">
-                            <CreditCard className="h-5 w-5 mr-2" />
-                            Credit/Debit Card
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2 border rounded-md p-4">
-                          <RadioGroupItem value="paypal" id="paypal" />
-                          <Label htmlFor="paypal" className="flex items-center">
-                            <PaypalLogo className="h-5 w-5 mr-2" />
-                            PayPal
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2 border rounded-md p-4">
-                          <RadioGroupItem value="bank-transfer" id="bank-transfer" />
-                          <Label htmlFor="bank-transfer">Bank Transfer</Label>
-                        </div>
-                      </div>
-                    </RadioGroup>
                     {paymentMethod === "credit-card" && (
                       <div className="mt-4 space-y-4 p-4 border rounded-md">
                         <div>
@@ -1059,7 +1164,7 @@ export default function CheckoutPage() {
                 className="w-full bg-teal-700 hover:bg-teal-800 text-lg py-6"
                 disabled={processingOrder}
               >
-                {processingOrder ? "Processing..." : "Place Order"}
+                {processingOrder ? "Processing..." : `Place Order - ₹${finalTotal.toLocaleString("en-IN")}`}
               </Button>
             </form>
           </div>
@@ -1185,6 +1290,21 @@ export default function CheckoutPage() {
                   <span className="text-lg font-medium">Order Total</span>
                   <span className="text-lg font-medium">₹{finalTotal.toLocaleString("en-IN")}</span>
                 </div>
+
+                {/* COD Eligibility Message */}
+                {isCodAvailable() && (
+                  <div className="mt-2 text-xs text-green-600 flex items-center">
+                    <Check className="h-4 w-4 mr-1" />
+                    Eligible for Cash on Delivery
+                  </div>
+                )}
+
+                {!isCodAvailable() && paymentSettings?.cod_enabled && (
+                  <div className="mt-2 text-xs text-amber-600">
+                    COD available for orders between ₹{paymentSettings.cod_min_order_value.toLocaleString("en-IN")} and
+                    ₹{paymentSettings.cod_max_order_value.toLocaleString("en-IN")}
+                  </div>
+                )}
               </div>
             </div>
           </div>
