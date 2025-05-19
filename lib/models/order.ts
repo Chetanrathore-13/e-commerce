@@ -30,13 +30,17 @@ export interface IOrder extends Document {
   subtotal: number
   discount: number
   coupon_code?: string
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded"
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "returned" | "return_requested"
   payment_method: "credit-card" | "paypal" | "bank-transfer" | "cod"
   payment_status: "pending" | "processing" | "completed" | "failed" | "refunded"
   shipping_address: Address
   billing_address: Address
   tracking_number?: string
   notes?: string
+  cancel_reason?: string
+  return_reason?: string
+  additionalComments?: string
+  return_items?: string[]
   createdAt: Date
   updatedAt: Date
 }
@@ -63,7 +67,7 @@ const OrderSchema = new Schema<IOrder>(
     coupon_code: { type: String },
     status: {
       type: String,
-      enum: ["pending", "processing", "shipped", "delivered", "cancelled", "refunded"],
+      enum: ["pending", "processing", "shipped", "delivered", "cancelled", "returned", "return_requested"],
       default: "pending",
     },
     payment_method: {
@@ -98,6 +102,10 @@ const OrderSchema = new Schema<IOrder>(
     },
     tracking_number: { type: String },
     notes: { type: String },
+    cancel_reason: { type: String },
+    return_reason: { type: String },
+    additionalComments: { type: String },
+    return_items: [{ type: String }],
   },
   { timestamps: true },
 )
