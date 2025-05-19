@@ -28,7 +28,7 @@ interface Order {
   order_number: string
   items: OrderItem[]
   total: number
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled"
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "returned" | "return_requested"
   payment_method: string
   payment_status: "pending" | "paid" | "failed"
   createdAt: string
@@ -87,6 +87,8 @@ export default function OrdersPage() {
         return <CheckCircle className="h-5 w-5 text-green-500" />
       case "cancelled":
         return <AlertCircle className="h-5 w-5 text-red-500" />
+      case "returned":
+        return <AlertCircle className="h-5 w-5 text-orange-500" />
       default:
         return <Clock className="h-5 w-5 text-gray-500" />
     }
@@ -104,6 +106,10 @@ export default function OrdersPage() {
         return "Order Delivered"
       case "cancelled":
         return "Order Cancelled"
+      case "return_requested":
+        return "Return Requested"
+      case "returned":
+        return "Order Returned"  
       default:
         return "Unknown Status"
     }
