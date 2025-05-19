@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed:payment-settings": "node scripts/seed-payment-settings.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -33,6 +34,7 @@
     "clsx": "^2.1.1",
     "csv-parser": "^3.0.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0",
     "framer-motion": "^12.10.0",
     "fs": "^0.0.1-security",
     "lightningcss": "^1.30.0",
