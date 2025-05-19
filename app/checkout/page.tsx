@@ -1062,7 +1062,7 @@ export default function CheckoutPage() {
                     <Select value={selectedPaymentMethodId} onValueChange={handlePaymentMethodChange}>
                       <SelectTrigger id="savedPayment">
                         <SelectValue placeholder="Select a payment method" />
-                      </SelectTrigger>
+                      </SelectTrigger>``
                       <SelectContent>
                         {paymentMethods.map((method) => (
                           <SelectItem key={method._id} value={method._id}>

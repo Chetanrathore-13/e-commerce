@@ -8,7 +8,7 @@ import { Trash2, Heart, Minus, Plus, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
-import AuthModal from "@/components/auth-modal"
+import AuthPopup from "@/components/auth-popup"
 
 interface CartItem {
   _id: string
@@ -443,7 +443,13 @@ export default function CartPage() {
       </div>
 
       {/* Auth Modal */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialView="login" />
+      {isAuthModalOpen && (
+        <AuthPopup
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          initialView="login"
+        />
+      )}
     </>
   )
 }
