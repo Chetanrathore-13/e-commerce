@@ -1,13 +1,22 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import Order from "@/lib/models/order"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const session = await getServerSession(authOptions)
 
-    const { id } = await  params
+    if (!session) {
+      return NextResponse.json({ success: false, error: "Not authenticated" }, { status: 401 })
+    }
+
+    if (session.user.role !== "admin") {
+      return NextResponse.json({ success: false, error: "Unauthorized - Admin access required" }, { status: 403 })
+    }
+
+    const { id } = params
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Order ID is required" }, { status: 400 })
@@ -49,7 +58,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const body = await request.json()
     const { status, tracking_number, notes } = body
 
-    await dbConnect()
+    await connectToDatabase()
 
     const order = await Order.findById(id)
 
@@ -60,6 +69,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     // Update fields if provided
     if (status) {
       order.status = status
+
+      // Update payment status based on order status
+      if (status === "cancelled") {
+        order.payment_status = "refunded"
+      } else if (status === "delivered") {
+        order.payment_status = "completed"
+      }
     }
 
     if (tracking_number !== undefined) {
@@ -67,12 +83,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     if (notes !== undefined) {
-      order.admin_notes = notes
+      order.notes = notes
     }
 
     // Add status history entry
     if (status && status !== order.status) {
-      order.status_history = order.status_history || []
+      if (!order.status_history) {
+        order.status_history = []
+      }
+
       order.status_history.push({
         status,
         timestamp: new Date(),
@@ -83,9 +102,19 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     await order.save()
 
-    return NextResponse.json({ success: true, order })
+    return NextResponse.json({
+      success: true,
+      order: order.toObject(),
+      message: "Order updated successfully",
+    })
   } catch (error) {
     console.error(`Error updating order:`, error)
-    return NextResponse.json({ success: false, error: "Failed to update order" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to update order",
+      },
+      { status: 500 },
+    )
   }
 }

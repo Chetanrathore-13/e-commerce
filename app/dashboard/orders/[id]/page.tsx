@@ -1,28 +1,54 @@
 import { notFound } from "next/navigation"
+import { connectToDatabase } from "@/lib/mongodb"
+import Order from "@/lib/models/order"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { OrderDetail } from "./order-detail"
-import { getOrderById } from "@/lib/api"
 
-export const metadata = {
-  title: "Order Details | Admin Dashboard",
-  description: "View and manage order details",
+interface OrderDetailPageProps {
+  params: {
+    id: string
+  }
 }
 
-export default async function OrderDetailPage({ params }: { params: { id: string } }) {
-  const { id } = await params
+async function getOrderById(id: string) {
+  await connectToDatabase()
+  const order = await Order.findById(id).lean()
+
+  if (!order) {
+    return null
+  }
+
+  // Convert Mongoose document to plain object and handle ObjectId
+  return JSON.parse(JSON.stringify(order))
+}
+
+export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
+  const { id } = params
+  const session = await getServerSession(authOptions)
+
+  if (!session || session.user.role !== "admin") {
+    notFound()
+  }
+
+  if (!id) {
+    notFound()
+  }
+
   try {
-    const order = await getOrderById(id, true) // true for admin mode
-    console.log("Fetched order:", order)
+    const order = await getOrderById(id)
+
     if (!order) {
       notFound()
     }
 
     return (
       <div className="container mx-auto px-4 py-8">
-        <OrderDetail order={order.order} />
+        <OrderDetail order={order} />
       </div>
     )
   } catch (error) {
     console.error("Error fetching order:", error)
-    notFound()
+    throw new Error(`Error fetching order: ${error instanceof Error ? error.message : String(error)}`)
   }
 }
