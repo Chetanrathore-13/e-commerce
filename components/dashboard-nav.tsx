@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Layers, LayoutDashboard, Package, Tag , Users} from "lucide-react"
+import { Layers, LayoutDashboard, Package, Tag , Users ,House , BadgeCheck, CalendarArrowDown , BookOpenCheck , BadgeDollarSign , PartyPopper ,TableOfContents, PanelTop , TruckElectric , Star   } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 
 const items = [
@@ -35,32 +35,52 @@ const items = [
   {
     title: "Homepage Sections",
     href: "/dashboard/homepage",
-    icon: Tag,
+    icon: House,
   },
   {
     title: "Testimonials",
     href: "/dashboard/testimonials",
-    icon: Tag,
+    icon: BadgeCheck,
   },
   {
     title:"Orders",
     href: "/dashboard/orders",
-    icon: Tag,
+    icon: CalendarArrowDown,
   },
   {
     title:"Blogs",
     href: "/dashboard/blogs",
-    icon: Tag,
+    icon: BookOpenCheck,
   },
   {
     title:"Coupons",
     href: "/dashboard/coupons",
-    icon: Tag,
+    icon: BadgeDollarSign,
   },
   {
     title:"Announcement Bar",
     href: "/dashboard/announcements",
-    icon: Tag,
+    icon: PartyPopper,
+  },
+  {
+    title:"Faqs",
+    href: "/dashboard/faqs",
+    icon: TableOfContents,
+  },
+  {
+    title:"Contact Us",
+    href: "/dashboard/contact",
+    icon: PanelTop ,
+  },
+  {
+    title:"Shipping Page",
+    href: "/dashboard/shipping",
+    icon: TruckElectric  ,
+  },
+  {
+    title:"Reviews",
+    href: "/dashboard/reviews",
+    icon: Star   ,
   }
 ]
 

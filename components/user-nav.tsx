@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +26,7 @@ export function UserNav({ user }: UserNavProps) {
   const initials = user.name
     ? user.name
         .split(" ")
-        .map((n) => n[0])
+        .map((n) => n[0].toUpperCase())
         .join("")
     : "U"
 
@@ -55,8 +56,10 @@ export function UserNav({ user }: UserNavProps) {
           <span>Profile</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Settings</span>
+          <Link href="/dashboard/payment-settings" className="flex items-center gap-2">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Settings</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>

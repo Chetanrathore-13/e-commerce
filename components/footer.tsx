@@ -22,21 +22,24 @@ import Upi from "../public/Payment-icons/upi.png";
 import Paytm from "../public/Payment-icons/Paytm.png";
 import { getCategories } from "@/lib/api";
 import { Category } from "@/types";
+import { useSession } from "next-auth/react";
 
 export default function Footer() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-   const [contactInfo, setContactInfo] = useState<ContactInfoItem[]>([])
-    const [loading, setLoading] = useState(true)
-   
- interface ContactInfoItem {
-  _id: string
-  type: string
-  title: string
-  content: Record<string, string>
-  icon: string
-  order: number
-}
+  const [contactInfo, setContactInfo] = useState<ContactInfoItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
+
+  interface ContactInfoItem {
+    _id: string;
+    type: string;
+    title: string;
+    content: Record<string, string>;
+    icon: string;
+    order: number;
+  }
 
   useEffect(() => {
     async function fetchCategories() {
@@ -60,29 +63,29 @@ export default function Footer() {
   }, []);
 
   useEffect(() => {
-      const fetchContactInfo = async () => {
-        try {
-          const response = await fetch("/api/contact-info")
-          if (response.ok) {
-            const data = await response.json()
-            setContactInfo(data)
-          } else {
-            console.error("Failed to fetch contact information")
-          }
-        } catch (error) {
-          console.error("Error fetching contact information:", error)
-        } finally {
-          setLoading(false)
+    const fetchContactInfo = async () => {
+      try {
+        const response = await fetch("/api/contact-info");
+        if (response.ok) {
+          const data = await response.json();
+          setContactInfo(data);
+        } else {
+          console.error("Failed to fetch contact information");
         }
+      } catch (error) {
+        console.error("Error fetching contact information:", error);
+      } finally {
+        setLoading(false);
       }
-  
-      fetchContactInfo()
-    }, [])
+    };
 
-    console.log("Contact Info:", contactInfo)
-  const address = contactInfo.find(item => item.type === "address");
-  const phone = contactInfo.find(item => item.type === "phone");
-  const email = contactInfo.find(item => item.type === "email");
+    fetchContactInfo();
+  }, []);
+
+  console.log("Contact Info:", contactInfo);
+  const address = contactInfo.find((item) => item.type === "address");
+  const phone = contactInfo.find((item) => item.type === "phone");
+  const email = contactInfo.find((item) => item.type === "email");
   // Function to convert category name to URL-friendly format
   const getCategoryUrl = (name: string) => {
     return `/${name
@@ -113,14 +116,15 @@ export default function Footer() {
     },
   ];
 
-   if (loading) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-700"></div>
       </div>
-    )
+    );
   }
 
+  if(userRole === "admin") return null;
 
   return (
     <footer className="bg-white border-t w-full">
@@ -326,43 +330,46 @@ export default function Footer() {
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-white mr-2 mt-0.5" />
                 <span className="text-white">
-                             {address?.content.line1}, {address?.content.line2}, {address?.content.line3}
+                  {address?.content.line1}, {address?.content.line2},{" "}
+                  {address?.content.line3}
                 </span>
               </li>
               {/* Comma-separated phone numbers */}
-        {phone && (
-          <li className="flex items-center">
-            <Phone className="h-5 w-5 text-white mr-2" />
-            <span className="text-white">
-              {Object.values(phone.content).map((num, idx, arr) => (
-                <a
-                  key={num}
-                  href={`tel:${num}`}
-                  className="hover:text-teal-300"
-                >
-                  {num}{idx < arr.length - 1 ? ', ' : ''}
-                </a>
-              ))}
-            </span>
-          </li>
-        )}
-             { /* Comma-separated emails */}
-        {email && (
-          <li className="flex items-center">
-            <Mail className="h-5 w-8 text-white mr-2" />
-            <span className="text-white">
-              {Object.values(email.content).map((mail, idx, arr) => (
-                <a
-                  key={mail}
-                  href={`mailto:${mail}`}
-                  className="hover:text-teal-300"
-                >
-                  {mail}{idx < arr.length - 1 ? ' , ' : ''}
-                </a>
-              ))}
-            </span>
-          </li>
-        )}
+              {phone && (
+                <li className="flex items-center">
+                  <Phone className="h-5 w-5 text-white mr-2" />
+                  <span className="text-white">
+                    {Object.values(phone.content).map((num, idx, arr) => (
+                      <a
+                        key={num}
+                        href={`tel:${num}`}
+                        className="hover:text-teal-300"
+                      >
+                        {num}
+                        {idx < arr.length - 1 ? ", " : ""}
+                      </a>
+                    ))}
+                  </span>
+                </li>
+              )}
+              {/* Comma-separated emails */}
+              {email && (
+                <li className="flex items-center">
+                  <Mail className="h-5 w-8 text-white mr-2" />
+                  <span className="text-white">
+                    {Object.values(email.content).map((mail, idx, arr) => (
+                      <a
+                        key={mail}
+                        href={`mailto:${mail}`}
+                        className="hover:text-teal-300"
+                      >
+                        {mail}
+                        {idx < arr.length - 1 ? " , " : ""}
+                      </a>
+                    ))}
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
         </div>

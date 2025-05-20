@@ -7,6 +7,7 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { UserNav } from "@/components/user-nav"
 import { ResizableSidebar } from "@/components/resizable-sidebar"
 import { SidebarProvider } from "@/components/sidebar-context"
+import Link from "next/link"
 
 export default async function DashboardLayout({
   children,
@@ -26,19 +27,10 @@ export default async function DashboardLayout({
           <div className="flex h-16 items-center justify-between px-4">
             <div className="flex items-center gap-2">
               <MobileSidebar />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-6 w-6"
-              >
-                <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-              </svg>
-              <span className="hidden font-bold sm:inline-block">E-commerce Admin</span>
+              <Link href="/dashboard" className="hidden sm:inline-block">
+                <img src="/Logo/Parpra.png" alt="Logo" className="h-16 w-16" />
+              </Link>
+              <Link href="/dashboard"><span className="hidden font-bold sm:inline-block"> Admin Dashboard</span></Link>
             </div>
             <div className="flex items-center gap-2">
               <ModeToggle />

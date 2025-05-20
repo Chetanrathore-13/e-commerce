@@ -20,7 +20,7 @@ import AuthPopup from "./auth-popup";
 
 // Update the Header component to fetch categories from the database
 export default function Header() {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -40,7 +40,9 @@ export default function Header() {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { toast } = useToast();
-
+  // we have to take role from session
+  const userRole = session?.user?.role;
+ console.log("User Role:", userRole);
   // Fetch cart item count
   useEffect(() => {
     const fetchCartCount = async () => {
@@ -258,6 +260,8 @@ export default function Header() {
       setShowLoginPopup(true);
     }
   };
+
+  if(userRole === "admin") return null;
 
   return (
     <header className="sticky top-0 z-40 bg-background w-full">
