@@ -394,8 +394,8 @@ export default function Footer() {
           </div>
 
           {/* Right section - Payment methods */}
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-white text-center sm:text-left">
-            <span className="text-sm sm:text-md whitespace-nowrap">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2  sm:gap-4 text-white text-center sm:text-left">
+            <span className="text-sm sm:text-md whitespace-nowrap mt-3">
               100% Secure Payments
             </span>
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
