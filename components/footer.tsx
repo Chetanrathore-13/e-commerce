@@ -82,23 +82,23 @@ export default function Footer() {
     <footer className="bg-white border-t w-full">
       {/* Features Section */}
       <div className="w-full bg-white py-8 md:py-12 border-b border-gray-200">
-        <div className="px-4 max-w-screen-3xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+        <div className="px-4 sm:px-6 lg:px-8 max-w-screen-2xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center text-center"
+                className="flex flex-col items-center text-center px-2"
               >
-                <div className="w-16 h-16 flex items-center justify-center mb-3">
+                <div className="w-16 h-16 flex items-center justify-center mb-2 sm:mb-3">
                   <feature.icon
-                    className="w-12 h-12 text-teal-800"
+                    className="w-10 h-10 sm:w-12 sm:h-12 text-teal-800"
                     strokeWidth={1.5}
                   />
                 </div>
-                <h3 className="text-teal-800 font-medium text-sm md:text-base">
+                <h3 className="text-teal-800 font-medium text-xs sm:text-sm md:text-base">
                   {feature.title}
                 </h3>
-                <p className="text-teal-800 text-xs mt-1 hidden md:block">
+                <p className="text-teal-800 text-[11px] sm:text-xs mt-1 hidden sm:block">
                   {feature.description}
                 </p>
               </div>
@@ -108,29 +108,33 @@ export default function Footer() {
       </div>
 
       {/* Newsletter Section */}
-      <div className="w-full  py-12 my-12 bg-white">
-        <div className="max-w-xl mx-auto text-center px-4">
-          <h3 className="text-lg font-semibold mb-2">
+      <div className="w-full py-12 my-12 bg-white">
+        <div className="max-w-2xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <h3 className="text-lg sm:text-xl font-semibold mb-2">
             Subscribe to our newsletter
           </h3>
-          <p className="text-gray-600 mb-4">
+          <p className="text-gray-600 mb-6 text-sm sm:text-base">
             Stay updated with our latest collections and exclusive offers
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 w-full">
+
+          <form className="flex flex-col sm:flex-row gap-3 w-full">
             <input
               type="text"
               placeholder="Your name"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-800"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-800 text-sm sm:text-base"
             />
             <input
               type="email"
               placeholder="Your email address"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-800"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-800 text-sm sm:text-base"
             />
-            <button className="bg-teal-800 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition duration-200 whitespace-nowrap">
+            <button
+              type="submit"
+              className="bg-teal-800 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition duration-200 text-sm sm:text-base whitespace-nowrap"
+            >
               Subscribe
             </button>
-          </div>
+          </form>
         </div>
       </div>
 
@@ -306,15 +310,15 @@ export default function Footer() {
 
       {/* Copyright */}
       <div className="w-full bg-teal-800">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4 px-4 py-6">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6 px-4 py-6">
           {/* Left section - Country and Shipping */}
-          <div className="flex items-center gap-4 flex-wrap text-white">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-white text-center sm:text-left">
             <div className="flex items-center gap-2">
               <Globe className="w-6 h-6" />
               <span className="text-xl">India</span>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
               <span className="font-bold text-xl">FedEx</span>
               <span className="font-bold text-xl">
                 <span className="text-blue-400">BLUE</span>
@@ -325,52 +329,30 @@ export default function Footer() {
           </div>
 
           {/* Center section - Copyright */}
-          <div className="text-md text-white text-center whitespace-nowrap">
+          <div className="text-sm sm:text-md text-white text-center">
             © 2025 Parpra Fashions Ltd. All rights reserved.
           </div>
 
           {/* Right section - Payment methods */}
-          <div className="flex items-center gap-4 flex-wrap justify-end">
-            <span className="text-md text-white whitespace-nowrap">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 text-white text-center sm:text-left">
+            <span className="text-sm sm:text-md whitespace-nowrap">
               100% Secure Payments
             </span>
-            <div className="flex gap-4">
-              <div className="bg-white rounded h-10 w-20 flex items-center justify-center">
-                <Image
-                  src={Paytm}
-                  alt="Paytm"
-                  width={80}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
-              <div className="bg-white rounded h-10 w-20 flex items-center justify-center">
-                <Image
-                  src={Cash}
-                  alt="Cash"
-                  width={80}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
-              <div className="bg-white rounded h-10 w-20 flex items-center justify-center">
-                <Image
-                  src={Upi}
-                  alt="UPI"
-                  width={80}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
-              <div className="bg-white rounded h-10 w-20 flex items-center justify-center">
-                <Image
-                  src={PhonePe}
-                  alt="PhonePe"
-                  width={80}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+              {[Paytm, Cash, Upi, PhonePe].map((src, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded h-10 w-20 flex items-center justify-center"
+                >
+                  <Image
+                    src={src}
+                    alt={`Payment ${i}`}
+                    width={80}
+                    height={40}
+                    className="object-contain"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { ChevronRight, Users, Award, Heart } from "lucide-react";
 import { motion } from "framer-motion";
-import About from "@/public/aboutpage/80.jpg"
-import Prof1 from "@/public/aboutpage/21850.jpg"
-import Prof2 from "@/public/aboutpage/26982.jpg"
-import Prof3 from "@/public/aboutpage/60157.jpg"
-import Prof4 from "@/public/aboutpage/189532.jpg"
+import About from "@/public/aboutpage/80.jpg";
+import Prof1 from "@/public/aboutpage/21850.jpg";
+import Prof2 from "@/public/aboutpage/26982.jpg";
+import Prof3 from "@/public/aboutpage/60157.jpg";
+import Prof4 from "@/public/aboutpage/189532.jpg";
 
 export default function AboutPageClient() {
   const fadeIn = {
@@ -35,10 +35,10 @@ export default function AboutPageClient() {
               transition={{ duration: 0.5 }}
               className="max-w-2xl text-white"
             >
-              <h1 className="text-9xl md:text-5xl font-bold mb-4 ml-5  ">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 ml-2 sm:ml-4">
                 Our Story
               </h1>
-              <p className="text-lg md:text-xl opacity-90 ml-5">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl opacity-90 ml-2 sm:ml-4">
                 Discover the passion and craftsmanship behind Your Fashion
                 Store, where tradition meets contemporary style.
               </p>
@@ -60,7 +60,7 @@ export default function AboutPageClient() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="order-2 md:order-1">
-                <div className="inline-block px-4 py-1 rounded-full bg-teal-100 text-teal-800 font-medium text-xl mb-4">
+                <div className="inline-block px-4 py-1 rounded-full bg-teal-100 text-teal-800 font-medium text-2xl mb-4">
                   Our Journey
                 </div>
                 <h2 className="text-3xl md:text-3xl font-semibold mb-4">

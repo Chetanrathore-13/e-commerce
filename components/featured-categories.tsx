@@ -22,7 +22,6 @@ export default function FeaturedCategories({
   sectionTitle = "Shop by Category",
   sectionSubtitle,
 }: FeaturedCategoriesProps) {
-
   // Ensure categories is always an array
   const safeCategories = Array.isArray(categories) ? categories : [];
 
@@ -59,22 +58,25 @@ export default function FeaturedCategories({
     safeCategories.length > 0 ? safeCategories : fallbackCategories;
 
   return (
-    <section className="py-16 w-full">
-      <div className="flex flex-col items-center mx-auto px-0 sm:px-4 md:px-8 lg:px-16 w-full">
-        <div className="flex flex-col md:flex-row items-center justify-between mb-12 w-full">
-          <div className="mb-6 md:mb-0 ">
-            <h2 className="text-5xl font-light mb-2 text-teal-700">
+    <section className="py-12 sm:py-16 w-full">
+      <div className="flex flex-col items-center mx-auto px-4 sm:px-6 lg:px-16 w-full">
+        {/* Header Row */}
+        <div className="flex flex-col md:flex-row items-center justify-between mb-10 sm:mb-12 w-full gap-6">
+          {/* Section Title */}
+          <div className="w-full md:w-2/3">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light mb-2 text-teal-700">
               {sectionTitle}
             </h2>
             {sectionSubtitle && (
-              <p className="text-gray-600 text-start ml-2 pt-2 ">
+              <p className="text-gray-600 text-sm sm:text-base pt-2 text-start ml-1">
                 {sectionSubtitle}
               </p>
             )}
           </div>
 
+          {/* Optional Section Image */}
           {sectionImage && (
-            <div className="w-full md:w-1/3 relative h-100">
+            <div className="w-full md:w-1/3 relative h-[250px] sm:h-[300px] md:h-[200px] lg:h-[250px]">
               <Image
                 src={sectionImage || "/placeholder.svg"}
                 alt={sectionTitle}
@@ -85,14 +87,15 @@ export default function FeaturedCategories({
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-9 w-full">
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 w-full">
           {displayCategories.slice(0, 6).map((category) => (
             <Link
               key={category._id}
               href={`/${category.name.toLowerCase().replace(/\s+/g, "-")}`}
               className="group"
             >
-              <div className="relative overflow-hidden h-[650px]   rounded-xl mb-4">
+              <div className="relative overflow-hidden h-[350px] sm:h-[400px] md:h-[500px] lg:h-[650px] rounded-xl mb-3 sm:mb-4">
                 <Image
                   src={
                     category.image ||
@@ -100,10 +103,10 @@ export default function FeaturedCategories({
                   }
                   alt={category.name}
                   fill
-                  className="object-cover  group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
-              <h3 className="text-center text-lg font-medium">
+              <h3 className="text-center text-base sm:text-lg font-medium">
                 {category.name}
               </h3>
             </Link>

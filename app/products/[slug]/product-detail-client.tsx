@@ -169,7 +169,7 @@ export default function ProductDetailClient({
     <div className="container mx-auto px-4 py-8 mb-14">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Product Images */}
-        <div className="w-[800px]    md:w-1/2">
+        <div className="w-full md:w-1/2">
           {/* Main Image */}
           <div className="relative w-full aspect-[3/4] overflow-hidden rounded-lg">
             {selectedVariation && (
@@ -184,12 +184,10 @@ export default function ProductDetailClient({
               />
             )}
           </div>
-          {showPopup && (
-            <AuthPopup onClose={() => setShowPopup(false)} />
-          )}
+          {showPopup && <AuthPopup onClose={() => setShowPopup(false)} />}
 
           {/* Gallery Images */}
-          <div className="grid grid-cols-4 gap-2 mt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
             {selectedVariation?.gallery?.slice(0, 4).map((image, index) => (
               <div
                 key={index}
@@ -208,12 +206,12 @@ export default function ProductDetailClient({
 
         {/* Product Details */}
         <div className="w-full md:w-1/2">
-          <h1 className="text-4xl font-bold mb-2 text-black">{product.name}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-black">
+            {product.name}
+          </h1>
 
-          <div className="flex items-center mb-4">
-            <p className="text-gray-500 mr-4">
-              Brand: {product.brand_id?.name}
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-1 sm:gap-4">
+            <p className="text-gray-500">Brand: {product.brand_id?.name}</p>
             <p className="text-gray-500">
               Category: {product.category_id?.name}
             </p>
@@ -221,14 +219,14 @@ export default function ProductDetailClient({
 
           <div className="mb-6">
             {selectedVariation?.salePrice ? (
-              <div className="flex items-center">
-                <p className="text-2xl font-bold text-amber-700">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xl sm:text-2xl font-bold text-amber-700">
                   ₹{selectedVariation.salePrice.toLocaleString()}
                 </p>
-                <p className="text-lg text-gray-500 line-through ml-2">
+                <p className="text-base sm:text-lg text-gray-500 line-through">
                   ₹{selectedVariation.price.toLocaleString()}
                 </p>
-                <p className="ml-2 bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-sm">
+                <p className="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-sm">
                   {Math.round(
                     ((selectedVariation.price - selectedVariation.salePrice) /
                       selectedVariation.price) *
@@ -238,7 +236,7 @@ export default function ProductDetailClient({
                 </p>
               </div>
             ) : (
-              <p className="text-2xl font-bold text-amber-700">
+              <p className="text-xl sm:text-2xl font-bold text-amber-700">
                 ₹{selectedVariation?.price.toLocaleString() || "N/A"}
               </p>
             )}
@@ -290,7 +288,7 @@ export default function ProductDetailClient({
             <select
               value={quantity}
               onChange={handleQuantityChange}
-              className="border border-gray-300 rounded-md px-4 py-2 w-20"
+              className="border border-gray-300 rounded-md px-4 py-2 w-24"
             >
               {[...Array(10)].map((_, i) => (
                 <option key={i + 1} value={i + 1}>
@@ -320,7 +318,7 @@ export default function ProductDetailClient({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <Button
-              className="flex-1 bg-amber-700 hover:bg-amber-800"
+              className="flex-1 bg-teal-700 hover:bg-amber-800 p-4 sm:p-6 md:p-8 lg:p-8"
               size="lg"
               onClick={handleAddToCart}
               disabled={
@@ -340,7 +338,7 @@ export default function ProductDetailClient({
             </Button>
             <Button
               variant="outline"
-              className="flex-1 border-amber-700 text-amber-700 hover:bg-amber-50"
+              className="flex-1 bg-amber-700 hover:bg-teal-600  text-white p-4 sm:p-6 md:p-8 lg:p-8"
               size="lg"
               onClick={handleAddToWishlist}
               disabled={addingToWishlist || addedToWishlist}
@@ -363,13 +361,15 @@ export default function ProductDetailClient({
 
           {/* Product Description */}
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">Description</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-2">
+              Description
+            </h2>
             <p className="text-gray-700">{product.description}</p>
           </div>
 
           {/* Product Details */}
           <div>
-            <h2 className="text-xl font-semibold mb-2">Details</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-2">Details</h2>
             <ul className="list-disc list-inside text-gray-700 space-y-1">
               <li>Material: {product.material}</li>
               <li>SKU: {selectedVariation?.sku || "N/A"}</li>

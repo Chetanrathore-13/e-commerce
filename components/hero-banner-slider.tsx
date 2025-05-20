@@ -100,7 +100,7 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
           <Link  href="/products" key={banner._id}> 
           <div
             key={banner._id}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
+            className={`absolute inset-0 transition-opacity duration-1000  ${
               index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
             }`}
           >

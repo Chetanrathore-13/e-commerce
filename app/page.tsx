@@ -1,11 +1,11 @@
 import Image from "next/image";
-import Link from "next/link"
+import Link from "next/link";
 import FeaturedCategories from "@/components/featured-categories";
 import NewArrivals from "@/components/new-arrivals";
 import BestSellers from "@/components/best-sellers";
 import FeaturedCollections from "@/components/featured-collections";
 import Testimonials from "@/components/testimonials";
-import HeroBannerSlider from "@/components/hero-banner-slider"
+import HeroBannerSlider from "@/components/hero-banner-slider";
 import Art from "../public/Banners/art.png";
 import {
   getHomepageSectionsData,
@@ -54,12 +54,13 @@ export default async function Home() {
       ? bestSellersData.value?.products || []
       : [];
 
-      // Filter banner sections from homepage sections
-  const bannerSections = sections.filter((section) => section.type === "banner" && section.isActive)
+  // Filter banner sections from homepage sections
+  const bannerSections = sections.filter(
+    (section) => section.type === "banner" && section.isActive
+  );
 
   // Sort banner sections by position
-  bannerSections.sort((a, b) => a.position - b.position)
-
+  bannerSections.sort((a, b) => a.position - b.position);
 
   // Define the interface for section
   interface Section {
@@ -68,10 +69,10 @@ export default async function Home() {
     title?: string;
     subtitle?: string;
   }
-  
+
   // Find sections by type
   const findSectionByType = (type: string) =>
-      sections.find((section: Section) => section.type === type);
+    sections.find((section: Section) => section.type === type);
 
   // Get featured categories section
   const featuredCategoriesSection = findSectionByType("featured-categories");
@@ -98,7 +99,7 @@ export default async function Home() {
           priority
         /> */}
         {/* Hero Banner Slider */}
-      <HeroBannerSlider bannerSections={bannerSections} />
+        <HeroBannerSlider bannerSections={bannerSections} />
         {/* <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-center p-4">
           <div className="max-w-3xl">
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
@@ -130,10 +131,16 @@ export default async function Home() {
 
       {/* Banners-img */}
       <Link href="/products/floor-length-anarkali-with-gold-foil-print">
-      <section className="relative h-[70vh] md:h-[80vh] w-full bg-amber-700">
-        <Image src={Art} alt="" fill className="object-cover" priority />
-      </section>
-
+        <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full bg-amber-700">
+          <Image
+            src={Art}
+            alt="Hero Banner"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
+            className="object-cover"
+            priority
+          />
+        </section>
       </Link>
 
       {/* Featured Categories */}
