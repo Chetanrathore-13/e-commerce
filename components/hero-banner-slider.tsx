@@ -79,7 +79,7 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
   }
 
   return (
-    <section className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden">
+    <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] min-h-[300px] overflow-hidden">
       {/* Banner Images */}
       {bannerSections.map((banner, index) => {
         // Get config values with defaults
@@ -108,7 +108,7 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
               src={banner.image || "/diverse-products-still-life.png"}
               alt={banner.title || "Banner"}
               fill
-              className="object-cover"
+              className="object-contain"
               priority={index === 0}
             />
             <div className={`absolute inset-0 bg-black/30 flex items-center  p-4 md:p-8`}>

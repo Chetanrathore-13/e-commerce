@@ -90,32 +90,11 @@ export default async function Home() {
   return (
     <main>
       {/* Hero Section */}
-      <section className="relative h-[70vh] md:h-[80vh] w-full">
-        {/* <Image
-          src={sections[0]?.image || "/images/hero.jpg"}
-          alt="Parpra - Ethnic Wear Collection"
-          fill
-          className="object-cover"
-          priority
-        /> */}
+      <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] min-h-[300px]">
+        
         {/* Hero Banner Slider */}
         <HeroBannerSlider bannerSections={bannerSections} />
-        {/* <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-center p-4">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-              Discover Timeless Elegance
-            </h1>
-            <p className="text-lg md:text-xl text-white mb-6">
-              Explore our curated collection of premium ethnic wear
-            </p>
-            <Link
-              href="/products"
-              className="inline-block bg-amber-700 hover:bg-amber-800 text-white px-6 py-3 rounded-md font-medium transition-colors"
-            >
-              Shop Now
-            </Link>
-          </div>
-        </div> */}
+
       </section>
 
       {/* Featured Categories */}
