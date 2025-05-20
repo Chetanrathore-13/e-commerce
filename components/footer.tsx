@@ -26,6 +26,17 @@ import { Category } from "@/types";
 export default function Footer() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+   const [contactInfo, setContactInfo] = useState<ContactInfoItem[]>([])
+    const [loading, setLoading] = useState(true)
+   
+ interface ContactInfoItem {
+  _id: string
+  type: string
+  title: string
+  content: Record<string, string>
+  icon: string
+  order: number
+}
 
   useEffect(() => {
     async function fetchCategories() {
@@ -48,6 +59,30 @@ export default function Footer() {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+      const fetchContactInfo = async () => {
+        try {
+          const response = await fetch("/api/contact-info")
+          if (response.ok) {
+            const data = await response.json()
+            setContactInfo(data)
+          } else {
+            console.error("Failed to fetch contact information")
+          }
+        } catch (error) {
+          console.error("Error fetching contact information:", error)
+        } finally {
+          setLoading(false)
+        }
+      }
+  
+      fetchContactInfo()
+    }, [])
+
+    console.log("Contact Info:", contactInfo)
+  const address = contactInfo.find(item => item.type === "address");
+  const phone = contactInfo.find(item => item.type === "phone");
+  const email = contactInfo.find(item => item.type === "email");
   // Function to convert category name to URL-friendly format
   const getCategoryUrl = (name: string) => {
     return `/${name
@@ -77,6 +112,15 @@ export default function Footer() {
       description: "Supporting local artisans and communities",
     },
   ];
+
+   if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-700"></div>
+      </div>
+    )
+  }
+
 
   return (
     <footer className="bg-white border-t w-full">
@@ -282,27 +326,43 @@ export default function Footer() {
               <li className="flex items-start">
                 <MapPin className="h-5 w-5 text-white mr-2 mt-0.5" />
                 <span className="text-white">
-                  Bhopal, Madhya Pradesh, India
+                             {address?.content.line1}, {address?.content.line2}, {address?.content.line3}
                 </span>
               </li>
-              <li className="flex items-center">
-                <Phone className="h-5 w-5 text-white mr-2" />
+              {/* Comma-separated phone numbers */}
+        {phone && (
+          <li className="flex items-center">
+            <Phone className="h-5 w-5 text-white mr-2" />
+            <span className="text-white">
+              {Object.values(phone.content).map((num, idx, arr) => (
                 <a
-                  href="tel:+919893348683"
-                  className="text-white hover:text-teal-300"
+                  key={num}
+                  href={`tel:${num}`}
+                  className="hover:text-teal-300"
                 >
-                  +91 98933 48683
+                  {num}{idx < arr.length - 1 ? ', ' : ''}
                 </a>
-              </li>
-              <li className="flex items-center">
-                <Mail className="h-5 w-5 text-white mr-2" />
+              ))}
+            </span>
+          </li>
+        )}
+             { /* Comma-separated emails */}
+        {email && (
+          <li className="flex items-center">
+            <Mail className="h-5 w-8 text-white mr-2" />
+            <span className="text-white">
+              {Object.values(email.content).map((mail, idx, arr) => (
                 <a
-                  href="mailto:info@parpra.com"
-                  className="text-white hover:text-teal-300"
+                  key={mail}
+                  href={`mailto:${mail}`}
+                  className="hover:text-teal-300"
                 >
-                  info@parpra.com
+                  {mail}{idx < arr.length - 1 ? ' , ' : ''}
                 </a>
-              </li>
+              ))}
+            </span>
+          </li>
+        )}
             </ul>
           </div>
         </div>
