@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ProfileDropdown from "@/components/profile-dropdown";
 import CartModal from "@/app/cart/CartModal";
-import MegaMenu from "@/components/mega-menu";
 import type { MegaMenuContent, CategoryWithSubcategories } from "@/types";
 import { getCategoryTree, getUserWishlist } from "@/lib/api";
 import { useSession } from "next-auth/react";
@@ -79,7 +78,6 @@ export default function Header() {
     return () => clearInterval(intervalId);
   }, [status]);
 
-  // Fetch wishlist count
   // Fetch wishlist count
   useEffect(() => {
     const fetchWishlistCount = async () => {
@@ -262,163 +260,160 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-background ">
+    <header className="sticky top-0 z-40 bg-background w-full">
       {/* Announcement Bar */}
       <div>
         <AnnouncementBar />
       </div>
       {/* Auth Popup */}
       {showLoginPopup && <AuthPopup onClose={handleCloseLoginPopup} />}
+
       {/* Main Header */}
       <div className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <MenuIcon className="h-6 w-6" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] overflow-y-auto">
-                <div className="flex flex-col h-full">
-                  <div className="py-4 border-b">
-                    <Link
-                      href="/"
-                      className="flex items-center gap-2 font-semibold"
-                    >
-                      <Image
-                        src="/parpra-logo.png"
-                        alt="PARPRA"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        <div className="container mx-auto px-4 py-5 md:py-4">
+          <div className="flex items-center justify-between relative">
+            {/* Mobile Menu - Left */}
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <MenuIcon className="h-10 w-10" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="left"
+                  className="w-[300px] overflow-y-auto py-6"
+                >
+                  <div className="flex flex-col h-full space-y-4">
+                    <div className="py-6 border-b mb-3">
+                      <Link
+                        href="/"
+                        className="flex items-center justify-center"
+                      >
+                        <Image
+                          src={logo || "/placeholder.svg"}
+                          alt="PARPRA"
+                          width={100}
+                          height={60}
+                        />
+                      </Link>
+                    </div>
+
+                    {/* Mobile Search Bar */}
+                    <div className="py-4 px-2">
+                      <Input
+                        type="text"
+                        placeholder="Search products..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        className="w-full"
                       />
-                    </Link>
-                  </div>
+                      {showSearchResults && searchResults.length > 0 && (
+                        <div className="mt-3">
+                          <ul className="space-y-2 max-h-60 overflow-y-auto">
+                            {searchResults.map((product) => (
+                              <li key={product._id}>
+                                <Link
+                                  href={`/products/${product.slug}`}
+                                  className="flex items-center p-2 hover:bg-gray-50 rounded"
+                                  onClick={() => {
+                                    setShowSearchResults(false);
+                                    toast({
+                                      title: "Product selected",
+                                      description: `Viewing ${product.name}`,
+                                    });
+                                  }}
+                                >
+                                  <div className="relative w-10 h-10 mr-3">
+                                    <Image
+                                      src={
+                                        product.variations[0]?.image ||
+                                        "/placeholder.svg" ||
+                                        "/placeholder.svg"
+                                      }
+                                      alt={product.name}
+                                      fill
+                                      className="object-cover rounded"
+                                    />
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium truncate">
+                                      {product.name}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      ₹
+                                      {product.variations[0]?.salePrice ||
+                                        product.variations[0]?.price}
+                                    </p>
+                                  </div>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                          <Button
+                            variant="outline"
+                            className="w-full mt-3"
+                            onClick={viewAllSearchResults}
+                          >
+                            View all results
+                          </Button>
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="py-4 px-2">
-                    <Input
-                      type="text"
-                      placeholder="Search products..."
-                      value={searchQuery}
-                      onChange={(e) => handleSearch(e.target.value)}
-                      className="w-full"
-                    />
-
-                    {showSearchResults && searchResults.length > 0 && (
-                      <div className="mt-3">
-                        <ul className="space-y-2 max-h-60 overflow-y-auto">
-                          {searchResults.map((product) => (
-                            <li key={product._id}>
+                    {/* Mobile Navigation Links */}
+                    <nav className="flex flex-col py-4 space-y-1">
+                      <Link
+                        href="/"
+                        className={`px-2 py-3 ${
+                          pathname === "/"
+                            ? "text-teal-800 font-medium"
+                            : "text-gray-700"
+                        } hover:text-teal-800 border-b`}
+                      >
+                        Home
+                      </Link>
+                      {isLoading ? (
+                        <div className="px-2 py-3 border-b">
+                          <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
+                        </div>
+                      ) : (
+                        categories
+                          .filter((cat) => !cat.parent_category_id)
+                          .map((category) => (
+                            <div key={category._id} className="collapsible">
                               <Link
-                                href={`/products/${product.slug}`}
-                                className="flex items-center p-2 hover:bg-gray-50 rounded"
-                                onClick={() => {
-                                  setShowSearchResults(false);
-                                  toast({
-                                    title: "Product selected",
-                                    description: `Viewing ${product.name}`,
-                                  });
-                                }}
+                                href={`/${category.name
+                                  .toLowerCase()
+                                  .replace(/\s+/g, "-")}`}
+                                className={`px-2 py-3 flex justify-between items-center ${
+                                  isActive(
+                                    `/${category.name
+                                      .toLowerCase()
+                                      .replace(/\s+/g, "-")}`
+                                  )
+                                    ? "text-teal-800 font-medium"
+                                    : "text-gray-700"
+                                } hover:text-teal-800 border-b`}
                               >
-                                <div className="relative w-10 h-10 mr-3">
-                                  <Image
-                                    src={
-                                      product.variations[0]?.image ||
-                                      "/placeholder.svg"
-                                    }
-                                    alt={product.name}
-                                    fill
-                                    className="object-cover rounded"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium truncate">
-                                    {product.name}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    ₹
-                                    {product.variations[0]?.salePrice ||
-                                      product.variations[0]?.price}
-                                  </p>
-                                </div>
+                                {category.name}
                               </Link>
-                            </li>
-                          ))}
-                        </ul>
-                        <Button
-                          variant="outline"
-                          className="w-full mt-3"
-                          onClick={viewAllSearchResults}
-                        >
-                          View all results
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  <nav className="flex flex-col py-4">
-                    <Link
-                      href="/"
-                      className={`px-2 py-3 ${
-                        pathname === "/"
-                          ? "text-teal-800 font-medium"
-                          : "text-gray-700"
-                      } hover:text-teal-800 border-b`}
-                    >
-                      Home
-                    </Link>
-
-                    {/* Dynamic Categories for Mobile */}
-                    {isLoading ? (
-                      // Loading placeholders
-                      <div className="px-2 py-3 border-b">
-                        <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-                      </div>
-                    ) : (
-                      // Map through main categories
-                      categories
-                        .filter((category) => !category.parent_category_id)
-                        .map((category) => (
-                          <div key={category._id} className="collapsible">
-                            <Link
-                              href={`/${category.name
-                                .toLowerCase()
-                                .replace(/\s+/g, "-")}`}
-                              className={`px-2 py-3 flex justify-between items-center ${
-                                isActive(
-                                  `/${category.name
-                                    .toLowerCase()
-                                    .replace(/\s+/g, "-")}`
-                                )
-                                  ? "text-teal-800 font-medium"
-                                  : "text-gray-700"
-                              } hover:text-teal-800 border-b`}
-                            >
-                              {category.name}
-                            </Link>
-                            {category.subcategories &&
-                              category.subcategories.length > 0 && (
+                              {category.subcategories?.length > 0 && (
                                 <div className="pl-4">
-                                  {category.subcategories.map((subcategory) => (
+                                  {category.subcategories.map((sub) => (
                                     <Link
-                                      key={subcategory._id}
+                                      key={sub._id}
                                       href={`/${category.name
                                         .toLowerCase()
-                                        .replace(
-                                          /\s+/g,
-                                          "-"
-                                        )}/${subcategory.name
+                                        .replace(/\s+/g, "-")}/${sub.name
                                         .toLowerCase()
                                         .replace(/\s+/g, "-")}`}
                                       className={`px-2 py-2 block ${
                                         isActive(
                                           `/${category.name
                                             .toLowerCase()
-                                            .replace(
-                                              /\s+/g,
-                                              "-"
-                                            )}/${subcategory.name
+                                            .replace(/\s+/g, "-")}/${sub.name
                                             .toLowerCase()
                                             .replace(/\s+/g, "-")}`
                                         )
@@ -426,57 +421,58 @@ export default function Header() {
                                           : "text-gray-700"
                                       } hover:text-teal-800`}
                                     >
-                                      {subcategory.name}
-                                      {subcategory.description && (
+                                      {sub.name}
+                                      {sub.description && (
                                         <p className="text-xs text-gray-500 mt-1">
-                                          {subcategory.description}
+                                          {sub.description}
                                         </p>
                                       )}
                                     </Link>
                                   ))}
                                 </div>
                               )}
-                          </div>
-                        ))
-                    )}
+                            </div>
+                          ))
+                      )}
+                      <Link
+                        href="/bridal"
+                        className={`px-2 py-3 ${
+                          isActive("/bridal")
+                            ? "text-teal-800 font-medium"
+                            : "text-gray-700"
+                        } hover:text-teal-800 border-b`}
+                      >
+                        Bridal
+                      </Link>
+                      <Link
+                        href="/collections"
+                        className={`px-2 py-3 ${
+                          isActive("/collections")
+                            ? "text-teal-800 font-medium"
+                            : "text-gray-700"
+                        } hover:text-teal-800 border-b`}
+                      >
+                        Collections
+                      </Link>
+                      <Link
+                        href="/contact"
+                        className={`px-2 py-3 ${
+                          isActive("/contact")
+                            ? "text-teal-800 font-medium"
+                            : "text-gray-700"
+                        } hover:text-teal-800 border-b`}
+                      >
+                        Contact
+                      </Link>
+                    </nav>
 
-                    <Link
-                      href="/bridal"
-                      className={`px-2 py-3 ${
-                        isActive("/bridal")
-                          ? "text-teal-800 font-medium"
-                          : "text-gray-700"
-                      } hover:text-teal-800 border-b`}
-                    >
-                      Bridal
-                    </Link>
-                    <Link
-                      href="/collections"
-                      className={`px-2 py-3 ${
-                        isActive("/collections")
-                          ? "text-teal-800 font-medium"
-                          : "text-gray-700"
-                      } hover:text-teal-800 border-b`}
-                    >
-                      Collections
-                    </Link>
-                    <Link
-                      href="/contact"
-                      className={`px-2 py-3 ${
-                        isActive("/contact")
-                          ? "text-teal-800 font-medium"
-                          : "text-gray-700"
-                      } hover:text-teal-800 border-b`}
-                    >
-                      Contact
-                    </Link>
-
-                    <div className="flex items-center mt-4 px-2 cursor-pointer">
-                      <div className="relative mr-4">
-                        <Heart
-                          className="h-5 w-5 text-gray-700 hover:text-red-500"
-                          onClick={gotowishlist}
-                        />
+                    {/* Wishlist and Cart in Mobile */}
+                    <div className="flex items-center mt-6 mb-4 px-2 gap-4">
+                      <div
+                        className="relative cursor-pointer"
+                        onClick={gotowishlist}
+                      >
+                        <Heart className="h-5 w-5 text-gray-700 hover:text-red-500" />
                         {wishlistCount > 0 && (
                           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                             {wishlistCount}
@@ -484,97 +480,87 @@ export default function Header() {
                         )}
                         <span className="ml-2">Wishlist</span>
                       </div>
-
-                      <button
-                        className="flex items-center relative"
-                        onClick={() => {
-                          setIsCartOpen(true);
-                          document
-                            .querySelector('[data-state="open"]')
-                            ?.setAttribute("data-state", "closed");
-                        }}
+                      <div
+                        className="relative cursor-pointer"
+                        onClick={() => setIsCartOpen(true)}
                       >
-                        <ShoppingBag className="h-5 w-5 text-gray-700 cursor-pointer" />
+                        <ShoppingBag className="h-5 w-5 text-gray-700" />
                         {cartItemCount > 0 && (
                           <span className="absolute -top-2 -right-2 bg-teal-800 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                             {cartItemCount}
                           </span>
                         )}
                         <span className="ml-2">Cart</span>
-                      </button>
+                      </div>
                     </div>
-                  </nav>
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <Image src={logo} alt="PARPRA" width={100} height={60} />
-            </Link>
-
-            {/* Secondary Navigation */}
-            <div
-              className="hidden md:block overflow-x-auto relative"
-              ref={navRef}
-            >
-              <div className="container mx-auto px-4 relative">
-                <nav className="flex items-center space-x-8 py-3 whitespace-nowrap">
-                  {/* Dynamic Categories */}
-                  {isLoading ? (
-                    // Show placeholders while loading
-                    <>
-                      <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-                      <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-                      <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
-                    </>
-                  ) : (
-                    // Map through categories from database
-                    categories.map((category) => (
-                      <Link
-                        key={category._id}
-                        href={`/${category.name
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}`}
-                        className={`text-sm hover:text-teal-800 ${
-                          isActive(
-                            `/${category.name
-                              .toLowerCase()
-                              .replace(/\s+/g, "-")}`
-                          )
-                            ? "text-teal-800 font-medium"
-                            : ""
-                        }`}
-                        onMouseEnter={() =>
-                          handleMenuMouseEnter(category.name.toLowerCase())
-                        }
-                      >
-                        {category.name.toUpperCase()}
-                      </Link>
-                    ))
-                  )}
-
-                  <Link
-                    href="/products"
-                    className={`text-sm hover:text-teal-800 ${
-                      isActive("/collections")
-                        ? "text-teal-800 font-medium"
-                        : ""
-                    }`}
-                    onMouseEnter={() => setActiveMenu(null)}
-                  >
-                    COLLECTION
-                  </Link>
-                </nav>
-              </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
 
-            {/* Actions */}
+            {/* Logo - Centered on mobile, left-aligned on desktop */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none md:left-0 md:flex md:items-center">
+              <Link href="/" className="flex items-center">
+                <Image
+                  src={logo || "/placeholder.svg"}
+                  alt="PARPRA"
+                  width={100}
+                  height={60}
+                  priority
+                />
+              </Link>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div
+              className="hidden md:flex md:flex-1 md:justify-center overflow-x-auto relative"
+              ref={navRef}
+            >
+              <nav className="flex items-center space-x-8 py-3 whitespace-nowrap">
+                {isLoading ? (
+                  <>
+                    <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
+                    <div className="h-5 w-20 bg-gray-200 animate-pulse rounded"></div>
+                  </>
+                ) : (
+                  categories.map((category) => (
+                    <Link
+                      key={category._id}
+                      href={`/${category.name
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                      className={`text-sm hover:text-teal-800 ${
+                        isActive(
+                          `/${category.name.toLowerCase().replace(/\s+/g, "-")}`
+                        )
+                          ? "text-teal-800 font-medium"
+                          : ""
+                      }`}
+                      onMouseEnter={() =>
+                        handleMenuMouseEnter(category.name.toLowerCase())
+                      }
+                    >
+                      {category.name.toUpperCase()}
+                    </Link>
+                  ))
+                )}
+                <Link
+                  href="/products"
+                  className={`text-sm hover:text-teal-800 ${
+                    isActive("/collections") ? "text-teal-800 font-medium" : ""
+                  }`}
+                  onMouseEnter={() => setActiveMenu(null)}
+                >
+                  COLLECTION
+                </Link>
+              </nav>
+            </div>
+
+            {/* Actions - Right aligned on both mobile and desktop */}
             <div className="flex items-center space-x-4">
-              {/* Search */}
-              <div className="relative" ref={searchRef}>
+              <div className="relative hidden md:block" ref={searchRef}>
                 <button
-                  className="hidden md:flex items-center hover:text-teal-800 cursor-pointer"
+                  className="flex items-center hover:text-teal-800"
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
                   aria-label="Search"
                 >
@@ -582,9 +568,9 @@ export default function Header() {
                 </button>
               </div>
 
-              <div className="relative">
+              <div className="relative hidden md:block">
                 <Heart
-                  className="h-6 w-6 hover:text-red-500 hover:cursor-pointer transition-colors cursor-pointer"
+                  className="h-6 w-6 hover:text-red-500 cursor-pointer"
                   onClick={gotowishlist}
                   aria-label="Wishlist"
                 />
@@ -594,15 +580,15 @@ export default function Header() {
                   </span>
                 )}
               </div>
+
               <div className="relative" ref={profileRef}>
                 <button
-                  className="flex items-center hover:text-teal-800 cursor-pointer"
+                  className="flex items-center hover:text-teal-800"
                   onClick={handleOpenLoginPopup}
                   aria-label="User Account"
                 >
                   <User className="h-6 w-6" />
                 </button>
-
                 {isProfileOpen && status === "authenticated" && (
                   <ProfileDropdown />
                 )}
@@ -613,7 +599,7 @@ export default function Header() {
                 onClick={() => setIsCartOpen(true)}
                 aria-label="Shopping Cart"
               >
-                <ShoppingBag className="h-6 w-6 cursor-pointer" />
+                <ShoppingBag className="h-6 w-6" />
                 {cartItemCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-teal-800 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {cartItemCount}
@@ -634,7 +620,7 @@ export default function Header() {
                 <Input
                   type="text"
                   placeholder="Search products..."
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 w-full"
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
                   autoFocus
@@ -672,6 +658,7 @@ export default function Header() {
                             <Image
                               src={
                                 product.variations[0]?.image ||
+                                "/placeholder.svg" ||
                                 "/placeholder.svg"
                               }
                               alt={product.name}

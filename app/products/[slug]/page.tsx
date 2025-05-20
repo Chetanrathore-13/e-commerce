@@ -71,48 +71,44 @@ export default async function ProductPage({
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="mb-4 ml-5">
-        <nav className="flex" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
+      <div className=" ">
+        <nav className="w-full px-4 py-2 md:px-0" aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-x-1 md:gap-x-3 text-sm">
             <li className="inline-flex items-center">
               <Link
                 href="/"
-                className="text-md text-gray-900 hover:text-amber-700"
+                className="text-gray-900 hover:text-amber-700 text-sm md:text-sm"
               >
                 Home
               </Link>
             </li>
-            <li>
-              <div className="flex items-center">
-                <span className="mx-2 text-gray-400">/</span>
-                <Link
-                  href="/products"
-                  className="text-md text-gray-900 hover:text-amber-700"
-                >
-                  Products
-                </Link>
-              </div>
+            <li className="flex items-center">
+              <span className="mx-1 text-gray-400">/</span>
+              <Link
+                href="/products"
+                className="text-gray-900 hover:text-amber-700 text-sm md:text-md"
+              >
+                Products
+              </Link>
             </li>
             {product.category_id && (
-              <li>
-                <div className="flex items-center">
-                  <span className="mx-2 text-gray-400">/</span>
-                  <Link
-                    href={`/${product.category_id.name
-                      ?.toLowerCase()
-                      .replace(/\s+/g, "-")}`}
-                    className="text-md text-gray-900 hover:text-amber-700"
-                  >
-                    {product.category_id.name || "Category"}
-                  </Link>
-                </div>
+              <li className="flex items-center">
+                <span className="mx-1 text-gray-400">/</span>
+                <Link
+                  href={`/${product.category_id.name
+                    ?.toLowerCase()
+                    .replace(/\s+/g, "-")}`}
+                  className="text-gray-900 hover:text-amber-700 text-sm md:text-sm"
+                >
+                  {product.category_id.name || "Category"}
+                </Link>
               </li>
             )}
-            <li aria-current="page">
-              <div className="flex items-center">
-                <span className="mx-2 text-gray-400">/</span>
-                <span className="text-md text-gray-900">{product.name}</span>
-              </div>
+            <li aria-current="page" className="flex items-center">
+              <span className="mx-1 text-gray-400">/</span>
+              <span className="text-gray-900 text-sm md:text-sm">
+                {product.name}
+              </span>
             </li>
           </ol>
         </nav>
@@ -124,16 +120,19 @@ export default async function ProductPage({
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <div className="mt-16 mb-20">
-          <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="mt-12 mb-16 px-4 sm:px-6 lg:px-8">
+          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-gray-900">
+            You May Also Like
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {relatedProducts.map((relatedProduct: any) => (
               <Link
                 href={`/products/${relatedProduct.slug}`}
                 key={relatedProduct._id}
                 className="group"
               >
-                <div className="relative h-[450px] overflow-hidden rounded-lg bg-gray-100">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-gray-100">
                   {relatedProduct.variations &&
                   relatedProduct.variations[0]?.image ? (
                     <Image
@@ -144,7 +143,7 @@ export default async function ProductPage({
                       alt={relatedProduct.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 768px) 50vw, 25vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-200">
@@ -154,10 +153,10 @@ export default async function ProductPage({
                 </div>
 
                 <div className="mt-2">
-                  <h3 className="text-md   font-medium text-gray-900">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-900">
                     {relatedProduct.name}
                   </h3>
-                  <p className="text-md text-teal-700 mt-1">
+                  <p className="text-sm sm:text-md text-teal-700 mt-1">
                     ₹
                     {(
                       relatedProduct.variations?.[0]?.price || 0
