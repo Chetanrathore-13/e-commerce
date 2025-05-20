@@ -13,6 +13,7 @@ import {
   getCategoriesData,
   getProductsData,
 } from "@/lib/api";
+import ban4 from "@/public/mobbanner/mob4.png";
 
 // This function runs at build time and when revalidated
 export const revalidate = 3600; // Revalidate every hour
@@ -91,10 +92,8 @@ export default async function Home() {
     <main>
       {/* Hero Section */}
       <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] min-h-[300px]">
-        
         {/* Hero Banner Slider */}
         <HeroBannerSlider bannerSections={bannerSections} />
-
       </section>
 
       {/* Featured Categories */}
@@ -110,15 +109,31 @@ export default async function Home() {
 
       {/* Banners-img */}
       <Link href="/products/floor-length-anarkali-with-gold-foil-print">
-        <section className="relative h-[60vh] sm:h-[70vh] md:h-[80vh] w-full bg-amber-700">
-          <Image
-            src={Art}
-            alt="Hero Banner"
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
-            className="object-cover"
-            priority
-          />
+        <section className="relative h-[60vh] sm:h-[50vh] md:h-[60vh] w-full ">
+          {/* Desktop Image (visible on sm and above) */}
+          <div className="hidden sm:block absolute inset-0">
+            <Image
+              src={Art} // Desktop version
+              alt="Hero Banner - Desktop"
+              fill
+              sizes="(min-width: 640px) 100vw"
+              className="object-cover"
+              priority
+            />
+          </div>
+
+          {/* Mobile Image (visible below sm) */}
+          <div className="block sm:hidden absolute inset-0">
+            <Image
+              src={ban4} // Replace with actual mobile image
+              alt="Hero Banner - Mobile"
+              fill
+              sizes="(max-width: 639px) 70vw"
+              className="object-contain"
+              style={{ objectPosition: "center" }} // Adjust the position as needed
+              priority
+            />
+          </div>
         </section>
       </Link>
 
