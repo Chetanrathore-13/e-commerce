@@ -1,55 +1,65 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import ban1 from "@/public/mobbanner/mob.png"
+
 
 interface BannerSection {
-  _id: string
-  name: string
-  type: string
-  title?: string
-  subtitle?: string
-  image?: string
-  isActive: boolean
-  position: number
+  _id: string;
+  name: string;
+  type: string;
+  title?: string;
+  subtitle?: string;
+  image?: string;
+  isActive: boolean;
+  position: number;
   config?: {
-    buttonText?: string
-    buttonLink?: string
-    backgroundColor?: string
-    textColor?: string
-    alignment?: "left" | "center" | "right"
-  }
+    buttonText?: string;
+    buttonLink?: string;
+    backgroundColor?: string;
+    textColor?: string;
+    alignment?: "left" | "center" | "right";
+  };
 }
+
+
 
 interface HeroBannerSliderProps {
-  bannerSections: BannerSection[]
+  bannerSections: BannerSection[];
 }
 
-export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
+export default function HeroBannerSlider({
+  bannerSections,
+}: HeroBannerSliderProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Function to go to the next slide
   const nextSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex === bannerSections.length - 1 ? 0 : prevIndex + 1))
-  }, [bannerSections.length])
+    setCurrentIndex((prevIndex) =>
+      prevIndex === bannerSections.length - 1 ? 0 : prevIndex + 1
+    );
+  }, [bannerSections.length]);
 
   // Function to go to the previous slide
   const prevSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex === 0 ? bannerSections.length - 1 : prevIndex - 1))
-  }, [bannerSections.length])
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? bannerSections.length - 1 : prevIndex - 1
+    );
+  }, [bannerSections.length]);
 
   // Auto-slide effect
   useEffect(() => {
-    if (bannerSections.length <= 1) return
+    if (bannerSections.length <= 1) return;
 
     const interval = setInterval(() => {
-      nextSlide()
-    }, 5000) // Change slide every 5 seconds
+      nextSlide();
+    }, 5000); // Change slide every 5 seconds
 
-    return () => clearInterval(interval)
-  }, [bannerSections.length, nextSlide])
+    return () => clearInterval(interval);
+  }, [bannerSections.length, nextSlide]);
 
   // If no banners, show a default banner
   if (!bannerSections || bannerSections.length === 0) {
@@ -64,8 +74,12 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
         />
         <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-center p-4">
           <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">Discover Timeless Elegance</h1>
-            <p className="text-lg md:text-xl text-white mb-6">Explore our curated collection of premium ethnic wear</p>
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+              Discover Timeless Elegance
+            </h1>
+            <p className="text-lg md:text-xl text-white mb-6">
+              Explore our curated collection of premium ethnic wear
+            </p>
             <Link
               href="/products"
               className="inline-block bg-amber-700 hover:bg-amber-800 text-white px-6 py-3 rounded-md font-medium transition-colors"
@@ -75,7 +89,7 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
           </div>
         </div>
       </section>
-    )
+    );
   }
 
   return (
@@ -97,25 +111,39 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
         //       : "justify-center text-center"
 
         return (
-          <Link  href="/products" key={banner._id}> 
-          <div
-            key={banner._id}
-            className={`absolute inset-0 transition-opacity duration-1000  ${
-              index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-          >
-            <Image
-              src={banner.image || "/diverse-products-still-life.png"}
-              alt={banner.title || "Banner"}
-              fill
-              className="object-contain"
-              priority={index === 0}
-            />
-            <div className={`absolute inset-0 bg-black/30 flex items-center  p-4 md:p-8`}>
+          <Link href="/products" key={banner._id}>
+            <div
+              key={banner._id}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+              }`}
+            >
+              {/* Desktop Image (shown on sm and up) */}
+              <div className="hidden sm:block absolute inset-0">
+                <Image
+                  src={banner.image || "/diverse-products-still-life.png"}
+                  alt={banner.title || "Banner Desktop"}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
+                <div className="absolute inset-0 bg-black/30 flex items-center p-4 md:p-8" />
+              </div>
+
+              {/* Mobile Image (shown below sm) */}
+              <div className="block sm:hidden absolute inset-0">
+                <Image
+                  src={ban1 || "/mobile-banner-placeholder.png"}
+                  alt={banner.title || "Banner Mobile"}
+                  fill
+                  className="object-cover"
+                  priority={index === 0}
+                />
+                <div className="absolute inset-0 bg-black/30 flex items-center p-4 md:p-8" />
+              </div>
             </div>
-          </div>
           </Link>
-        )
+        );
       })}
 
       {/* Navigation Arrows - Only show if there are multiple banners */}
@@ -138,5 +166,5 @@ export default function HeroBannerSlider({ bannerSections }: HeroBannerSliderPro
         </>
       )}
     </section>
-  )
+  );
 }
