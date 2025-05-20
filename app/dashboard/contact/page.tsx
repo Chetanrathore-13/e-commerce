@@ -4,11 +4,12 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Plus, Edit, Trash2, Save, X, ArrowLeft } from "lucide-react"
+import { Plus, Edit, Save, X, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 
 interface ContactInfoItem {
   _id: string
@@ -247,8 +248,6 @@ export default function AdminContactPage() {
   }
 
   const deleteContactInfo = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this contact information?")) return
-
     try {
       const response = await fetch(`/api/contact-info/${id}`, {
         method: "DELETE",
@@ -267,6 +266,35 @@ export default function AdminContactPage() {
       }
     } catch (error) {
       console.error("Error deleting contact information:", error)
+      toast({
+        title: "An error occurred",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const deleteSubmission = async (id: string) => {
+    try {
+      const response = await fetch(`/api/contact-submissions/${id}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Submission deleted successfully",
+        })
+        fetchSubmissions()
+        if (viewingSubmission && viewingSubmission._id === id) {
+          setViewingSubmission(null)
+        }
+      } else {
+        toast({
+          title: "Failed to delete submission",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error deleting submission:", error)
       toast({
         title: "An error occurred",
         variant: "destructive",
@@ -300,37 +328,6 @@ export default function AdminContactPage() {
       }
     } catch (error) {
       console.error("Error updating submission status:", error)
-      toast({
-        title: "An error occurred",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const deleteSubmission = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this submission?")) return
-
-    try {
-      const response = await fetch(`/api/contact-submissions/${id}`, {
-        method: "DELETE",
-      })
-
-      if (response.ok) {
-        toast({
-          title: "Submission deleted successfully",
-        })
-        fetchSubmissions()
-        if (viewingSubmission && viewingSubmission._id === id) {
-          setViewingSubmission(null)
-        }
-      } else {
-        toast({
-          title: "Failed to delete submission",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error("Error deleting submission:", error)
       toast({
         title: "An error occurred",
         variant: "destructive",
@@ -729,14 +726,13 @@ export default function AdminContactPage() {
                             >
                               <Edit size={16} />
                             </Button>
-                            <Button
-                              onClick={() => deleteContactInfo(item._id)}
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <Trash2 size={16} />
-                            </Button>
+                            <DeleteConfirmationDialog
+                              title="Delete Contact Information"
+                              description="Are you sure you want to delete this contact information? This action cannot be undone."
+                              itemName={item.title}
+                              onConfirm={() => deleteContactInfo(item._id)}
+                              buttonSize="icon"
+                            />
                           </div>
                         </td>
                       </tr>
@@ -770,13 +766,13 @@ export default function AdminContactPage() {
                       <option value="read">Read</option>
                       <option value="responded">Responded</option>
                     </select>
-                    <Button
-                      onClick={() => deleteSubmission(viewingSubmission._id)}
-                      variant="outline"
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <Trash2 size={16} className="mr-1" /> Delete
-                    </Button>
+                    <DeleteConfirmationDialog
+                      title="Delete Submission"
+                      description="Are you sure you want to delete this contact submission? This action cannot be undone."
+                      itemName={viewingSubmission.subject}
+                      onConfirm={() => deleteSubmission(viewingSubmission._id)}
+                      buttonText="Delete"
+                    />
                   </div>
                 </div>
 
@@ -902,17 +898,15 @@ export default function AdminContactPage() {
                               >
                                 View
                               </Button>
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  deleteSubmission(submission._id)
-                                }}
-                                variant="outline"
-                                size="sm"
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <Trash2 size={16} />
-                              </Button>
+                              <div onClick={(e) => e.stopPropagation()}>
+                                <DeleteConfirmationDialog
+                                  title="Delete Submission"
+                                  description="Are you sure you want to delete this contact submission? This action cannot be undone."
+                                  itemName={submission.subject}
+                                  onConfirm={() => deleteSubmission(submission._id)}
+                                  buttonSize="icon"
+                                />
+                              </div>
                             </div>
                           </td>
                         </tr>

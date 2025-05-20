@@ -3,8 +3,9 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { HelpCircle, Plus, Edit, Trash2, Check, X, Save } from "lucide-react"
+import { HelpCircle, Plus, Edit, Check, X, Save } from "lucide-react"
 import Link from "next/link"
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 
 interface FAQItem {
   _id: string
@@ -140,8 +141,6 @@ export default function AdminFAQPage() {
   }
 
   const deleteFAQ = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this FAQ?")) return
-
     try {
       const response = await fetch(`/api/faqs/${id}`, {
         method: "DELETE",
@@ -458,9 +457,13 @@ export default function AdminFAQPage() {
                             >
                               <Edit size={16} />
                             </button>
-                            <button onClick={() => deleteFAQ(faq._id)} className="text-red-600 hover:text-red-900 p-1">
-                              <Trash2 size={16} />
-                            </button>
+                            <DeleteConfirmationDialog
+                              title="Delete FAQ"
+                              description="Are you sure you want to delete this FAQ? This action cannot be undone."
+                              itemName={faq.question}
+                              onConfirm={() => deleteFAQ(faq._id)}
+                              buttonSize="icon"
+                            />
                           </div>
                         </td>
                       </>
