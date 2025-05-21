@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { X, Loader2 } from "lucide-react"
+import { X, Loader2, Eye, EyeOff } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
@@ -44,6 +44,7 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
   const router = useRouter()
   const { data: session, status } = useSession()
   const role = session?.user?.role
+  const [showPassword, setShowPassword] = useState(false)
   const form = useForm<z.infer<typeof signupSchema | typeof loginSchema>>({
     resolver: zodResolver(isSignUp ? signupSchema : loginSchema),
     defaultValues: {
@@ -224,7 +225,17 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input type="password" placeholder="Password *" {...field} />
+                        <div className="relative">
+                          <Input type={showPassword ? "text" : "password"} placeholder="Password *" {...field} />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

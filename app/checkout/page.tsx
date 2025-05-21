@@ -413,14 +413,6 @@ export default function CheckoutPage() {
     const selectedMethod = paymentMethods.find((method) => method._id === paymentMethodId)
     if (selectedMethod) {
       setPaymentMethod(selectedMethod.type)
-
-      if (selectedMethod.type === "credit-card") {
-        setCardNumber(selectedMethod.card_number || "")
-        setCardHolder(selectedMethod.card_holder_name || "")
-        if (selectedMethod.expiry_month && selectedMethod.expiry_year) {
-          setExpiryDate(`${selectedMethod.expiry_month}/${selectedMethod.expiry_year.slice(-2)}`)
-        }
-      }
     }
   }
 
@@ -674,7 +666,7 @@ export default function CheckoutPage() {
       console.log("Order API response headers:", Object.fromEntries([...response.headers.entries()]))
 
       // Try to parse the response as JSON, but handle non-JSON responses
-      let errorData = {}
+      let errorData: { error?: string; rawResponse?: string } = {}
       let responseText = ""
 
       try {
@@ -996,13 +988,60 @@ export default function CheckoutPage() {
                     {/* Credit Card Option */}
                     {paymentSettings?.online_payment_enabled && (
                       <div
-                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "credit-card" ? "border-teal-500 bg-teal-50" : ""}`}
+                        className={`border rounded-md overflow-hidden ${paymentMethod === "credit-card" ? "border-teal-500" : ""}`}
                       >
-                        <RadioGroupItem value="credit-card" id="credit-card" />
-                        <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
-                          <CreditCard className="h-5 w-5 mr-2" />
-                          Credit/Debit Card
-                        </Label>
+                        <div
+                          className={`flex items-center space-x-2 p-4 ${paymentMethod === "credit-card" ? "bg-teal-50" : ""}`}
+                        >
+                          <RadioGroupItem value="credit-card" id="credit-card" />
+                          <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
+                            <CreditCard className="h-5 w-5 mr-2" />
+                            Credit/Debit Card
+                          </Label>
+                        </div>
+
+                        {/* Card Details Form - Shown directly below when selected */}
+                        {paymentMethod === "credit-card" && (
+                          <div className="p-4 space-y-4 border-t">
+                            <div>
+                              <Label htmlFor="cardNumber">Card Number</Label>
+                              <Input
+                                id="cardNumber"
+                                placeholder="1234 5678 9012 3456"
+                                value={cardNumber}
+                                onChange={(e) => setCardNumber(e.target.value)}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="expiryDate">Expiry Date</Label>
+                                <Input
+                                  id="expiryDate"
+                                  placeholder="MM/YY"
+                                  value={expiryDate}
+                                  onChange={(e) => setExpiryDate(e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="cvv">CVV</Label>
+                                <Input
+                                  id="cvv"
+                                  placeholder="123"
+                                  value={cvv}
+                                  onChange={(e) => setCvv(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label htmlFor="nameOnCard">Name on Card</Label>
+                              <Input
+                                id="nameOnCard"
+                                value={cardHolder}
+                                onChange={(e) => setCardHolder(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -1062,7 +1101,8 @@ export default function CheckoutPage() {
                     <Select value={selectedPaymentMethodId} onValueChange={handlePaymentMethodChange}>
                       <SelectTrigger id="savedPayment">
                         <SelectValue placeholder="Select a payment method" />
-                      </SelectTrigger>``
+                      </SelectTrigger>
+                      ``
                       <SelectContent>
                         {paymentMethods.map((method) => (
                           <SelectItem key={method._id} value={method._id}>
@@ -1095,62 +1135,25 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {/* New Payment Method Form */}
-                {paymentMethod !== "cod" && (newPaymentMode || paymentMethods.length === 0) && (
-                  <>
-                    {paymentMethod === "credit-card" && (
-                      <div className="mt-4 space-y-4 p-4 border rounded-md">
-                        <div>
-                          <Label htmlFor="cardNumber">Card Number</Label>
-                          <Input
-                            id="cardNumber"
-                            placeholder="1234 5678 9012 3456"
-                            value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value)}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="expiryDate">Expiry Date</Label>
-                            <Input
-                              id="expiryDate"
-                              placeholder="MM/YY"
-                              value={expiryDate}
-                              onChange={(e) => setExpiryDate(e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="cvv">CVV</Label>
-                            <Input id="cvv" placeholder="123" value={cvv} onChange={(e) => setCvv(e.target.value)} />
-                          </div>
-                        </div>
-                        <div>
-                          <Label htmlFor="nameOnCard">Name on Card</Label>
-                          <Input id="nameOnCard" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
-                        </div>
-                      </div>
-                    )}
-
-                    {newPaymentMode && (
-                      <div className="flex justify-end gap-2 mt-4">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            setNewPaymentMode(false)
-                            if (paymentMethods.length > 0 && selectedPaymentMethodId) {
-                              handlePaymentMethodChange(selectedPaymentMethodId)
-                            }
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button type="button" onClick={saveNewPaymentMethod}>
-                          Save Payment Method
-                        </Button>
-                      </div>
-                    )}
-                  </>
+                {/* Save buttons for new payment mode */}
+                {paymentMethod !== "cod" && newPaymentMode && (
+                  <div className="flex justify-end gap-2 mt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setNewPaymentMode(false)
+                        if (paymentMethods.length > 0 && selectedPaymentMethodId) {
+                          handlePaymentMethodChange(selectedPaymentMethodId)
+                        }
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="button" onClick={saveNewPaymentMethod}>
+                      Save Payment Method
+                    </Button>
+                  </div>
                 )}
 
                 <div className="mt-6 text-xs text-gray-500 flex items-center">
