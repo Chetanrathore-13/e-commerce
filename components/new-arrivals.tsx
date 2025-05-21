@@ -227,10 +227,10 @@ export default function NewArrivals({
               return (
                 <Card
                   key={product._id}
-                  className="min-w-[250px] sm:min-w-[280px] md:min-w-[300px] max-w-[300px] max-h-[400px] min-h-[450px] flex-shrink-0 overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer"
+                  className="min-w-[250px] sm:min-w-[280px] md:min-w-[300px] max-w-[300px] max-h-[450px] min-h-[400px] flex-shrink-0 overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer"
                   onClick={() => router.push(`/products/${product.slug}`)}
                 >
-                  <div className="relative h-72 w-full group">
+                  <div className="relative h-90 w-full group">
                     <Image
                       src={
                         variation.image ||
