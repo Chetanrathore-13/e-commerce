@@ -142,7 +142,7 @@ export default function CheckoutPage() {
   const [countryCode, setCountryCode] = useState("+91")
   const [mobileNumber, setMobileNumber] = useState("")
   const [sameAsBilling, setSameAsBilling] = useState(true)
-  const [paymentMethod, setPaymentMethod] = useState("credit-card")
+  const [paymentMethod, setPaymentMethod] = useState("")
   const [processingOrder, setProcessingOrder] = useState(false)
 
   // Credit card details
