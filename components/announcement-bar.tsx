@@ -113,7 +113,7 @@ export default function AnnouncementBar() {
       </div>
 
       {/* Optional: Indicator dots for multiple announcements */}
-      {announcements.length > 1 && (
+      {/* {announcements.length > 1 && (
         <div className="flex justify-center gap-1 pb-2 pt-1">
           {announcements.map((_, index) => (
             <div
@@ -124,7 +124,7 @@ export default function AnnouncementBar() {
             />
           ))}
         </div>
-      )}
+      )} */}
     </div>
   );
 }
