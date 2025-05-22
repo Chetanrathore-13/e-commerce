@@ -1,7 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
-import { ChevronRight, Calendar, User, Tag, Share2, Facebook, Twitter, Linkedin } from "lucide-react"
+import { ChevronRight, Calendar, User, Share2, Facebook, Twitter, Linkedin, Clock, ArrowRight } from "lucide-react"
 import type { Metadata } from "next"
 import { Button } from "@/components/ui/button"
 
@@ -70,9 +70,64 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
   const { blog, relatedBlogs } = data
 
+  // Calculate reading time (rough estimate)
+  const wordsPerMinute = 200
+  const wordCount = blog.content.split(/\s+/).length
+  const readingTime = Math.max(1, Math.ceil(wordCount / wordsPerMinute))
+
   return (
-    <div className="bg-neutral-50 min-h-screen py-12">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen">
+      {/* Hero Section with Featured Image */}
+      <div className="relative h-[40vh] md:h-[50vh] bg-amber-900">
+        <Image
+          src={blog.featured_image || "/placeholder.svg?height=500&width=1200&query=fashion blog"}
+          alt={blog.title}
+          fill
+          className="object-cover opacity-70"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16 text-white">
+          <div className="container mx-auto">
+            <div className="flex flex-wrap items-center text-sm text-amber-100 gap-4 mb-4">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 mr-2" />
+                <span>
+                  {new Date(blog.publish_date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <User className="h-4 w-4 mr-2" />
+                <span>{blog.author}</span>
+              </div>
+              <div className="flex items-center">
+                <Clock className="h-4 w-4 mr-2" />
+                <span>{readingTime} min read</span>
+              </div>
+            </div>
+            <h1 className="text-3xl md:text-5xl font-light mb-4 text-white">{blog.title}</h1>
+            {blog.categories && blog.categories.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {blog.categories.map((category: string) => (
+                  <Link
+                    key={category}
+                    href={`/blog?category=${encodeURIComponent(category)}`}
+                    className="bg-amber-700/80 hover:bg-amber-600 px-3 py-1 rounded-full text-sm text-white transition-colors"
+                  >
+                    {category}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-12">
         {/* Breadcrumb */}
         <div className="flex items-center text-sm mb-8">
           <Link href="/" className="text-gray-500 hover:text-amber-700">
@@ -89,60 +144,21 @@ export default async function BlogDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-3">
-            {/* Featured Image */}
-            <div className="relative aspect-[16/9] rounded-lg overflow-hidden mb-8">
-              <Image
-                src={blog.featured_image || "/placeholder.svg"}
-                alt={blog.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-
-            {/* Blog Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-light mb-4">{blog.title}</h1>
-
-              <div className="flex flex-wrap items-center text-sm text-gray-600 gap-4 mb-4">
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span>
-                    {new Date(blog.publish_date).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  <User className="h-4 w-4 mr-2" />
-                  <span>{blog.author}</span>
-                </div>
-                {blog.categories.length > 0 && (
-                  <div className="flex items-center">
-                    <Tag className="h-4 w-4 mr-2" />
-                    <span>{blog.categories.join(", ")}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Blog Content */}
-            <div className="prose prose-lg max-w-none mb-12">
+            <div className="bg-white rounded-lg shadow-sm p-8 mb-8 prose prose-lg max-w-none prose-headings:text-amber-900 prose-a:text-amber-700 prose-img:rounded-lg">
               <div dangerouslySetInnerHTML={{ __html: blog.content }} />
             </div>
 
             {/* Tags */}
             {blog.tags && blog.tags.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4">Tags</h3>
+              <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <h3 className="text-lg font-medium mb-4 text-amber-900">Tags</h3>
                 <div className="flex flex-wrap gap-2">
                   {blog.tags.map((tag: string) => (
                     <Link
                       key={tag}
                       href={`/blog?tag=${encodeURIComponent(tag)}`}
-                      className="bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-600 hover:bg-amber-100 hover:text-amber-700"
+                      className="bg-amber-50 px-3 py-1 rounded-full text-sm text-amber-800 hover:bg-amber-100 hover:text-amber-900 transition-colors"
                     >
                       {tag}
                     </Link>
@@ -152,23 +168,23 @@ export default async function BlogDetailPage({ params }: PageProps) {
             )}
 
             {/* Share */}
-            <div className="border-t border-b py-6 mb-8">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
               <div className="flex items-center flex-wrap gap-4">
-                <span className="font-medium flex items-center">
+                <span className="font-medium flex items-center text-amber-900">
                   <Share2 className="h-4 w-4 mr-2" />
                   Share this post:
                 </span>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="icon" className="rounded-full">
-                    <Facebook className="h-4 w-4" />
+                  <Button variant="outline" size="icon" className="rounded-full border-amber-200 hover:bg-amber-50">
+                    <Facebook className="h-4 w-4 text-amber-700" />
                     <span className="sr-only">Share on Facebook</span>
                   </Button>
-                  <Button variant="outline" size="icon" className="rounded-full">
-                    <Twitter className="h-4 w-4" />
+                  <Button variant="outline" size="icon" className="rounded-full border-amber-200 hover:bg-amber-50">
+                    <Twitter className="h-4 w-4 text-amber-700" />
                     <span className="sr-only">Share on Twitter</span>
                   </Button>
-                  <Button variant="outline" size="icon" className="rounded-full">
-                    <Linkedin className="h-4 w-4" />
+                  <Button variant="outline" size="icon" className="rounded-full border-amber-200 hover:bg-amber-50">
+                    <Linkedin className="h-4 w-4 text-amber-700" />
                     <span className="sr-only">Share on LinkedIn</span>
                   </Button>
                 </div>
@@ -177,36 +193,32 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
             {/* Related Posts */}
             {relatedBlogs && relatedBlogs.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-light mb-6">Related Posts</h2>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-2xl font-light mb-6 text-amber-900 border-b border-amber-100 pb-2">
+                  Related Posts
+                </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {relatedBlogs.map((relatedBlog: any) => (
-                    <Link
-                      key={relatedBlog._id}
-                      href={`/blog/${relatedBlog.slug}`}
-                      className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
-                    >
-                      <div className="relative h-48">
+                    <Link key={relatedBlog._id} href={`/blog/${relatedBlog.slug}`} className="group">
+                      <div className="relative h-48 rounded-lg overflow-hidden mb-3">
                         <Image
-                          src={relatedBlog.featured_image || "/placeholder.svg"}
+                          src={relatedBlog.featured_image || "/placeholder.svg?height=192&width=300&query=fashion blog"}
                           alt={relatedBlog.title}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
-                      <div className="p-4">
-                        <h3 className="text-lg font-medium mb-2 group-hover:text-amber-700 transition-colors line-clamp-2">
-                          {relatedBlog.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-2">{relatedBlog.excerpt}</p>
-                        <div className="text-xs text-gray-500">
-                          {new Date(relatedBlog.publish_date).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </div>
+                      <h3 className="text-lg font-medium mb-1 group-hover:text-amber-700 transition-colors line-clamp-2">
+                        {relatedBlog.title}
+                      </h3>
+                      <div className="text-xs text-gray-500 mb-2">
+                        {new Date(relatedBlog.publish_date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
                       </div>
+                      <p className="text-sm text-gray-600 line-clamp-2">{relatedBlog.excerpt}</p>
                     </Link>
                   ))}
                 </div>
@@ -216,31 +228,57 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-20">
-              <h2 className="text-xl font-medium mb-4">Recent Posts</h2>
-              <div className="space-y-4 mb-8">
-                {/* This would typically fetch recent posts from an API */}
-                <div className="text-center p-8">
-                  <Link href="/blog" className="text-amber-700 hover:underline">
-                    View all posts
-                  </Link>
+            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-20 border border-amber-100">
+              <h2 className="text-xl font-medium mb-4 text-amber-900 border-b border-amber-100 pb-2">Categories</h2>
+              <ul className="space-y-2 mb-8">
+                {blog.categories && blog.categories.length > 0 ? (
+                  blog.categories.map((category: string) => (
+                    <li key={category} className="group">
+                      <Link
+                        href={`/blog?category=${encodeURIComponent(category)}`}
+                        className="text-gray-600 hover:text-amber-700 flex items-center group-hover:translate-x-1 transition-transform"
+                      >
+                        <ArrowRight className="h-3 w-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        {category}
+                      </Link>
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-gray-500">No categories found</li>
+                )}
+              </ul>
+
+              {blog.tags && blog.tags.length > 0 && (
+                <>
+                  <h2 className="text-xl font-medium mb-4 text-amber-900 border-b border-amber-100 pb-2">Tags</h2>
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {blog.tags.map((tag: string) => (
+                      <Link
+                        key={tag}
+                        href={`/blog?tag=${encodeURIComponent(tag)}`}
+                        className="bg-amber-50 px-3 py-1 rounded-full text-sm text-amber-800 hover:bg-amber-100 hover:text-amber-900 transition-colors"
+                      >
+                        {tag}
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div className="bg-amber-50 p-4 rounded-lg">
+                <h3 className="font-medium text-amber-900 mb-2">Subscribe to our newsletter</h3>
+                <p className="text-sm text-amber-800 mb-4">Get the latest fashion updates and exclusive offers.</p>
+                <div className="flex">
+                  <input
+                    type="email"
+                    placeholder="Your email"
+                    className="flex-1 px-3 py-2 text-sm border border-amber-200 rounded-l-md focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                  <button className="bg-amber-700 text-white px-3 py-2 text-sm rounded-r-md hover:bg-amber-800 transition-colors">
+                    Subscribe
+                  </button>
                 </div>
               </div>
-
-              {/* Categories */}
-              <h2 className="text-xl font-medium mb-4">Categories</h2>
-              <ul className="space-y-2 mb-8">
-                {blog.categories.map((category: string) => (
-                  <li key={category}>
-                    <Link
-                      href={`/blog?category=${encodeURIComponent(category)}`}
-                      className="text-gray-600 hover:text-amber-700"
-                    >
-                      {category}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         </div>

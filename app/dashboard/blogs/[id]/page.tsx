@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -40,6 +40,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { data: session, status } = useSession()
   const { toast } = useToast()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [blogData, setBlogData] = useState<BlogData>({
     title: "",
@@ -67,31 +68,49 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     if (status === "authenticated") {
+      // Only fetch blog if we're editing an existing blog (not creating a new one)
       if (!isNew) {
         fetchBlog()
+      } else {
+        // For new blogs, we're not loading anything
+        setIsLoading(false)
+
+        // Set author from session if available
+        if (session?.user?.name) {
+          setBlogData((prev) => ({
+            ...prev,
+            author: session.user.name || "",
+          }))
+        }
       }
+
+      // Always fetch categories and tags
       fetchCategoriesAndTags()
     } else if (status === "unauthenticated") {
       router.push("/login?redirect=/admin/blogs")
     }
-  }, [status, id])
+  }, [status, id, session?.user?.name])
 
   const fetchBlog = async () => {
     try {
+      console.log("Fetching blog with ID:", id)
       const response = await fetch(`/api/admin/blogs/${id}`)
 
       if (!response.ok) {
-        throw new Error("Failed to fetch blog")
+        const errorText = await response.text()
+        console.error("Error response from API:", errorText)
+        throw new Error(`Failed to fetch blog: ${response.status} ${response.statusText}`)
       }
 
       const blog = await response.json()
+      console.log("Blog fetched successfully:", blog)
       setBlogData(blog)
       setImagePreview(blog.featured_image)
     } catch (error) {
       console.error("Error fetching blog:", error)
       toast({
         title: "Error",
-        description: "Failed to fetch blog",
+        description: error instanceof Error ? error.message : "Failed to fetch blog",
         variant: "destructive",
       })
     } finally {
@@ -127,11 +146,24 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
     }
   }
 
+  const handleImageClick = () => {
+    // Programmatically click the hidden file input
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       setImageFile(file)
       setImagePreview(URL.createObjectURL(file))
+
+      // Clear any previous error messages related to images
+      toast({
+        title: "Image selected",
+        description: "Don't forget to save to upload the image",
+      })
     }
   }
 
@@ -173,37 +205,13 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
     setBlogData((prev) => ({ ...prev, published: checked }))
   }
 
-  const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return blogData.featured_image
-
-    const formData = new FormData()
-    formData.append("file", imageFile)
-
-    try {
-      const response = await fetch("/api/upload-image", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to upload image")
-      }
-
-      const data = await response.json()
-      return data.url
-    } catch (error) {
-      console.error("Error uploading image:", error)
-      throw error
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSaving(true)
 
     try {
       // Validate required fields
-      const requiredFields = ["title", "slug", "excerpt", "content"]
+      const requiredFields = ["title", "slug", "excerpt", "content", "author"]
       for (const field of requiredFields) {
         if (!blogData[field as keyof BlogData]) {
           toast({
@@ -216,10 +224,57 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
         }
       }
 
+      // Check if we have either an existing image or a new one
+      if (!blogData.featured_image && !imageFile) {
+        toast({
+          title: "Validation Error",
+          description: "Featured image is required",
+          variant: "destructive",
+        })
+        setIsSaving(false)
+        return
+      }
+
       // Upload image if a new one is selected
       let imageUrl = blogData.featured_image
       if (imageFile) {
-        imageUrl = await uploadImage()
+        try {
+          const formData = new FormData()
+          formData.append("file", imageFile)
+
+          console.log("Uploading image:", imageFile.name, imageFile.type, imageFile.size)
+
+          const uploadResponse = await fetch("/api/upload-image", {
+            method: "POST",
+            body: formData,
+          })
+
+          if (!uploadResponse.ok) {
+            let errorMessage = "Failed to upload image"
+            try {
+              const errorData = await uploadResponse.json()
+              errorMessage = errorData.error || errorMessage
+            } catch (e) {
+              console.error("Error parsing upload response:", e)
+              const responseText = await uploadResponse.text()
+              console.error("Raw response:", responseText)
+            }
+            throw new Error(errorMessage)
+          }
+
+          const uploadData = await uploadResponse.json()
+          imageUrl = uploadData.url
+          console.log("Image uploaded successfully:", imageUrl)
+        } catch (error) {
+          console.error("Error uploading image:", error)
+          toast({
+            title: "Error",
+            description: error instanceof Error ? error.message : "Failed to upload image. Please try again.",
+            variant: "destructive",
+          })
+          setIsSaving(false)
+          return
+        }
       }
 
       // Prepare data for submission
@@ -227,6 +282,8 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
         ...blogData,
         featured_image: imageUrl,
       }
+
+      console.log("Submitting blog data:", dataToSubmit)
 
       // Create or update the blog
       const url = isNew ? "/api/admin/blogs" : `/api/admin/blogs/${id}`
@@ -240,10 +297,27 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
         body: JSON.stringify(dataToSubmit),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to save blog")
+      // Check for non-JSON responses
+      const contentType = response.headers.get("content-type")
+      if (!contentType || !contentType.includes("application/json")) {
+        const responseText = await response.text()
+        console.error("Non-JSON response received:", responseText)
+        throw new Error("Server returned non-JSON response")
       }
+
+      let responseData
+      try {
+        responseData = await response.json()
+      } catch (e) {
+        console.error("Error parsing response:", e)
+        throw new Error("Failed to parse server response")
+      }
+
+      if (!response.ok) {
+        throw new Error(responseData.error || "Failed to save blog")
+      }
+
+      console.log("Blog saved successfully:", responseData)
 
       toast({
         title: "Success",
@@ -286,7 +360,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
           <h1 className="text-2xl font-semibold">{isNew ? "Create New Blog Post" : "Edit Blog Post"}</h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => router.push("/dashboard/blogs")}>
+          <Button variant="outline" onClick={() => router.push("/admin/blogs")}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isSaving}>
@@ -341,7 +415,10 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-[200px] bg-gray-100 rounded-md">
+                  <div
+                    className="flex flex-col items-center justify-center h-[200px] bg-gray-100 rounded-md cursor-pointer"
+                    onClick={handleImageClick}
+                  >
                     <Upload className="h-12 w-12 text-gray-400 mb-2" />
                     <p className="text-sm text-gray-500 mb-4">Drag and drop or click to upload</p>
                     <Button type="button" size="sm" variant="outline">
@@ -349,12 +426,13 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
                     </Button>
                   </div>
                 )}
-                <Input
-                  id="featured_image"
+                <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   className="hidden"
                   onChange={handleImageChange}
+                  aria-label="Upload featured image"
                 />
                 <p className="text-xs text-gray-500 mt-2">Recommended size: 1200x630 pixels (16:9 ratio)</p>
               </div>
