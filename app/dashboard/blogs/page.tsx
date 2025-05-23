@@ -205,7 +205,7 @@ export default function BlogsAdminPage() {
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-8">
                   <p className="text-gray-500">No blog posts found</p>
-                  <Link href="/dahboard/blogs/new" className="mt-2 inline-block">
+                  <Link href="/dashboard/blogs/new" className="mt-2 inline-block">
                     <Button variant="link" className="text-amber-700">
                       Create your first blog post
                     </Button>
@@ -270,7 +270,7 @@ export default function BlogsAdminPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/admin/blogs/${blog._id}`}>
+                          <Link href={`/dashboard/blogs/${blog._id}`}>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit
                           </Link>
