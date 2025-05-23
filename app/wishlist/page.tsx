@@ -241,7 +241,7 @@ export default function WishlistPage() {
                             </p>
                           </div>
 
-                          <div>
+                          <div className=" mb-60">
                             <Button
                               className="w-full sm:w-auto border bg-amber-700 hover:bg-teal-700 text-white"
                               onClick={() =>

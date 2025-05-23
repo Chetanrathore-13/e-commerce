@@ -22,8 +22,8 @@ export default async function UsersPage({
 
   return (
     <div className="flex-1 p-4 pt-6 md:p-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Users</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-5xl font-bold tracking-tight">Users</h2>
       </div>
 
       <UsersFilter />

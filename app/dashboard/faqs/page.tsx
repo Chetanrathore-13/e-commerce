@@ -165,8 +165,8 @@ export default function AdminFAQPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="bg-gray-50 min-h-screen py-12">
+      <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">FAQ Management</h1>

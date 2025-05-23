@@ -134,3 +134,7 @@
 .backgroundcolor{
   background-color: #00000055;
 }
+
+button{
+  cursor: pointer;
+}

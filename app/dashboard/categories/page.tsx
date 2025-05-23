@@ -36,9 +36,9 @@ export default async function CategoriesPage({
 
   return (
     <div className="flex-1 p-4 pt-6 md:p-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Categories</h2>
-        <Button asChild>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-4xl font-bold tracking-tight">Categories</h2>
+        <Button asChild >
           <Link href="/dashboard/categories/new">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Category

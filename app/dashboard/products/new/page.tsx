@@ -16,8 +16,8 @@ export default async function NewProductPage() {
 
   return (
     <div className="flex-1 p-4 pt-6 md:p-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Add Product</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-3xl font-bold tracking-tight ">Add Product</h2>
         <BackButton section="products" />
       </div>
       <ProductForm brands={brands} categories={categories} />
