@@ -147,9 +147,9 @@ export default function HomepageSectionsPage() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Homepage Sections</h1>
+    <div className="p-4 ">
+      <div className="flex justify-between items-center mb-4 p-6">
+        <h1 className="text-4xl font-bold">Homepage Sections</h1>
         <Link href="/dashboard/homepage/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
@@ -159,7 +159,7 @@ export default function HomepageSectionsPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
+        <div className="flex justify-center items-center h-64 ">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
         </div>
       ) : sections.length === 0 ? (

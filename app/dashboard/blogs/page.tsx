@@ -139,9 +139,9 @@ export default function BlogsAdminPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-6 py-9">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Blog Posts</h1>
+        <h1 className="text-4xl font-semibold">Blog Posts</h1>
         <Link href="/dashboard/blogs/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
@@ -183,7 +183,7 @@ export default function BlogsAdminPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[250px]">Blog Post</TableHead>
+              <TableHead className="w-[270px]">Blog Post</TableHead>
               <TableHead>Author</TableHead>
               <TableHead>Categories</TableHead>
               <TableHead>Status</TableHead>
@@ -230,7 +230,7 @@ export default function BlogsAdminPage() {
                         <Link
                           href={`/blog/${blog.slug}`}
                           target="_blank"
-                          className="text-xs text-amber-700 hover:underline"
+                          className="text-sm text-amber-700 hover:underline"
                         >
                           View
                         </Link>

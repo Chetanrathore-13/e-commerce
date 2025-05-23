@@ -8,7 +8,7 @@ import { Plus, Edit, Save, X, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/hooks/use-toast"
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
 
 interface ContactInfoItem {
@@ -362,15 +362,20 @@ export default function AdminContactPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6">
+    <div className="bg-gray-50 min-h-screen py-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Contact Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900 leading-10">Contact Management</h1>
             <p className="text-gray-600">Manage contact information and view form submissions</p>
           </div>
+<<<<<<< HEAD
+          <div className="flex gap-4 ">
+            <Link href="/admin/faqs">
+=======
           <div className="flex gap-4">
             <Link href="/dashboard/faqs">
+>>>>>>> 077dc35c271e4f24329a5d0856622ce1c89e885e
               <button className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
                 Manage FAQs
               </button>

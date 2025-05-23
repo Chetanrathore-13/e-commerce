@@ -212,7 +212,7 @@ export default function AdminReviewsPage() {
   }
 
   return (
-    <div>
+    <div className="px-8 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Reviews</h1>
         <Button onClick={handleFilterToggle} variant="outline" className="flex items-center">

@@ -24,8 +24,8 @@ export default async function BrandsPage({
 
   return (
     <div className="flex-1 p-4 pt-6 md:p-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Brands</h2>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-5xl font-bold tracking-tight">Brands</h2>
         <Button asChild>
           <Link href="/dashboard/brands/new">
             <PlusCircle className="mr-2 h-4 w-4" />

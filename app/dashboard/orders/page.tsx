@@ -9,10 +9,10 @@ export const metadata = {
 
 export default function OrdersPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-6 py-9">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Order Management</h1>
+          <h1 className="text-4xl font-bold leading-12">Order Management</h1>
           <p className="text-gray-500">View and manage customer orders</p>
         </div>
       </div>

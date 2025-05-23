@@ -299,7 +299,7 @@ export default function AdminShippingPage() {
 
   const renderForm = () => {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4  px-7">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
@@ -510,7 +510,7 @@ export default function AdminShippingPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6">
+    <div className="bg-gray-50 min-h-screen py-8">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
