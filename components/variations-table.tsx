@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Edit, Trash2 } from "lucide-react"
 import type { IVariation } from "@/lib/models"
 import { Pagination } from "@/components/pagination"
+import { format } from "date-fns"
 
 interface VariationsTableProps {
   productId: string
@@ -113,7 +114,7 @@ export function VariationsTable({ productId, variations, totalPages, page, per_p
                   <TableCell>{variation.color}</TableCell>
                   <TableCell>${variation.price}</TableCell>
                   <TableCell>{variation.quantity}</TableCell>
-                  <TableCell>{new Date(variation.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{format(new Date(variation.createdAt), "yyyy-MM-dd")}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button variant="ghost" size="icon" asChild>
