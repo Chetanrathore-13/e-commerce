@@ -348,9 +348,9 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-10 py-16">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-6">
           <Button variant="outline" size="icon" asChild>
             <Link href="/dashboard/blogs">
               <ArrowLeft className="h-4 w-4" />
@@ -381,36 +381,36 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
             {/* Title and Slug */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title" className="text-lg">Title</Label>
                 <Input id="title" name="title" value={blogData.title} onChange={handleInputChange} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="slug">Slug</Label>
+                <Label htmlFor="slug" className="text-lg">Slug</Label>
                 <Input id="slug" name="slug" value={blogData.slug} onChange={handleInputChange} required />
               </div>
             </div>
 
             {/* Featured Image */}
             <div className="space-y-2">
-              <Label>Featured Image</Label>
+              <Label className="text-lg mt-4">Featured Image</Label>
               <div className="border rounded-md p-4 bg-gray-50">
                 {imagePreview ? (
                   <div className="relative">
-                    <div className="relative aspect-video w-full max-h-[300px] rounded-md overflow-hidden">
+                    <div className="relative aspect-video w-full max-h-[500px] rounded-md overflow-hidden">
                       <Image src={imagePreview || "/placeholder.svg"} alt="Preview" fill className="object-cover" />
                     </div>
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
-                      className="absolute top-2 right-2"
+                      className="absolute top-2 right-2 bg-black"
                       onClick={() => {
                         setImageFile(null)
                         setImagePreview("")
                         setBlogData((prev) => ({ ...prev, featured_image: "" }))
                       }}
                     >
-                      <Trash className="h-4 w-4" />
+                      <Trash className="h-4 w-4 text-white" />
                       <span className="sr-only">Remove image</span>
                     </Button>
                   </div>
@@ -439,14 +439,14 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Author */}
-            <div className="space-y-2">
-              <Label htmlFor="author">Author</Label>
+            <div className="space-y-4 mt-6">
+              <Label htmlFor="author" className="text-lg mb-4">Author</Label>
               <Input id="author" name="author" value={blogData.author} onChange={handleInputChange} />
             </div>
 
             {/* Excerpt */}
             <div className="space-y-2">
-              <Label htmlFor="excerpt">Excerpt</Label>
+              <Label htmlFor="excerpt" className="text-lg mb-2">Excerpt</Label>
               <Textarea
                 id="excerpt"
                 name="excerpt"
@@ -462,7 +462,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
 
             {/* Content */}
             <div className="space-y-2">
-              <Label htmlFor="content">Content</Label>
+              <Label htmlFor="content" className="text-lg mb-2">Content</Label>
               <Textarea
                 id="content"
                 name="content"

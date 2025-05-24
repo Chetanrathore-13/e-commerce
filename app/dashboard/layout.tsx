@@ -1,23 +1,23 @@
-import type React from "react"
-import { getServerSession } from "next-auth"
-import { redirect } from "next/navigation"
-import { authOptions } from "@/lib/auth"
-import { MobileSidebar } from "@/components/mobile-sidebar"
-import { ModeToggle } from "@/components/mode-toggle"
-import { UserNav } from "@/components/user-nav"
-import { ResizableSidebar } from "@/components/resizable-sidebar"
-import { SidebarProvider } from "@/components/sidebar-context"
-import Link from "next/link"
+import type React from "react";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+import { MobileSidebar } from "@/components/mobile-sidebar";
+import { ModeToggle } from "@/components/mode-toggle";
+import { UserNav } from "@/components/user-nav";
+import { ResizableSidebar } from "@/components/resizable-sidebar";
+import { SidebarProvider } from "@/components/sidebar-context";
+import Link from "next/link";
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/login")
+    redirect("/login");
   }
 
   return (
@@ -30,7 +30,11 @@ export default async function DashboardLayout({
               <Link href="/dashboard" className="hidden sm:inline-block">
                 <img src="/Logo/Parpra.png" alt="Logo" className="h-16 w-16" />
               </Link>
-              <Link href="/dashboard"><span className="hidden font-bold sm:inline-block"> Admin Dashboard</span></Link>
+              <Link href="/dashboard">
+                <span className="hidden font-bold sm:inline-block">
+                  Admin Dashboard
+                </span>
+              </Link>
             </div>
             <div className="flex items-center gap-2">
               <ModeToggle />
@@ -38,11 +42,17 @@ export default async function DashboardLayout({
             </div>
           </div>
         </header>
-        <div className="flex flex-1">
-          <ResizableSidebar />
-          <main className="flex w-full flex-1 flex-col overflow-auto">{children}</main>
+
+        <div className="flex flex-1 min-h-0">
+          {/* Sticky Sidebar */}
+          <div className="sticky top-16 h-[calc(100vh-4rem)] z-30">
+            <ResizableSidebar />
+          </div>
+
+          {/* Scrollable Main Content */}
+          <main className="flex-1 overflow-hidden">{children}</main>
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }

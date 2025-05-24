@@ -37,17 +37,17 @@ export default async function ProductsPage({
   ])
 
   return (
-    <div className="flex-1 p-4 pt-6 md:p-8">
+    <div className="flex-1 pt-8 m md:p-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h2 className="text-5xl font-bold tracking-tight">Products</h2>
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <Button asChild variant="outline" className="bg-white text-teal-600 border-teal-600 hover:bg-teal-50">
+        <div className="flex flex-col sm:flex-row gap-6 mb-8">
+          <Button asChild variant="outline" className="bg-white  text-teal-600 hover:bg-teal-50 border-teal-600 hover:text-black transition">
             <Link href="/dashboard/products/import-export">
               <Upload className="mr-2 h-4 w-4" />
               Import/Export
             </Link>
           </Button>
-          <Button asChild className="bg-teal-600 hover:bg-teal-700 text-white">
+          <Button asChild className="bg-teal-600 text-white   hover:bg-teal-500 hover:text-white transition ">
             <Link href="/dashboard/products/new">
               <PlusCircle className="mr-2 h-4 w-4 " />
               Add Product

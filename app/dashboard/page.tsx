@@ -14,17 +14,17 @@ export default async function DashboardPage() {
   const stats = await getStats()
 
   return (
-    <div className="flex-1 p-4 pt-6 md:p-8">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+    <div className="flex-1 py-4 md:p-8">
+      <div className="flex items-center justify-between gap-8 ">
+        <h2 className="text-4xl font-bold tracking-tight mb-6 ">Dashboard</h2>
       </div>
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <ClientSessionCheck />
-      </div>
+      </div> */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-5">
-        <Card>
+        <Card className="bg-[#cbfbf16e] hover:bg-[#cbfbf197] transition-colors duration-300 ease-in-out border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+            <CardTitle className="text-sm font-medium ">Total Products</CardTitle>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -43,7 +43,7 @@ export default async function DashboardPage() {
             <p className="text-xs text-muted-foreground">+{stats.newProducts} new products this month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#f0e7ff] hover:bg-[#e2d4fd] transition-colors duration-300 ease-in-out border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Categories</CardTitle>
             <svg
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
             <p className="text-xs text-muted-foreground">+{stats.newCategories} new categories this month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#fff7cc] hover:bg-[#fff1aa] transition-colors duration-300 ease-in-out border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Brands</CardTitle>
             <svg
@@ -88,7 +88,7 @@ export default async function DashboardPage() {
             <p className="text-xs text-muted-foreground">+{stats.newBrands} new brands this month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#ffe4e1] hover:bg-[#ffd1cc] transition-colors duration-300 ease-in-out border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Variations</CardTitle>
             <svg
@@ -109,7 +109,7 @@ export default async function DashboardPage() {
             <p className="text-xs text-muted-foreground">+{stats.newVariations} new variations this month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-[#e6f0ff] hover:bg-[#d4e7fd] transition-colors duration-300 ease-in-out border-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <svg

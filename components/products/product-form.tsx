@@ -130,7 +130,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Product Name</FormLabel>
+                <FormLabel className="text-lg">Product Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter product name" {...field} />
                 </FormControl>
@@ -144,7 +144,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             name="brand_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Brand</FormLabel>
+                <FormLabel className="text-lg">Brand</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -169,7 +169,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             name="category_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Category</FormLabel>
+                <FormLabel className="text-lg">Category</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -194,7 +194,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             name="material"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Material</FormLabel>
+                <FormLabel className="text-lg">Material</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter material (optional)" {...field} />
                 </FormControl>
@@ -209,7 +209,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="text-lg">Description</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Enter product description" className="min-h-[120px]" {...field} />
                   </FormControl>
@@ -224,7 +224,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             name="tags"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tags</FormLabel>
+                <FormLabel className="text-lg">Tags</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter tags separated by commas" {...field} />
                 </FormControl>
@@ -243,7 +243,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Featured Product</FormLabel>
+                    <FormLabel className="text-lg">Featured Product</FormLabel>
                     <p className="text-sm text-muted-foreground">This product will be displayed in featured sections</p>
                   </div>
                 </FormItem>
@@ -259,7 +259,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Best Seller</FormLabel>
+                    <FormLabel className="text-lg">Best Seller</FormLabel>
                     <p className="text-sm text-muted-foreground">This product will be marked as a best seller</p>
                   </div>
                 </FormItem>
@@ -269,7 +269,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
         </div>
 
         <div className="flex gap-4">
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} className="text-lg py-4" >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -281,7 +281,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
               "Create Product"
             )}
           </Button>
-          <Button type="button" variant="outline" onClick={() => router.push("/dashboard/products")}>
+          <Button type="button" variant="outline" className="text-lg" onClick={() => router.push("/dashboard/products")}>
             Cancel
           </Button>
         </div>

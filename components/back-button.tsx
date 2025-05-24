@@ -14,15 +14,15 @@ export function BackButton({ label = "Back", section }: BackButtonProps) {
 
   // Define unique colors for each section
   const sectionColors = {
-    products: "bg-blue-600 hover:bg-blue-700",
-    categories: "bg-emerald-600 hover:bg-emerald-700",
-    brands: "bg-amber-600 hover:bg-amber-700",
-    variations: "bg-purple-600 hover:bg-purple-700",
+    products: "bg-black hover:bg-teal-600",
+    categories: "bg-black hover:bg-teal-700",
+    brands: "bg-black hover:bg-teal-700",
+    variations: "bg-blackhover:bg-teal-700",
   }
 
   return (
     <Button onClick={() => router.back()} className={`${sectionColors[section]} text-white`} size="sm">
-      <ArrowLeft className="mr-2 h-4 w-4" />
+      <ArrowLeft className="h-4 w-4 text-md " />
       {label}
     </Button>
   )
