@@ -14,10 +14,10 @@ export function BackButton({ label = "Back", section }: BackButtonProps) {
 
   // Define unique colors for each section
   const sectionColors = {
-    products: "bg-black hover:bg-teal-600",
-    categories: "bg-black hover:bg-teal-700",
-    brands: "bg-black hover:bg-teal-700",
-    variations: "bg-blackhover:bg-teal-700",
+    products: "bg-teal-600 hover:bg-teal-800",
+    categories: "bg-teal-600 hover:bg-teal-800",
+    brands: "bg-teal-600 hover:bg-teal-800",
+    variations: "bg-teal-600 hover:bg-teal-800",
   }
 
   return (
