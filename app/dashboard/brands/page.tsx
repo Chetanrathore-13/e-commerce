@@ -26,7 +26,7 @@ export default async function BrandsPage({
     <div className="flex-1 p-4 pt-6 md:p-8">
       <div className="flex items-center justify-between mb-5">
         <h2 className="text-5xl font-bold tracking-tight">Brands</h2>
-        <Button asChild>
+        <Button asChild  className=" bg-teal-600 text-white   hover:bg-teal-500 hover:text-white transition">
           <Link href="/dashboard/brands/new">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add Brand
