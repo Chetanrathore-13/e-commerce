@@ -16,18 +16,27 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2, Trash2, Upload } from "lucide-react"
 import type { IVariation } from "@/lib/models"
 
-const formSchema = z.object({
-  size: z.enum(["XS", "S", "M", "L", "XL", "XXL"], {
-    errorMap: () => ({ message: "Please select a valid size" }),
-  }),
-  color: z.string().min(1, "Color is required"),
-  price: z.coerce.number().min(0, "Price must be a positive number"),
-  salePrice: z.coerce.number().min(0, "Sale price must be a positive number").optional().nullable(),
-  sku: z.string().min(1, "SKU is required"),
-  quantity: z.coerce.number().min(0, "Quantity must be a positive number"),
-  image: z.any().optional(),
-  gallery: z.array(z.any()).optional(),
-})
+const formSchema = z
+  .object({
+    size: z.enum(["XS", "S", "M", "L", "XL", "XXL"], {
+      errorMap: () => ({ message: "Please select a valid size" }),
+    }),
+    color: z.string().min(1, "Color is required"),
+    price: z.coerce.number().min(0, "Price must be a positive number"),
+    salePrice: z.coerce.number().min(0, "Sale price must be a positive number").optional().nullable(),
+    sku: z.string().min(1, "SKU is required"),
+    quantity: z.coerce.number().min(0, "Quantity must be a positive number"),
+    image: z.any().optional(),
+    gallery: z.array(z.any()).optional(),
+  })
+  .refine(
+    (data) =>
+      data.salePrice === null || data.salePrice === undefined || data.salePrice <= data.price,
+    {
+      message: "Sale price cannot be greater than regular price",
+      path: ["salePrice"],
+    }
+  )
 
 interface VariationFormProps {
   productId: string
@@ -234,7 +243,7 @@ export function VariationForm({ productId, variation }: VariationFormProps) {
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price</FormLabel>
+                <FormLabel>Regular Price</FormLabel>
                 <FormControl>
                   <Input type="number" step="0.01" min="0" placeholder="Enter price" {...field} />
                 </FormControl>
