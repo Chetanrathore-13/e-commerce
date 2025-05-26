@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
@@ -32,6 +32,22 @@ interface ProductFormProps {
   categories: ICategory[]
 }
 
+// Helper function to extract ID from populated field
+function extractId(field: any): string {
+  if (!field) return ""
+  if (typeof field === "string") return field
+  if (typeof field === "object" && field._id) return field._id.toString()
+  return field.toString()
+}
+
+// Helper function to format tags
+function formatTags(tags: any): string {
+  if (!tags) return ""
+  if (Array.isArray(tags)) return tags.join(", ")
+  if (typeof tags === "string") return tags
+  return ""
+}
+
 export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const router = useRouter()
   const { toast } = useToast()
@@ -40,16 +56,42 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: product?.name || "",
-      description: product?.description || "",
-      brand_id: product?.brand_id ? product.brand_id.toString() : "",
-      category_id: product?.category_id ? product.category_id.toString() : "",
-      material: product?.material || "",
-      tags: product?.tags ? product.tags.join(", ") : "",
-      is_featured: product?.is_featured || false,
-      is_best_seller: product?.is_best_seller || false,
+      name: "",
+      description: "",
+      brand_id: "",
+      category_id: "",
+      material: "",
+      tags: "",
+      is_featured: false,
+      is_best_seller: false,
     },
   })
+
+  // Update form when product data changes
+  useEffect(() => {
+    if (product) {
+      console.log("Product data:", product) // Debug log
+
+      const brandId = extractId(product.brand_id)
+      const categoryId = extractId(product.category_id)
+      const tagsString = formatTags(product.tags)
+
+      console.log("Extracted brandId:", brandId) // Debug log
+      console.log("Extracted categoryId:", categoryId) // Debug log
+      console.log("Formatted tags:", tagsString) // Debug log
+
+      form.reset({
+        name: product.name || "",
+        description: product.description || "",
+        brand_id: brandId,
+        category_id: categoryId,
+        material: product.material || "",
+        tags: tagsString,
+        is_featured: product.is_featured || false,
+        is_best_seller: product.is_best_seller || false,
+      })
+    }
+  }, [product, form])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
@@ -69,7 +111,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       }
 
       if (product) {
-        const response = await fetch(`/api/admin/products/${product._id}`, {
+        const response = await fetch(`/api/products/${product._id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -88,7 +130,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
           description: "Product updated successfully",
         })
       } else {
-        const response = await fetch("/api/admin/products", {
+        const response = await fetch("/api/products", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -124,13 +166,13 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid gap-4 md:grid-cols-2 ">
+        <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem className="mb-5"> 
-                <FormLabel className="text-lg mb-2 block">Product Name</FormLabel>
+              <FormItem>
+                <FormLabel>Product Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter product name" {...field} />
                 </FormControl>
@@ -143,9 +185,9 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             control={form.control}
             name="brand_id"
             render={({ field }) => (
-              <FormItem className="mb-5">
-                <FormLabel className="text-lg mb-2 block">Brand</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormItem>
+                <FormLabel>Brand</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value || "undefined"}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a brand" />
@@ -168,9 +210,9 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             control={form.control}
             name="category_id"
             render={({ field }) => (
-              <FormItem className="mb-5">
-                <FormLabel className="text-lg mb-2 block">Category</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />
@@ -193,8 +235,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             control={form.control}
             name="material"
             render={({ field }) => (
-              <FormItem className="mb-5">
-                <FormLabel className="text-lg mb-2 block">Material</FormLabel>
+              <FormItem>
+                <FormLabel>Material</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter material (optional)" {...field} />
                 </FormControl>
@@ -208,8 +250,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
               control={form.control}
               name="description"
               render={({ field }) => (
-                <FormItem className="mb-5">
-                  <FormLabel className="text-lg mb-2 block">Description</FormLabel>
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Enter product description" className="min-h-[120px]" {...field} />
                   </FormControl>
@@ -223,8 +265,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             control={form.control}
             name="tags"
             render={({ field }) => (
-              <FormItem className="mb-5">
-                <FormLabel className="text-lg mb-2 block">Tags</FormLabel>
+              <FormItem>
+                <FormLabel>Tags</FormLabel>
                 <FormControl>
                   <Input placeholder="Enter tags separated by commas" {...field} />
                 </FormControl>
@@ -243,7 +285,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel className="text-lg mb-2 block">Featured Product</FormLabel>
+                    <FormLabel>Featured Product</FormLabel>
                     <p className="text-sm text-muted-foreground">This product will be displayed in featured sections</p>
                   </div>
                 </FormItem>
@@ -259,7 +301,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
                     <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel className="text-lg mb-2 block">Best Seller</FormLabel>
+                    <FormLabel>Best Seller</FormLabel>
                     <p className="text-sm text-muted-foreground">This product will be marked as a best seller</p>
                   </div>
                 </FormItem>
@@ -268,8 +310,8 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
           </div>
         </div>
 
-        <div className="flex gap-4">
-          <Button type="submit" disabled={isLoading} className="text-lg  py-4 bg-teal-600 font-light hover:bg-teal-700" >
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -278,10 +320,15 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             ) : product ? (
               "Update Product"
             ) : (
-              "Create Product"  
+              "Create Product"
             )}
           </Button>
-          <Button type="button" variant="outline" className="text-lg bg-[#000000a3] font-light text-white hover:bg-teal-600 hover:text-white " onClick={() => router.push("/dashboard/products")}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/dashboard/products")}
+            className="w-full sm:w-auto"
+          >
             Cancel
           </Button>
         </div>
