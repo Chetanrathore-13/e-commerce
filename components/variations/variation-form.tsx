@@ -377,7 +377,7 @@ export function VariationForm({ productId, variation }: VariationFormProps) {
                       />
                     </div>
                     {galleryPreviews.length > 0 && (
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-3 ">
                         {galleryPreviews.map((preview, index) => (
                           <div key={index} className="relative h-24 w-24 overflow-hidden rounded-md border">
                             <Image
@@ -390,7 +390,7 @@ export function VariationForm({ productId, variation }: VariationFormProps) {
                               type="button"
                               variant="destructive"
                               size="icon"
-                              className="absolute right-1 top-1 h-6 w-6"
+                              className="absolute right-1 top-1 h-6 w-6  text-white hover:text-black"
                               onClick={() => removeGalleryImage(index)}
                             >
                               <Trash2 className="h-3 w-3" />
@@ -408,7 +408,7 @@ export function VariationForm({ productId, variation }: VariationFormProps) {
         </div>
 
         <div className="flex gap-4">
-          <Button type="submit" disabled={isLoading}>
+          <Button type="submit" disabled={isLoading} className="w-full sm:w-auto text-lg bg-teal-600 font-light text-white hover:bg-teal-500 hover:text-white">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -422,6 +422,7 @@ export function VariationForm({ productId, variation }: VariationFormProps) {
           </Button>
           <Button
             type="button"
+              className="w-full sm:w-auto text-lg bg-[#000000a3] font-light text-white hover:bg-teal-600 hover:text-white"
             variant="outline"
             onClick={() => router.push(`/dashboard/products/${productId}/variations`)}
           >

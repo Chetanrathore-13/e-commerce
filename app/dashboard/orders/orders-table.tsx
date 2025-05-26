@@ -57,7 +57,7 @@ export function OrdersTable() {
 
   const handleSearch = (e) => {
     e.preventDefault()
-    router.push(`/admin/orders?page=1&status=${statusFilter}`)
+    router.push(`/dashboard/orders?page=1&status=${statusFilter}`)
     fetchOrders()
   }
 
@@ -72,7 +72,7 @@ export function OrdersTable() {
 
   const handleStatusChange = (value) => {
     setStatusFilter(value)
-    router.push(`/admin/orders?page=1&status=${value}`)
+    router.push(`/dashboard/orders?page=1&status=${value}`)
   }
 
   const getStatusBadge = (status) => {
@@ -189,7 +189,7 @@ export function OrdersTable() {
                   <td className="px-6 py-4 whitespace-nowrap">₹{order.total.toFixed(2)}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{order.items.length}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <Link href={`/admin/orders/${order._id}`}>
+                    <Link href={`/dashboard/orders/${order._id}`}>
                       <Button variant="ghost" size="sm">
                         <Eye className="h-4 w-4 mr-1" />
                         View
@@ -211,7 +211,7 @@ export function OrdersTable() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.push(`/admin/orders?page=${page - 1}&status=${statusFilter}`)}
+            onClick={() => router.push(`/dashboard/orders?page=${page - 1}&status=${statusFilter}`)}
             disabled={page <= 1}
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
@@ -220,7 +220,7 @@ export function OrdersTable() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.push(`/admin/orders?page=${page + 1}&status=${statusFilter}`)}
+            onClick={() => router.push(`/dashboard/orders?page=${page + 1}&status=${statusFilter}`)}
             disabled={page >= totalPages}
           >
             Next

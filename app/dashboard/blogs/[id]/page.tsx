@@ -360,7 +360,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
           <h1 className="text-2xl font-semibold">{isNew ? "Create New Blog Post" : "Edit Blog Post"}</h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => router.push("/admin/blogs")}>
+          <Button variant="outline" onClick={() => router.push("/dashboard/blogs")}>
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isSaving}>

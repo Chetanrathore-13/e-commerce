@@ -311,7 +311,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
-          <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
+          <Button type="submit" disabled={isLoading} className="w-full sm:w-auto text-lg  py-4 bg-teal-600 font-light hover:bg-teal-700">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -327,7 +327,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             type="button"
             variant="outline"
             onClick={() => router.push("/dashboard/products")}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto text-lg bg-[#000000a3] font-light text-white hover:bg-teal-600 hover:text-white"
           >
             Cancel
           </Button>

@@ -231,7 +231,7 @@ export default function HomepageSectionsPage() {
                     >
                       <ArrowDown className="h-4 w-4" />
                     </Button>
-                    <Link href={`/admin/homepage/${section._id}`}>
+                    <Link href={`/dashboard/homepage/${section._id}`}>
                       <Button variant="outline" size="icon">
                         <Edit className="h-4 w-4" />
                       </Button>

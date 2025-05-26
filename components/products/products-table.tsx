@@ -139,154 +139,153 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[80px]">Image</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Brand</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead className="text-center">Status</TableHead>
-              <TableHead className="w-[180px]">Created At</TableHead>
-              <TableHead className="text-right w-[150px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
-                  No products found.
+   <div className="space-y-4">
+  <div className="rounded-md border p-4 mb-6"> {/* Added padding and bottom margin here */}
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[80px]">Image</TableHead>
+          <TableHead>Name</TableHead>
+          <TableHead>Brand</TableHead>
+          <TableHead>Category</TableHead>
+          <TableHead className="text-center">Status</TableHead>
+          <TableHead className="w-[180px]">Created At</TableHead>
+          <TableHead className="text-right w-[150px]">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {products.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={7} className="h-24 text-center">
+              No products found.
+            </TableCell>
+          </TableRow>
+        ) : (
+          products.map((product) => {
+            const productImage = getProductImage(product)
+
+            return (
+              <TableRow
+                key={product._id.toString()}
+                className="cursor-pointer hover:bg-muted/50 transition-colors border-b" // Added bottom border for spacing
+                onClick={(e) => handleRowClick(product.slug, e)}
+              >
+                <TableCell>
+                  <div className="relative w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                    {productImage ? (
+                      <Image
+                        src={productImage || "/placeholder.svg"}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none"
+                        }}
+                      />
+                    ) : (
+                      <ImageIcon className="h-6 w-6 text-gray-400" />
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex flex-col">
+                    <span className="font-medium">{product.name}</span>
+                    <span className="text-sm text-muted-foreground line-clamp-1">{product.description}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {/* @ts-ignore - brand_id is populated */}
+                  {product.brand_id?.name || "Unknown"}
+                </TableCell>
+                <TableCell>
+                  {/* @ts-ignore - category_id is populated */}
+                  {product.category_id?.name || "Unknown"}
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-center gap-2" onClick={handleActionClick}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={product.is_featured ? "text-yellow-500" : "text-muted-foreground"}
+                      onClick={() => toggleStatus(product, "is_featured", product.is_featured)}
+                      disabled={isUpdating === product._id.toString()}
+                      title={product.is_featured ? "Remove from featured" : "Add to featured"}
+                    >
+                      <Star className="h-5 w-5" fill={product.is_featured ? "currentColor" : "none"} />
+                      <span className="sr-only">
+                        {product.is_featured ? "Remove from featured" : "Add to featured"}
+                      </span>
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className={product.is_best_seller ? "text-green-500" : "text-muted-foreground"}
+                      onClick={() => toggleStatus(product, "is_best_seller", product.is_best_seller)}
+                      disabled={isUpdating === product._id.toString()}
+                      title={product.is_best_seller ? "Remove from best sellers" : "Add to best sellers"}
+                    >
+                      <Award className="h-5 w-5" fill={product.is_best_seller ? "currentColor" : "none"} />
+                      <span className="sr-only">
+                        {product.is_best_seller ? "Remove from best sellers" : "Add to best sellers"}
+                      </span>
+                    </Button>
+                  </div>
+                </TableCell>
+                <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2" onClick={handleActionClick}>
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/dashboard/products/${product._id}/variations`}>
+                        <Layers className="h-4 w-4" />
+                        <span className="sr-only">Variations</span>
+                      </Link>
+                    </Button>
+                    <Button variant="ghost" size="icon" asChild>
+                      <Link href={`/dashboard/products/${product._id}`}>
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit</span>
+                      </Link>
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete the product and all its variations. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(product._id.toString())}
+                            disabled={isDeleting === product._id.toString()}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            {isDeleting === product._id.toString() ? "Deleting..." : "Delete"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </TableCell>
               </TableRow>
-            ) : (
-              products.map((product) => {
-                const productImage = getProductImage(product)
+            )
+          })
+        )}
+      </TableBody>
+    </Table>
+  </div>
 
-                return (
-                  <TableRow
-                    key={product._id.toString()}
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={(e) => handleRowClick(product.slug, e)}
-                  >
-                    <TableCell>
-                      <div className="relative w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
-                        {productImage ? (
-                          <Image
-                            src={productImage || "/placeholder.svg"}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                            onError={(e) => {
-                              // Hide image on error and show placeholder
-                              e.currentTarget.style.display = "none"
-                            }}
-                          />
-                        ) : (
-                          <ImageIcon className="h-6 w-6 text-gray-400" />
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div className="flex flex-col">
-                        <span className="font-medium">{product.name}</span>
-                        <span className="text-sm text-muted-foreground line-clamp-1">{product.description}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {/* @ts-ignore - brand_id is populated */}
-                      {product.brand_id?.name || "Unknown"}
-                    </TableCell>
-                    <TableCell>
-                      {/* @ts-ignore - category_id is populated */}
-                      {product.category_id?.name || "Unknown"}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center gap-2" onClick={handleActionClick}>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className={product.is_featured ? "text-yellow-500" : "text-muted-foreground"}
-                          onClick={() => toggleStatus(product, "is_featured", product.is_featured)}
-                          disabled={isUpdating === product._id.toString()}
-                          title={product.is_featured ? "Remove from featured" : "Add to featured"}
-                        >
-                          <Star className="h-5 w-5" fill={product.is_featured ? "currentColor" : "none"} />
-                          <span className="sr-only">
-                            {product.is_featured ? "Remove from featured" : "Add to featured"}
-                          </span>
-                        </Button>
+  <Pagination totalPages={totalPages} currentPage={page} />
+</div>
 
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className={product.is_best_seller ? "text-green-500" : "text-muted-foreground"}
-                          onClick={() => toggleStatus(product, "is_best_seller", product.is_best_seller)}
-                          disabled={isUpdating === product._id.toString()}
-                          title={product.is_best_seller ? "Remove from best sellers" : "Add to best sellers"}
-                        >
-                          <Award className="h-5 w-5" fill={product.is_best_seller ? "currentColor" : "none"} />
-                          <span className="sr-only">
-                            {product.is_best_seller ? "Remove from best sellers" : "Add to best sellers"}
-                          </span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                    <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2" onClick={handleActionClick}>
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/dashboard/products/${product._id}/variations`}>
-                            <Layers className="h-4 w-4" />
-                            <span className="sr-only">Variations</span>
-                          </Link>
-                        </Button>
-                        <Button variant="ghost" size="icon" asChild>
-                          <Link href={`/dashboard/products/${product._id}`}>
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Link>
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">Delete</span>
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently delete the product and all its variations. This action cannot be
-                                undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(product._id.toString())}
-                                disabled={isDeleting === product._id.toString()}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                {isDeleting === product._id.toString() ? "Deleting..." : "Delete"}
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      <Pagination totalPages={totalPages} currentPage={page} />
-    </div>
   )
 }

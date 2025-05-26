@@ -32,15 +32,15 @@ export default async function ProductVariationsPage({
   }
 
   return (
-    <div className="flex-1 p-4 pt-6 md:p-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Variations for {product.name}</h2>
-          <p className="text-muted-foreground">Manage product variations</p>
+    <div className="flex-1  pt-9 md:p-8">
+      <div className="flex items-center justify-between gap-7">
+        <div >
+          <h2 className="text-3xl font-bold  tracking-tight leading-14">Variations for {product.name}</h2>
+          <p className="text-muted-foreground mb-3">Manage product variations</p>
         </div>
         <div className="flex gap-2">
           <BackButton section="products" />
-          <Button asChild>
+          <Button asChild  className="hover:bg-teal-700 hover:text-white transition">
             <Link href={`/dashboard/products/${params.id}/variations/new`}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Variation

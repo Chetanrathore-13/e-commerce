@@ -376,7 +376,7 @@ export default function AdminReviewsPage() {
                   <td className="p-3">{getStatusBadge(review.status)}</td>
                   <td className="p-3">
                     <div className="flex gap-2">
-                      <Link href={`/admin/reviews/${review._id}`}>
+                      <Link href={`/dashboard/reviews/${review._id}`}>
                         <Button variant="ghost" size="sm" className="text-gray-500 hover:text-amber-700">
                           <Edit className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
