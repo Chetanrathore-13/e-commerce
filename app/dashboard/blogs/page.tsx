@@ -30,6 +30,7 @@ interface Blog {
   featured_image: string
   author: string
   categories: string[]
+  tags: string[]
   published: boolean
   publish_date: string
   created_at: string
@@ -41,6 +42,54 @@ interface PaginationData {
   page: number
   limit: number
   totalPages: number
+}
+
+// Helper function to format dates safely
+const formatDate = (dateString: string | Date | null | undefined): string => {
+  if (!dateString) return "N/A"
+
+  try {
+    const date = new Date(dateString)
+
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Invalid Date"
+    }
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  } catch (error) {
+    console.error("Error formatting date:", error)
+    return "Invalid Date"
+  }
+}
+
+// Helper function to format date and time
+const formatDateTime = (dateString: string | Date | null | undefined): string => {
+  if (!dateString) return "N/A"
+
+  try {
+    const date = new Date(dateString)
+
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Invalid Date"
+    }
+
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  } catch (error) {
+    console.error("Error formatting date:", error)
+    return "Invalid Date"
+  }
 }
 
 export default function BlogsAdminPage() {
@@ -81,8 +130,17 @@ export default function BlogsAdminPage() {
       }
 
       const data = await response.json()
-      setBlogs(data.blogs)
-      setPagination(data.pagination)
+      console.log("Fetched blogs data:", data) // Debug log
+
+      setBlogs(data.blogs || [])
+      setPagination(
+        data.pagination || {
+          total: 0,
+          page: 1,
+          limit: 10,
+          totalPages: 0,
+        },
+      )
     } catch (error) {
       console.error("Error fetching blogs:", error)
       toast({
@@ -139,9 +197,9 @@ export default function BlogsAdminPage() {
   }
 
   return (
-    <div className="space-y-6 px-6 py-9">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-semibold">Blog Posts</h1>
+        <h1 className="text-2xl font-semibold">Blog Posts</h1>
         <Link href="/dashboard/blogs/new">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
@@ -183,18 +241,19 @@ export default function BlogsAdminPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[270px]">Blog Post</TableHead>
+              <TableHead className="w-[250px]">Blog Post</TableHead>
               <TableHead>Author</TableHead>
               <TableHead>Categories</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Published Date</TableHead>
+              <TableHead>Created Date</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   <div className="flex justify-center">
                     <RefreshCw className="h-6 w-6 animate-spin text-gray-400" />
                   </div>
@@ -203,7 +262,7 @@ export default function BlogsAdminPage() {
               </TableRow>
             ) : blogs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
+                <TableCell colSpan={7} className="text-center py-8">
                   <p className="text-gray-500">No blog posts found</p>
                   <Link href="/dashboard/blogs/new" className="mt-2 inline-block">
                     <Button variant="link" className="text-amber-700">
@@ -226,28 +285,32 @@ export default function BlogsAdminPage() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate">{blog.title}</div>
+                        <div className="font-medium truncate" title={blog.title}>
+                          {blog.title}
+                        </div>
                         <Link
                           href={`/blog/${blog.slug}`}
                           target="_blank"
-                          className="text-sm text-amber-700 hover:underline"
+                          className="text-xs text-amber-700 hover:underline"
                         >
-                          View
+                          View Post
                         </Link>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>{blog.author}</TableCell>
                   <TableCell>
-                    {blog.categories.length > 0 ? (
+                    {blog.categories && blog.categories.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {blog.categories.slice(0, 2).map((category) => (
-                          <Badge key={category} variant="outline">
+                        {blog.categories.slice(0, 2).map((category, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
                             {category}
                           </Badge>
                         ))}
                         {blog.categories.length > 2 && (
-                          <Badge variant="outline">+{blog.categories.length - 2} more</Badge>
+                          <Badge variant="outline" className="text-xs">
+                            +{blog.categories.length - 2} more
+                          </Badge>
                         )}
                       </div>
                     ) : (
@@ -255,11 +318,12 @@ export default function BlogsAdminPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={blog.published ? "success" : "secondary"}>
+                    <Badge variant={blog.published ? "default" : "secondary"}>
                       {blog.published ? "Published" : "Draft"}
                     </Badge>
                   </TableCell>
-                  <TableCell>{new Date(blog.publish_date).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-sm">{formatDate(blog.publish_date)}</TableCell>
+                  <TableCell className="text-sm">{formatDate(blog.created_at)}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

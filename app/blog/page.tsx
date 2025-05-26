@@ -11,36 +11,68 @@ export const metadata: Metadata = {
 
 async function getBlogs() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs?limit=9`, {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+    const url = `${baseUrl}/api/blogs?limit=9`
+
+    console.log("Fetching blogs from:", url)
+
+    const res = await fetch(url, {
       cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
     })
 
+    console.log("Response status:", res.status)
+
     if (!res.ok) {
-      throw new Error("Failed to fetch blogs")
+      const errorText = await res.text()
+      console.error("API Error:", errorText)
+      throw new Error(`Failed to fetch blogs: ${res.status}`)
     }
 
-    return res.json()
+    const data = await res.json()
+    console.log("Received data:", {
+      blogCount: data.blogs?.length || 0,
+      total: data.pagination?.total || 0,
+    })
+
+    return data
   } catch (error) {
     console.error("Error loading blogs:", error)
-    return { blogs: [], pagination: { total: 0, page: 1, limit: 9, totalPages: 0 } }
+    return {
+      blogs: [],
+      pagination: { total: 0, page: 1, limit: 9, totalPages: 0 },
+      error: (error as Error).message,
+    }
   }
 }
 
-// Get categories and tags for filtering
 async function getCategoriesAndTags() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs/categories-tags`, {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+    const url = `${baseUrl}/api/blogs/categories-tags`
+
+    console.log("Fetching categories and tags from:", url)
+
+    const res = await fetch(url, {
       cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
     })
 
     if (!res.ok) {
       throw new Error("Failed to fetch categories and tags")
     }
 
-    return res.json()
+    const data = await res.json()
+    console.log("Categories and tags data:", data)
+
+    return data
   } catch (error) {
     console.error("Error loading categories and tags:", error)
-    return { categories: [], tags: [] }
+    return { categories: [], tags: [], debug: null }
   }
 }
 
@@ -63,8 +95,8 @@ function BlogFallback() {
 }
 
 export default async function BlogPage() {
-  const { blogs, pagination } = await getBlogs()
-  const { categories, tags } = await getCategoriesAndTags()
+  const { blogs, pagination, error } = await getBlogs()
+  const { categories, tags, debug } = await getCategoriesAndTags()
 
   return (
     <div className="min-h-screen">
@@ -88,13 +120,34 @@ export default async function BlogPage() {
           <span className="text-gray-900">Blog</span>
         </div>
 
+        {/* Debug Info (remove in production) */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
+            <p>Debug Info:</p>
+            <p>Blogs found: {blogs?.length || 0}</p>
+            <p>Total in DB: {pagination?.total || 0}</p>
+            <p>
+              Categories: {categories?.length || 0} - {categories?.join(", ") || "None"}
+            </p>
+            <p>
+              Tags: {tags?.length || 0} - {tags?.join(", ") || "None"}
+            </p>
+            {debug && (
+              <p>
+                Debug data: {debug.totalBlogs} blogs, {debug.categoriesFound} categories, {debug.tagsFound} tags
+              </p>
+            )}
+            {error && <p className="text-red-600">Error: {error}</p>}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Filters */}
           <div className="order-2 lg:order-1 lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-20 border border-amber-100">
               <h2 className="text-xl font-medium mb-4 text-amber-900 border-b border-amber-100 pb-2">Categories</h2>
               <ul className="space-y-2 mb-8">
-                {categories?.length > 0 ? (
+                {categories && categories.length > 0 ? (
                   categories.map((category: string) => (
                     <li key={category} className="group">
                       <Link
@@ -107,13 +160,22 @@ export default async function BlogPage() {
                     </li>
                   ))
                 ) : (
-                  <li className="text-gray-500">No categories found</li>
+                  <li className="text-gray-500">
+                    No categories found
+                    {process.env.NODE_ENV === "development" && (
+                      <div className="text-xs mt-1">
+                        <Link href="/api/blogs/categories-tags" className="text-blue-600 hover:underline">
+                          Test API
+                        </Link>
+                      </div>
+                    )}
+                  </li>
                 )}
               </ul>
 
               <h2 className="text-xl font-medium mb-4 text-amber-900 border-b border-amber-100 pb-2">Popular Tags</h2>
               <div className="flex flex-wrap gap-2">
-                {tags?.length > 0 ? (
+                {tags && tags.length > 0 ? (
                   tags.map((tag: string) => (
                     <Link
                       key={tag}
@@ -134,64 +196,87 @@ export default async function BlogPage() {
           <div className="order-1 lg:order-2 lg:col-span-3">
             <Suspense fallback={<BlogFallback />}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {blogs?.length > 0 ? (
-                  blogs.map((blog: any) => (
-                    <Link
-                      key={blog._id}
-                      href={`/blog/${blog.slug}`}
-                      className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group border border-amber-50"
-                    >
-                      <div className="relative h-60">
-                        <Image
-                          src={blog.featured_image || "/placeholder.svg?height=240&width=400&query=fashion blog"}
-                          alt={blog.title}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        {/* Category Badge */}
-                        {blog.categories && blog.categories.length > 0 && (
-                          <div className="absolute top-4 left-4 bg-amber-700 text-white text-xs px-2 py-1 rounded">
-                            {blog.categories[0]}
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-6">
-                        <div className="flex items-center text-xs text-gray-500 mb-2">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          <span>
-                            {new Date(blog.publish_date).toLocaleDateString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
-                          </span>
-                          <span className="mx-2">•</span>
-                          <User className="h-3 w-3 mr-1" />
-                          <span>{blog.author}</span>
-                        </div>
-                        <h2 className="text-xl font-medium mb-2 group-hover:text-amber-700 transition-colors">
-                          {blog.title}
-                        </h2>
-                        <p className="text-gray-600 line-clamp-3 mb-4 text-sm">{blog.excerpt}</p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-amber-700 text-sm font-medium group-hover:underline">Read more</span>
-                          {/* Tags */}
-                          {blog.tags && blog.tags.length > 0 && (
-                            <div className="flex items-center">
-                              <Tag className="h-3 w-3 mr-1 text-gray-400" />
-                              <span className="text-xs text-gray-500 truncate max-w-[100px]">
-                                {blog.tags.slice(0, 2).join(", ")}
-                              </span>
+                {blogs && blogs.length > 0 ? (
+                  blogs.map((blog: any) => {
+                    // Process categories and tags for display
+                    const blogCategories = Array.isArray(blog.categories)
+                      ? blog.categories
+                      : typeof blog.categories === "string"
+                        ? blog.categories.split(",").map((c: string) => c.trim())
+                        : []
+
+                    const blogTags = Array.isArray(blog.tags)
+                      ? blog.tags
+                      : typeof blog.tags === "string"
+                        ? blog.tags.split(",").map((t: string) => t.trim())
+                        : []
+
+                    return (
+                      <Link
+                        key={blog._id}
+                        href={`/blog/${blog.slug}`}
+                        className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow group border border-amber-50"
+                      >
+                        <div className="relative h-60">
+                          <Image
+                            src={blog.featured_image || "/placeholder.svg?height=240&width=400&query=fashion blog"}
+                            alt={blog.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          {/* Category Badge */}
+                          {blogCategories.length > 0 && (
+                            <div className="absolute top-4 left-4 bg-amber-700 text-white text-xs px-2 py-1 rounded">
+                              {blogCategories[0]}
                             </div>
                           )}
                         </div>
-                      </div>
-                    </Link>
-                  ))
+                        <div className="p-6">
+                          <div className="flex items-center text-xs text-gray-500 mb-2">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            <span>
+                              {new Date(blog.publish_date || blog.created_at).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </span>
+                            <span className="mx-2">•</span>
+                            <User className="h-3 w-3 mr-1" />
+                            <span>{blog.author}</span>
+                          </div>
+                          <h2 className="text-xl font-medium mb-2 group-hover:text-amber-700 transition-colors">
+                            {blog.title}
+                          </h2>
+                          <p className="text-gray-600 line-clamp-3 mb-4 text-sm">{blog.excerpt}</p>
+                          <div className="flex justify-between items-center">
+                            <span className="text-amber-700 text-sm font-medium group-hover:underline">Read more</span>
+                            {/* Tags */}
+                            {blogTags.length > 0 && (
+                              <div className="flex items-center">
+                                <Tag className="h-3 w-3 mr-1 text-gray-400" />
+                                <span className="text-xs text-gray-500 truncate max-w-[100px]">
+                                  {blogTags.slice(0, 2).join(", ")}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    )
+                  })
                 ) : (
                   <div className="col-span-full text-center py-12">
                     <h3 className="text-xl font-medium mb-2">No blog posts found</h3>
-                    <p className="text-gray-600">Check back soon for new content!</p>
+                    <p className="text-gray-600">{error ? `Error: ${error}` : "Check back soon for new content!"}</p>
+                    {process.env.NODE_ENV === "development" && (
+                      <div className="mt-4 text-sm text-gray-500">
+                        <p>Debug: Check the console for more details</p>
+                        <Link href="/api/blogs" className="text-blue-600 hover:underline">
+                          Test API directly
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
