@@ -351,7 +351,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
     <div className="space-y-6 px-10 py-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Button variant="outline" size="icon" asChild>
+          <Button variant="outline" size="icon" asChild className=" hover:bg-teal-600 hover:text-white"> 
             <Link href="/dashboard/blogs">
               <ArrowLeft className="h-4 w-4" />
               <span className="sr-only">Back</span>
@@ -360,10 +360,10 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
           <h1 className="text-2xl font-semibold">{isNew ? "Create New Blog Post" : "Edit Blog Post"}</h1>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => router.push("/dashboard/blogs")}>
+          <Button variant="outline" className="text-lg bg-[#000000a3] font-light text-white hover:bg-teal-600 hover:text-white" onClick={() => router.push("/dashboard/blogs")}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSaving}>
+          <Button onClick={handleSubmit} disabled={isSaving} className="text-lg  py-4 bg-teal-600 font-light hover:bg-teal-700">
             <Save className="h-4 w-4 mr-2" />
             {isSaving ? "Saving..." : "Save"}
           </Button>

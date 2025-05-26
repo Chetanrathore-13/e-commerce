@@ -251,13 +251,14 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
   }
 
   return (
-    <div>
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/dashboard/testimonials")} className="mr-4">
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">{isNew ? "Add New Testimonial" : "Edit Testimonial"}</h1>
+        <Button variant="ghost"  onClick={() => router.push("/dashboard/testimonials")} className="mr-4 bg-teal-500 text-white hover:bg-teal-700 hover:text-white">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold">{isNew ? "Add New Testimonial" : "Edit Testimonial"}</h1>
+        
       </div>
 
       <Card>
@@ -268,13 +269,13 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Name *</Label>
+                <div className="mb-4">
+                  <Label htmlFor="name" className="text-lg mb-2 block">Name *</Label>
                   <Input id="name" name="name" value={testimonial.name} onChange={handleInputChange} required />
                 </div>
 
-                <div>
-                  <Label htmlFor="role">Address</Label>
+                <div className="mb-4">
+                  <Label htmlFor="role" className="text-lg mb-2 block">Address</Label>
                   <Input
                     id="role"
                     name="role"
@@ -284,8 +285,8 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
                   />
                 </div>
 
-                <div>
-                  <Label>Rating</Label>
+                <div className="mb-4">
+                  <Label className="text-lg mb-2 block">Rating</Label>
                   <div className="flex space-x-2 mt-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -310,9 +311,9 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mb-4">
                 <div>
-                  <Label htmlFor="content">Testimonial Content *</Label>
+                  <Label htmlFor="content" className="text-lg mb-2 block">Testimonial Content *</Label>
                   <Textarea
                     id="content"
                     name="content"
@@ -323,8 +324,8 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="image">Profile Image</Label>
+                <div className="mb-4">
+                  <Label htmlFor="image" className="text-lg mb-2 block">Profile Image</Label>
                   {uploadError && <div className="mt-1 text-sm text-red-600">{uploadError}</div>}
                   <div className="mt-2 flex items-center space-x-4">
                     {imagePreview ? (
@@ -380,13 +381,14 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
+                className="text-lg bg-[#000000a3] font-light text-white hover:bg-teal-600 hover:text-white"
                 variant="outline"
                 onClick={() => router.push("/dashboard/testimonials")}
                 disabled={saving || uploading}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={saving || uploading}>
+              <Button type="submit" disabled={saving || uploading}  className="text-lg  py-4 bg-teal-600 font-light hover:bg-teal-700">
                 {saving ? "Saving..." : isNew ? "Create Testimonial" : "Update Testimonial"}
               </Button>
             </div>

@@ -165,7 +165,7 @@ export default function AdminFAQPage() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-12">
+    <div className="bg-gray-50 min-h-screen py-12 px-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -189,11 +189,11 @@ export default function AdminFAQPage() {
 
         {/* Add form */}
         {isAdding && (
-          <div className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-            <h2 className="text-xl font-semibold mb-4">Add New FAQ</h2>
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200 ">
+            <h2 className="text-lg font-semibold mb-4">Add New FAQ</h2>
             <div className="space-y-4">
-              <div>
-                <label htmlFor="question" className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="mb-4">
+                <label htmlFor="question" className=" text-lg block font-medium text-gray-700 mb-2">
                   Question
                 </label>
                 <input

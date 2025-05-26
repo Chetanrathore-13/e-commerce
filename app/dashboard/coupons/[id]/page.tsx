@@ -202,9 +202,9 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/dashboard/coupons")} className="mr-4">
+    <div className="container mx-auto py-8 px-7">
+      <div className="flex items-center justify-between mb-6">
+        <Button  variant="ghost" onClick={() => router.push("/dashboard/coupons")} className="mr-4 bg-teal-600 hover:bg-teal-700 text-white hover:text-white">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Coupons
         </Button>
@@ -216,12 +216,12 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
           {/* Main coupon details */}
           <Card className="md:col-span-2">
             <CardHeader>
-              <CardTitle>Coupon Details</CardTitle>
+              <CardTitle className="text-2xl font-bold">Coupon Details</CardTitle>
               <CardDescription>Update your discount coupon</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="code">
+              <div className="space-y-2 mb-4">
+                <Label htmlFor="code" className="mb-2 text-lg block">
                   Coupon Code <span className="text-red-500">*</span>
                 </Label>
                 <div className="relative">
@@ -238,8 +238,8 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
                 <p className="text-sm text-gray-500">Customers will enter this code at checkout</p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">
+              <div className="space-y-2 mb-4">
+                <Label htmlFor="description" className="mb-2 text-lg block">
                   Description <span className="text-red-500">*</span>
                 </Label>
                 <Textarea
@@ -254,8 +254,8 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
 
               <Separator />
 
-              <div className="space-y-4">
-                <Label>
+              <div className="space-y-4 mb-4">
+                <Label className="text-lg block">
                   Discount Type <span className="text-red-500">*</span>
                 </Label>
                 <RadioGroup
@@ -280,9 +280,9 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
                 </RadioGroup>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="discountValue">
-                  Discount Value <span className="text-red-500">*</span>
+              <div className="space-y-2 mb-4">
+                <Label htmlFor="discountValue" className="mb-2 text-lg block">
+                  Discount Value <span className="text-red-500 ">*</span>
                 </Label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-gray-500">
@@ -308,10 +308,10 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="minimumPurchase">Minimum Purchase Amount</Label>
+              <div className="space-y-2 mb-4">
+                <Label htmlFor="minimumPurchase" className="mb-2 text-lg block">Minimum Purchase Amount</Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-gray-500">₹</span>
+                  <span className="absolute left-3 top-1.5 text-gray-500">₹</span>
                   <Input
                     id="minimumPurchase"
                     type="number"
@@ -334,11 +334,11 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Coupon Settings</CardTitle>
+                <CardTitle className="text-lg font-semibold">Coupon Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Start Date</Label>
+                <div className="space-y-2 mb-4">
+                  <Label htmlFor="startDate" className="mb-2 text-lg block">Start Date</Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                     <Input
@@ -351,8 +351,8 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="expiryDate">
+                <div className="space-y-2 mb-4">
+                  <Label htmlFor="expiryDate" className="mb-2 text-lg block">
                     Expiry Date <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
@@ -368,8 +368,8 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="usageLimit">Usage Limit</Label>
+                <div className="space-y-2 mb-4">
+                  <Label htmlFor="usageLimit" className="mb-2 text-lg block">Usage Limit</Label>
                   <Input
                     id="usageLimit"
                     type="number"
@@ -384,14 +384,14 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="isActive">Active</Label>
+                  <Label htmlFor="isActive" className=" text-lg ">Active</Label>
                   <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} />
                 </div>
 
                 <Separator />
 
-                <div className="space-y-2">
-                  <Label htmlFor="appliesTo">Applies To</Label>
+                <div className="space-y-2 mb-4">
+                  <Label htmlFor="appliesTo" className="mb-2 text-lg block">Applies To</Label>
                   <Select
                     value={appliesTo}
                     onValueChange={(value) => setAppliesTo(value as "all" | "categories" | "products")}
@@ -430,7 +430,7 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
 
             <Card>
               <CardContent className="pt-6">
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                <Button type="submit" className="w-full text-lg py-4 bg-teal-600 font-light hover:bg-teal-700" disabled={isSubmitting}>
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -1,136 +1,154 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Plus, Edit, Trash2, ArrowUp, ArrowDown, ImageIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  ImageIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 interface HomepageSection {
-  _id: string
-  name: string
-  type: string
-  title?: string
-  subtitle?: string
-  image?: string
-  position: number
-  isActive: boolean
+  _id: string;
+  name: string;
+  type: string;
+  title?: string;
+  subtitle?: string;
+  image?: string;
+  position: number;
+  isActive: boolean;
 }
 
 export default function HomepageSectionsPage() {
-  const [sections, setSections] = useState<HomepageSection[]>([])
-  const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
+  const [sections, setSections] = useState<HomepageSection[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    fetchSections()
-  }, [])
+    fetchSections();
+  }, []);
 
   const fetchSections = async () => {
     try {
-      setLoading(true)
-      const response = await fetch("/api/admin/homepage-sections")
+      setLoading(true);
+      const response = await fetch("/api/admin/homepage-sections");
       if (!response.ok) {
-        throw new Error("Failed to fetch homepage sections")
+        throw new Error("Failed to fetch homepage sections");
       }
-      const data = await response.json()
+      const data = await response.json();
       // Sort by position
-      const sortedData = data.sort((a: HomepageSection, b: HomepageSection) => a.position - b.position)
-      setSections(sortedData)
+      const sortedData = data.sort(
+        (a: HomepageSection, b: HomepageSection) => a.position - b.position
+      );
+      setSections(sortedData);
     } catch (error) {
-      console.error("Error fetching homepage sections:", error)
+      console.error("Error fetching homepage sections:", error);
       toast({
         title: "Error",
         description: "Failed to load homepage sections",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this section?")) {
-      return
+      return;
     }
 
     try {
       const response = await fetch(`/api/admin/homepage-sections/${id}`, {
         method: "DELETE",
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to delete section")
+        throw new Error("Failed to delete section");
       }
 
       toast({
         title: "Success",
         description: "Section deleted successfully",
-      })
+      });
 
       // Remove the deleted section from the state
-      setSections(sections.filter((section) => section._id !== id))
+      setSections(sections.filter((section) => section._id !== id));
     } catch (error) {
-      console.error("Error deleting section:", error)
+      console.error("Error deleting section:", error);
       toast({
         title: "Error",
         description: "Failed to delete section",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleMoveSection = async (id: string, direction: "up" | "down") => {
-    const currentIndex = sections.findIndex((section) => section._id === id)
-    if ((direction === "up" && currentIndex === 0) || (direction === "down" && currentIndex === sections.length - 1)) {
-      return
+    const currentIndex = sections.findIndex((section) => section._id === id);
+    if (
+      (direction === "up" && currentIndex === 0) ||
+      (direction === "down" && currentIndex === sections.length - 1)
+    ) {
+      return;
     }
 
-    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1
-    const targetSection = sections[newIndex]
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    const targetSection = sections[newIndex];
 
     try {
       // Update the current section's position
-      const currentResponse = await fetch(`/api/admin/homepage-sections/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ position: targetSection.position }),
-      })
+      const currentResponse = await fetch(
+        `/api/admin/homepage-sections/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ position: targetSection.position }),
+        }
+      );
 
       // Update the target section's position
-      const targetResponse = await fetch(`/api/admin/homepage-sections/${targetSection._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ position: sections[currentIndex].position }),
-      })
+      const targetResponse = await fetch(
+        `/api/admin/homepage-sections/${targetSection._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ position: sections[currentIndex].position }),
+        }
+      );
 
       if (!currentResponse.ok || !targetResponse.ok) {
-        throw new Error("Failed to update section positions")
+        throw new Error("Failed to update section positions");
       }
 
       toast({
         title: "Success",
         description: "Section order updated successfully",
-      })
+      });
 
       // Refresh the sections
-      fetchSections()
+      fetchSections();
     } catch (error) {
-      console.error("Error updating section positions:", error)
+      console.error("Error updating section positions:", error);
       toast({
         title: "Error",
         description: "Failed to update section order",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const getSectionTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -142,16 +160,16 @@ export default function HomepageSectionsPage() {
       testimonials: "Testimonials",
       "instagram-feed": "Instagram Feed",
       custom: "Custom Section",
-    }
-    return labels[type] || type
-  }
+    };
+    return labels[type] || type;
+  };
 
   return (
     <div className="p-4 ">
       <div className="flex justify-between items-center mb-4 p-6">
         <h1 className="text-4xl font-bold">Homepage Sections</h1>
         <Link href="/dashboard/homepage/new">
-          <Button>
+          <Button className=" bg-teal-600 text-white   hover:bg-teal-500 hover:text-white transition">
             <Plus className="h-4 w-4 mr-2" />
             Add Section
           </Button>
@@ -182,7 +200,10 @@ export default function HomepageSectionsPage() {
           <CardContent>
             <div className="space-y-4">
               {sections.map((section, index) => (
-                <div key={section._id} className="flex items-center justify-between p-4 border rounded-lg bg-white">
+                <div
+                  key={section._id}
+                  className="flex items-center justify-between p-4 border rounded-lg bg-white"
+                >
                   <div className="flex items-center space-x-4">
                     <div className="bg-gray-100 rounded-full h-8 w-8 flex items-center justify-center">
                       <span className="text-sm font-medium">{index + 1}</span>
@@ -206,8 +227,15 @@ export default function HomepageSectionsPage() {
                     <div>
                       <h3 className="font-medium">{section.name}</h3>
                       <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant="outline">{getSectionTypeLabel(section.type)}</Badge>
-                        <Badge variant={section.isActive ? "default" : "outline"}>
+                        <Badge variant="outline">
+                          {getSectionTypeLabel(section.type)}
+                        </Badge>
+                        <Badge
+                          variant={section.isActive ? "default" : "outline"}
+                          className={
+                            section.isActive ? "bg-teal-600 text-white" : ""
+                          }
+                        >
                           {section.isActive ? "Active" : "Inactive"}
                         </Badge>
                       </div>
@@ -236,8 +264,13 @@ export default function HomepageSectionsPage() {
                         <Edit className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button variant="destructive" size="icon" onClick={() => handleDelete(section._id)}>
-                      <Trash2 className="h-4 w-4" />
+                    <Button
+                      className="bg-gray-500 hover:bg-red-600"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => handleDelete(section._id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-white " />
                     </Button>
                   </div>
                 </div>
@@ -247,5 +280,5 @@ export default function HomepageSectionsPage() {
         </Card>
       )}
     </div>
-  )
+  );
 }

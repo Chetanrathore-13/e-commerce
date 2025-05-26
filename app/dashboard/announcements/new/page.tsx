@@ -72,10 +72,10 @@ export default function NewAnnouncementPage() {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <Link href="/dashboard/announcements" className="text-teal-700 hover:text-teal-900 flex items-center gap-1">
+      <div className="mb-6 w-60 ">
+        <Link href="/dashboard/announcements" className="text-teal-700 hover:text-teal-900 flex items-center ">
           <ArrowLeft size={16} />
-          Back to Announcements
+          Back to Announcement
         </Link>
       </div>
 

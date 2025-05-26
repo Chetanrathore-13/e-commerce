@@ -1,16 +1,35 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Plus, Edit, Trash2, Search, RefreshCw, MoreHorizontal } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Search,
+  RefreshCw,
+  MoreHorizontal,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -18,65 +37,67 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { useToast } from "@/hooks/use-toast"
-import { useSession } from "next-auth/react"
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
 
 interface Blog {
-  _id: string
-  title: string
-  slug: string
-  excerpt: string
-  featured_image: string
-  author: string
-  categories: string[]
-  tags: string[]
-  published: boolean
-  publish_date: string
-  created_at: string
-  updated_at: string
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  featured_image: string;
+  author: string;
+  categories: string[];
+  tags: string[];
+  published: boolean;
+  publish_date: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface PaginationData {
-  total: number
-  page: number
-  limit: number
-  totalPages: number
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // Helper function to format dates safely
 const formatDate = (dateString: string | Date | null | undefined): string => {
-  if (!dateString) return "N/A"
+  if (!dateString) return "N/A";
 
   try {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
 
     // Check if the date is valid
     if (isNaN(date.getTime())) {
-      return "Invalid Date"
+      return "Invalid Date";
     }
 
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
-    })
+    });
   } catch (error) {
-    console.error("Error formatting date:", error)
-    return "Invalid Date"
+    console.error("Error formatting date:", error);
+    return "Invalid Date";
   }
-}
+};
 
 // Helper function to format date and time
-const formatDateTime = (dateString: string | Date | null | undefined): string => {
-  if (!dateString) return "N/A"
+const formatDateTime = (
+  dateString: string | Date | null | undefined
+): string => {
+  if (!dateString) return "N/A";
 
   try {
-    const date = new Date(dateString)
+    const date = new Date(dateString);
 
     // Check if the date is valid
     if (isNaN(date.getTime())) {
-      return "Invalid Date"
+      return "Invalid Date";
     }
 
     return date.toLocaleDateString("en-US", {
@@ -85,123 +106,123 @@ const formatDateTime = (dateString: string | Date | null | undefined): string =>
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
-    })
+    });
   } catch (error) {
-    console.error("Error formatting date:", error)
-    return "Invalid Date"
+    console.error("Error formatting date:", error);
+    return "Invalid Date";
   }
-}
+};
 
 export default function BlogsAdminPage() {
-  const { data: session, status } = useSession()
-  const { toast } = useToast()
+  const { data: session, status } = useSession();
+  const { toast } = useToast();
 
-  const [blogs, setBlogs] = useState<Blog[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [pagination, setPagination] = useState<PaginationData>({
     total: 0,
     page: 1,
     limit: 10,
     totalPages: 0,
-  })
-  const [searchTerm, setSearchTerm] = useState("")
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [blogToDelete, setBlogToDelete] = useState<Blog | null>(null)
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [blogToDelete, setBlogToDelete] = useState<Blog | null>(null);
 
   useEffect(() => {
     if (status === "authenticated") {
-      fetchBlogs()
+      fetchBlogs();
     } else if (status === "unauthenticated") {
-      window.location.href = "/login?redirect=/admin/blogs"
+      window.location.href = "/login?redirect=/admin/blogs";
     }
-  }, [status, pagination.page])
+  }, [status, pagination.page]);
 
   const fetchBlogs = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const response = await fetch(
         `/api/admin/blogs?page=${pagination.page}&limit=${pagination.limit}${
           searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : ""
-        }`,
-      )
+        }`
+      );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch blogs")
+        throw new Error("Failed to fetch blogs");
       }
 
-      const data = await response.json()
-      console.log("Fetched blogs data:", data) // Debug log
+      const data = await response.json();
+      console.log("Fetched blogs data:", data); // Debug log
 
-      setBlogs(data.blogs || [])
+      setBlogs(data.blogs || []);
       setPagination(
         data.pagination || {
           total: 0,
           page: 1,
           limit: 10,
           totalPages: 0,
-        },
-      )
+        }
+      );
     } catch (error) {
-      console.error("Error fetching blogs:", error)
+      console.error("Error fetching blogs:", error);
       toast({
         title: "Error",
         description: "Failed to fetch blogs",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    setPagination((prev) => ({ ...prev, page: 1 }))
-    fetchBlogs()
-  }
+    e.preventDefault();
+    setPagination((prev) => ({ ...prev, page: 1 }));
+    fetchBlogs();
+  };
 
   const handleDeleteClick = (blog: Blog) => {
-    setBlogToDelete(blog)
-    setDeleteDialogOpen(true)
-  }
+    setBlogToDelete(blog);
+    setDeleteDialogOpen(true);
+  };
 
   const confirmDelete = async () => {
-    if (!blogToDelete) return
+    if (!blogToDelete) return;
 
     try {
       const response = await fetch(`/api/admin/blogs/${blogToDelete._id}`, {
         method: "DELETE",
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to delete blog")
+        throw new Error("Failed to delete blog");
       }
 
       toast({
         title: "Success",
         description: "Blog deleted successfully",
-      })
+      });
 
       // Refresh the blog list
-      fetchBlogs()
+      fetchBlogs();
     } catch (error) {
-      console.error("Error deleting blog:", error)
+      console.error("Error deleting blog:", error);
       toast({
         title: "Error",
         description: "Failed to delete blog",
         variant: "destructive",
-      })
+      });
     } finally {
-      setDeleteDialogOpen(false)
-      setBlogToDelete(null)
+      setDeleteDialogOpen(false);
+      setBlogToDelete(null);
     }
-  }
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Blog Posts</h1>
         <Link href="/dashboard/blogs/new">
-          <Button>
+          <Button className=" bg-teal-600 text-white   hover:bg-teal-500 hover:text-white transition">
             <Plus className="h-4 w-4 mr-2" />
             Add New Post
           </Button>
@@ -225,9 +246,9 @@ export default function BlogsAdminPage() {
             type="button"
             variant="outline"
             onClick={() => {
-              setSearchTerm("")
-              setPagination((prev) => ({ ...prev, page: 1 }))
-              fetchBlogs()
+              setSearchTerm("");
+              setPagination((prev) => ({ ...prev, page: 1 }));
+              fetchBlogs();
             }}
           >
             <RefreshCw className="h-4 w-4" />
@@ -237,17 +258,17 @@ export default function BlogsAdminPage() {
       </div>
 
       {/* Blogs Table */}
-      <div className="bg-white rounded-md shadow">
+      <div className="bg-white rounded-md shadow mt-6 p-4">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[250px]">Blog Post</TableHead>
-              <TableHead>Author</TableHead>
-              <TableHead>Categories</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Published Date</TableHead>
-              <TableHead>Created Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="w-[250px] text-base">Blog Post</TableHead>
+              <TableHead className="text-base">Author</TableHead>
+              <TableHead className="text-base">Categories</TableHead>
+              <TableHead className="text-base">Status</TableHead>
+              <TableHead className="text-base">Published Date</TableHead>
+              <TableHead className="text-base">Created Date</TableHead>
+              <TableHead className="text-base text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -264,7 +285,10 @@ export default function BlogsAdminPage() {
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8">
                   <p className="text-gray-500">No blog posts found</p>
-                  <Link href="/dashboard/blogs/new" className="mt-2 inline-block">
+                  <Link
+                    href="/dashboard/blogs/new"
+                    className="mt-2 inline-block"
+                  >
                     <Button variant="link" className="text-amber-700">
                       Create your first blog post
                     </Button>
@@ -285,7 +309,10 @@ export default function BlogsAdminPage() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate" title={blog.title}>
+                        <div
+                          className="font-medium truncate text-sm"
+                          title={blog.title}
+                        >
                           {blog.title}
                         </div>
                         <Link
@@ -298,12 +325,16 @@ export default function BlogsAdminPage() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{blog.author}</TableCell>
+                  <TableCell className="text-sm">{blog.author}</TableCell>
                   <TableCell>
                     {blog.categories && blog.categories.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
                         {blog.categories.slice(0, 2).map((category, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
+                          <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {category}
                           </Badge>
                         ))}
@@ -314,7 +345,9 @@ export default function BlogsAdminPage() {
                         )}
                       </div>
                     ) : (
-                      <span className="text-gray-500 text-sm">Uncategorized</span>
+                      <span className="text-gray-500 text-sm">
+                        Uncategorized
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -322,8 +355,12 @@ export default function BlogsAdminPage() {
                       {blog.published ? "Published" : "Draft"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-sm">{formatDate(blog.publish_date)}</TableCell>
-                  <TableCell className="text-sm">{formatDate(blog.created_at)}</TableCell>
+                  <TableCell className="text-sm">
+                    {formatDate(blog.publish_date)}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {formatDate(blog.created_at)}
+                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -339,7 +376,10 @@ export default function BlogsAdminPage() {
                             Edit
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteClick(blog)}>
+                        <DropdownMenuItem
+                          className="text-red-600"
+                          onClick={() => handleDeleteClick(blog)}
+                        >
                           <Trash2 className="h-4 w-4 mr-2" />
                           Delete
                         </DropdownMenuItem>
@@ -354,16 +394,19 @@ export default function BlogsAdminPage() {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-4 border-t">
+          <div className="flex items-center justify-between px-4 py-4 border-t mt-4">
             <div className="text-sm text-gray-500">
               Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-              {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} results
+              {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
+              of {pagination.total} results
             </div>
             <div className="flex gap-1">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
+                onClick={() =>
+                  setPagination((prev) => ({ ...prev, page: prev.page - 1 }))
+                }
                 disabled={pagination.page === 1}
               >
                 Previous
@@ -371,7 +414,9 @@ export default function BlogsAdminPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
+                onClick={() =>
+                  setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+                }
                 disabled={pagination.page === pagination.totalPages}
               >
                 Next
@@ -387,12 +432,15 @@ export default function BlogsAdminPage() {
           <DialogHeader>
             <DialogTitle>Delete Blog Post</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the blog post &quot;{blogToDelete?.title}&quot;? This action cannot be
-              undone.
+              Are you sure you want to delete the blog post &quot;
+              {blogToDelete?.title}&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={confirmDelete}>
@@ -402,5 +450,5 @@ export default function BlogsAdminPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

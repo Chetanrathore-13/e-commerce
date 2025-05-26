@@ -286,25 +286,27 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
   }
 
   return (
-    <div>
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/dashboard/homepage")} className="mr-4">
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">{isNew ? "Add New Section" : "Edit Section"}</h1>
+        <Button variant="ghost"  onClick={() => router.push("/dashboard/homepage")} className="mr-4 bg-teal-600 hover:bg-teal-700 text-white
+        hover:text-white transition">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold">{isNew ? "Add New Section" : "Edit Section"}</h1>
+        
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Section Details</CardTitle>
+          <CardTitle className="text-2xl font-bold">Section Details</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Section Name *</Label>
+                <div className="mb-4">
+                  <Label htmlFor="name" className=" text-lg mb-2 block ">Section Name *</Label>
                   <Input
                     id="name"
                     name="name"
@@ -318,8 +320,8 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
                   </p>
                 </div>
 
-                <div>
-                  <Label htmlFor="type">Section Type *</Label>
+                <div className="mb-4">
+                  <Label htmlFor="type" className="text-lg mb-2 block">Section Type *</Label>
                   <Select value={section.type} onValueChange={handleTypeChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select section type" />
@@ -334,8 +336,8 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
                   </Select>
                 </div>
 
-                <div>
-                  <Label htmlFor="position">Position</Label>
+                <div className="mb-4">
+                  <Label htmlFor="position" className="text-lg mb-2 block">Position</Label>
                   <Input
                     id="position"
                     name="position"
@@ -355,9 +357,9 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 mb-4">
                 <div>
-                  <Label htmlFor="title">Section Title</Label>
+                  <Label htmlFor="title" className="text-lg mb-2 block">Section Title</Label>
                   <Input
                     id="title"
                     name="title"
@@ -370,8 +372,8 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
                   </p>
                 </div>
 
-                <div>
-                  <Label htmlFor="subtitle">Section Subtitle</Label>
+                <div className="mb-4">
+                  <Label htmlFor="subtitle" className="text-lg mb-2 block">Section Subtitle</Label>
                   <Textarea
                     id="subtitle"
                     name="subtitle"
@@ -382,8 +384,8 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="image">Section Image</Label>
+                <div className="mb-4">
+                  <Label htmlFor="image" className="text-lg mb-2 block">Section Image</Label>
                   <div className="mt-2">
                     {imagePreview ? (
                       <div className="relative w-full h-48 mb-4 border rounded-md overflow-hidden">
@@ -435,13 +437,14 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
+                className="text-lg bg-[#000000a3] font-light text-white hover:bg-teal-600 hover:text-white"
                 variant="outline"
                 onClick={() => router.push("/dashboard/homepage")}
                 disabled={saving || uploadingImage}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={saving || uploadingImage}>
+              <Button type="submit" disabled={saving || uploadingImage} className="text-lg  py-4 bg-teal-600 font-light hover:bg-teal-700">
                 {saving || uploadingImage ? "Saving..." : isNew ? "Create Section" : "Update Section"}
               </Button>
             </div>
@@ -454,7 +457,7 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
           <CardHeader>
             <CardTitle className="flex justify-between items-center">
               <span>Debug Logs</span>
-              <Button variant="outline" size="sm" onClick={() => setDebugLogs([])}>
+              <Button variant="outline" size="sm" className="text-md hover:bg-teal-600 hover:text-white" onClick={() => setDebugLogs([])}>
                 Clear
               </Button>
             </CardTitle>
