@@ -15,7 +15,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = params
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs/${slug}`, {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+    const res = await fetch(`${baseUrl}/api/blogs/${slug}`, {
       cache: "no-store",
     })
 
@@ -45,15 +46,38 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function getBlogPost(slug: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs/${slug}`, {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+    const url = `${baseUrl}/api/blogs/${slug}`
+
+    console.log("Fetching blog from:", url)
+
+    const res = await fetch(url, {
       cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+      },
     })
 
+    console.log("Response status:", res.status)
+
     if (!res.ok) {
-      return null
+      if (res.status === 404) {
+        console.log("Blog not found (404)")
+        return null
+      }
+      const errorText = await res.text()
+      console.error("API Error:", errorText)
+      throw new Error(`Failed to fetch blog: ${res.status}`)
     }
 
-    return res.json()
+    const data = await res.json()
+    console.log("Received blog data:", {
+      hasCategories: data.blog?.categories ? true : false,
+      hasTags: data.blog?.tags ? true : false,
+      categories: data.blog?.categories,
+      tags: data.blog?.tags,
+    })
+    return data
   } catch (error) {
     console.error(`Error fetching blog post with slug ${slug}:`, error)
     return null
@@ -62,17 +86,39 @@ async function getBlogPost(slug: string) {
 
 export default async function BlogDetailPage({ params }: PageProps) {
   const { slug } = params
+  console.log("Blog detail page for slug:", slug)
+
   const data = await getBlogPost(slug)
 
   if (!data || !data.blog) {
+    console.log("No blog data found, showing 404")
     notFound()
   }
 
   const { blog, relatedBlogs } = data
 
+  // Process categories and tags for display
+  const blogCategories = Array.isArray(blog.categories)
+    ? blog.categories
+    : typeof blog.categories === "string"
+      ? blog.categories
+          .split(",")
+          .map((c: string) => c.trim())
+          .filter(Boolean)
+      : []
+
+  const blogTags = Array.isArray(blog.tags)
+    ? blog.tags
+    : typeof blog.tags === "string"
+      ? blog.tags
+          .split(",")
+          .map((t: string) => t.trim())
+          .filter(Boolean)
+      : []
+
   // Calculate reading time (rough estimate)
   const wordsPerMinute = 200
-  const wordCount = blog.content.split(/\s+/).length
+  const wordCount = blog.content ? blog.content.split(/\s+/).length : 0
   const readingTime = Math.max(1, Math.ceil(wordCount / wordsPerMinute))
 
   return (
@@ -93,7 +139,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
                 <span>
-                  {new Date(blog.publish_date).toLocaleDateString("en-US", {
+                  {new Date(blog.publish_date || blog.created_at).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -110,9 +156,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
               </div>
             </div>
             <h1 className="text-3xl md:text-5xl font-light mb-4 text-white">{blog.title}</h1>
-            {blog.categories && blog.categories.length > 0 && (
+            {blogCategories.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {blog.categories.map((category: string) => (
+                {blogCategories.map((category: string) => (
                   <Link
                     key={category}
                     href={`/blog?category=${encodeURIComponent(category)}`}
@@ -141,20 +187,42 @@ export default async function BlogDetailPage({ params }: PageProps) {
           <span className="text-gray-900 truncate max-w-[200px]">{blog.title}</span>
         </div>
 
+        {/* Debug Info (remove in production) */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="mb-4 p-4 bg-gray-100 rounded text-sm">
+            <p>Debug Info:</p>
+            <p>
+              Categories: {blogCategories.length} - {blogCategories.join(", ") || "None"}
+            </p>
+            <p>
+              Tags: {blogTags.length} - {blogTags.join(", ") || "None"}
+            </p>
+            <p>Raw categories: {JSON.stringify(blog.categories)}</p>
+            <p>Raw tags: {JSON.stringify(blog.tags)}</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-3">
             {/* Blog Content */}
-            <div className="bg-white rounded-lg shadow-sm p-8 mb-8 prose prose-lg max-w-none prose-headings:text-amber-900 prose-a:text-amber-700 prose-img:rounded-lg">
-              <div dangerouslySetInnerHTML={{ __html: blog.content }} />
+            <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
+              <div className="prose prose-lg max-w-none prose-headings:text-amber-900 prose-a:text-amber-700 prose-img:rounded-lg">
+                {blog.excerpt && (
+                  <div className="text-xl text-gray-600 mb-6 font-light italic border-l-4 border-amber-200 pl-4">
+                    {blog.excerpt}
+                  </div>
+                )}
+                <div dangerouslySetInnerHTML={{ __html: blog.content || "" }} />
+              </div>
             </div>
 
             {/* Tags */}
-            {blog.tags && blog.tags.length > 0 && (
+            {blogTags.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
                 <h3 className="text-lg font-medium mb-4 text-amber-900">Tags</h3>
                 <div className="flex flex-wrap gap-2">
-                  {blog.tags.map((tag: string) => (
+                  {blogTags.map((tag: string) => (
                     <Link
                       key={tag}
                       href={`/blog?tag=${encodeURIComponent(tag)}`}
@@ -212,7 +280,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                         {relatedBlog.title}
                       </h3>
                       <div className="text-xs text-gray-500 mb-2">
-                        {new Date(relatedBlog.publish_date).toLocaleDateString("en-US", {
+                        {new Date(relatedBlog.publish_date || relatedBlog.created_at).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
                           day: "numeric",
@@ -229,30 +297,30 @@ export default async function BlogDetailPage({ params }: PageProps) {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-20 border border-amber-100">
-              <h2 className="text-xl font-medium mb-4 text-amber-900 border-b border-amber-100 pb-2">Categories</h2>
-              <ul className="space-y-2 mb-8">
-                {blog.categories && blog.categories.length > 0 ? (
-                  blog.categories.map((category: string) => (
-                    <li key={category} className="group">
-                      <Link
-                        href={`/blog?category=${encodeURIComponent(category)}`}
-                        className="text-gray-600 hover:text-amber-700 flex items-center group-hover:translate-x-1 transition-transform"
-                      >
-                        <ArrowRight className="h-3 w-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        {category}
-                      </Link>
-                    </li>
-                  ))
-                ) : (
-                  <li className="text-gray-500">No categories found</li>
-                )}
-              </ul>
+              {blogCategories.length > 0 && (
+                <>
+                  <h2 className="text-xl font-medium mb-4 text-amber-900 border-b border-amber-100 pb-2">Categories</h2>
+                  <ul className="space-y-2 mb-8">
+                    {blogCategories.map((category: string) => (
+                      <li key={category} className="group">
+                        <Link
+                          href={`/blog?category=${encodeURIComponent(category)}`}
+                          className="text-gray-600 hover:text-amber-700 flex items-center group-hover:translate-x-1 transition-transform"
+                        >
+                          <ArrowRight className="h-3 w-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                          {category}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
 
-              {blog.tags && blog.tags.length > 0 && (
+              {blogTags.length > 0 && (
                 <>
                   <h2 className="text-xl font-medium mb-4 text-amber-900 border-b border-amber-100 pb-2">Tags</h2>
                   <div className="flex flex-wrap gap-2 mb-8">
-                    {blog.tags.map((tag: string) => (
+                    {blogTags.map((tag: string) => (
                       <Link
                         key={tag}
                         href={`/blog?tag=${encodeURIComponent(tag)}`}
