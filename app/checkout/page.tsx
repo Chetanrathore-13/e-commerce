@@ -17,6 +17,7 @@ import {
   AlertCircle,
   Truck,
   Banknote,
+  Smartphone,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -142,7 +143,7 @@ export default function CheckoutPage() {
   const [countryCode, setCountryCode] = useState("+91")
   const [mobileNumber, setMobileNumber] = useState("")
   const [sameAsBilling, setSameAsBilling] = useState(true)
-  const [paymentMethod, setPaymentMethod] = useState("")
+  const [paymentMethod, setPaymentMethod] = useState("phonepe")
   const [processingOrder, setProcessingOrder] = useState(false)
 
   // Credit card details
@@ -413,6 +414,14 @@ export default function CheckoutPage() {
     const selectedMethod = paymentMethods.find((method) => method._id === paymentMethodId)
     if (selectedMethod) {
       setPaymentMethod(selectedMethod.type)
+
+      if (selectedMethod.type === "credit-card") {
+        setCardNumber(selectedMethod.card_number || "")
+        setCardHolder(selectedMethod.card_holder_name || "")
+        if (selectedMethod.expiry_month && selectedMethod.expiry_year) {
+          setExpiryDate(`${selectedMethod.expiry_month}/${selectedMethod.expiry_year.slice(-2)}`)
+        }
+      }
     }
   }
 
@@ -518,6 +527,41 @@ export default function CheckoutPage() {
     return orderTotal >= paymentSettings.cod_min_order_value && orderTotal <= paymentSettings.cod_max_order_value
   }
 
+  const handlePhonePePayment = async (orderId: string) => {
+    try {
+      const finalTotal = (cart?.total || 0) - discountAmount
+      const userMobile = mobileNumber || session?.user?.phone || ""
+
+      const response = await fetch("/api/payments/phonepe/initiate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId,
+          amount: finalTotal,
+          mobileNumber: userMobile,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.data.paymentUrl) {
+        // Redirect to PhonePe payment page
+        window.location.href = data.data.paymentUrl
+      } else {
+        throw new Error(data.error || "Failed to initiate PhonePe payment")
+      }
+    } catch (error) {
+      console.error("PhonePe payment error:", error)
+      toast({
+        title: "Payment Error",
+        description: error instanceof Error ? error.message : "Failed to initiate PhonePe payment",
+        variant: "destructive",
+      })
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -540,16 +584,6 @@ export default function CheckoutPage() {
       return
     }
 
-    // Validate that a payment method is selected or entered
-    if (paymentMethod !== "cod" && !selectedPaymentMethodId && paymentMethods.length > 0 && !newPaymentMode) {
-      toast({
-        title: "Error",
-        description: "Please select a payment method",
-        variant: "destructive",
-      })
-      return
-    }
-
     // Validate form fields if using new address
     if (newAddressMode || addresses.length === 0) {
       if (!firstName || !lastName || !address || !city || !state || !zipcode || !mobileNumber) {
@@ -563,7 +597,7 @@ export default function CheckoutPage() {
     }
 
     // Validate payment details if using new payment method
-    if (paymentMethod !== "cod" && (newPaymentMode || paymentMethods.length === 0)) {
+    if (paymentMethod !== "cod" && paymentMethod !== "phonepe" && (newPaymentMode || paymentMethods.length === 0)) {
       if (paymentMethod === "credit-card" && (!cardNumber || !expiryDate || !cardHolder)) {
         toast({
           title: "Error",
@@ -612,6 +646,10 @@ export default function CheckoutPage() {
       if (paymentMethod === "cod") {
         selectedPaymentType = "cod"
       }
+      // If using PhonePe
+      else if (paymentMethod === "phonepe") {
+        selectedPaymentType = "phonepe"
+      }
       // If using a saved payment method
       else if (selectedPaymentMethodId && selectedPaymentMethodId !== "new" && !newPaymentMode) {
         const savedPayment = paymentMethods.find((method) => method._id === selectedPaymentMethodId)
@@ -651,7 +689,7 @@ export default function CheckoutPage() {
       }
 
       // Log the data being sent for debugging
-      console.log("Sending order data:", orderData)
+      console.log("Sending order data:", JSON.stringify(orderData, null, 2))
 
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -666,7 +704,7 @@ export default function CheckoutPage() {
       console.log("Order API response headers:", Object.fromEntries([...response.headers.entries()]))
 
       // Try to parse the response as JSON, but handle non-JSON responses
-      let errorData: { error?: string; rawResponse?: string } = {}
+      let responseData = {}
       let responseText = ""
 
       try {
@@ -675,10 +713,11 @@ export default function CheckoutPage() {
 
         if (responseText) {
           try {
-            errorData = JSON.parse(responseText)
+            responseData = JSON.parse(responseText)
+            console.log("Parsed response data:", responseData)
           } catch (parseError) {
             console.error("Error parsing response as JSON:", parseError)
-            errorData = { error: "Invalid response format", rawResponse: responseText }
+            responseData = { error: "Invalid response format", rawResponse: responseText }
           }
         }
       } catch (textError) {
@@ -686,21 +725,27 @@ export default function CheckoutPage() {
       }
 
       if (!response.ok) {
-        console.error("Order API error response:", errorData)
-        throw new Error(
-          errorData.error ||
-            `Failed to place order. Status: ${response.status}. ${responseText ? `Response: ${responseText}` : ""}`,
-        )
+        console.error("Order API error response:", responseData)
+
+        // Show more detailed error message
+        const errorMessage = responseData.error || `HTTP ${response.status}: ${response.statusText}`
+        const errorDetails = responseData.details ? JSON.stringify(responseData.details, null, 2) : ""
+
+        throw new Error(`${errorMessage}${errorDetails ? `\n\nDetails:\n${errorDetails}` : ""}`)
       }
 
       // Parse the successful response
-      let data
-      try {
-        data = JSON.parse(responseText)
-      } catch (e) {
-        console.error("Error parsing successful response:", e)
-        throw new Error("Invalid response format from server")
+      let data = responseData
+      if (typeof responseData === "string") {
+        try {
+          data = JSON.parse(responseData)
+        } catch (e) {
+          console.error("Error parsing successful response:", e)
+          throw new Error("Invalid response format from server")
+        }
       }
+
+      console.log("Order created successfully:", data)
 
       // If we have a coupon, apply it to the order
       if (appliedCoupon) {
@@ -716,6 +761,12 @@ export default function CheckoutPage() {
           console.error("Error applying coupon:", couponError)
           // Continue with order placement even if coupon application fails
         }
+      }
+
+      // Handle PhonePe payment
+      if (paymentMethod === "phonepe") {
+        await handlePhonePePayment(data.order._id)
+        return // Don't show success message yet, wait for payment completion
       }
 
       toast({
@@ -771,12 +822,12 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          {/* <Link href="/" className="flex items-center justify-center">
+          <Link href="/" className="flex items-center justify-center">
             <Image src="/parpra-logo.png" alt="PARPRA" width={180} height={60} />
-          </Link> */}
+          </Link>
           <div className="hidden md:flex items-center">
-            <Link href="/cart" className="text-teal-600 hover:text-teal-800 text-2xl flex items-center">
-              <ArrowLeft className="h-5 w-5 mr-2" />
+            <Link href="/cart" className="text-gray-600 hover:text-teal-700 flex items-center">
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Back to cart
             </Link>
           </div>
@@ -972,6 +1023,17 @@ export default function CheckoutPage() {
                 {/* Payment Method Selection */}
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="mb-6">
                   <div className="space-y-4">
+                    {/* PhonePe Option */}
+                    <div
+                      className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "phonepe" ? "border-purple-500 bg-purple-50" : ""}`}
+                    >
+                      <RadioGroupItem value="phonepe" id="phonepe" />
+                      <Label htmlFor="phonepe" className="flex items-center cursor-pointer">
+                        <Smartphone className="h-5 w-5 mr-2 text-purple-600" />
+                        PhonePe
+                      </Label>
+                    </div>
+
                     {/* Cash on Delivery Option */}
                     {isCodAvailable() && (
                       <div
@@ -988,60 +1050,13 @@ export default function CheckoutPage() {
                     {/* Credit Card Option */}
                     {paymentSettings?.online_payment_enabled && (
                       <div
-                        className={`border rounded-md overflow-hidden ${paymentMethod === "credit-card" ? "border-teal-500" : ""}`}
+                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "credit-card" ? "border-teal-500 bg-teal-50" : ""}`}
                       >
-                        <div
-                          className={`flex items-center space-x-2 p-4 ${paymentMethod === "credit-card" ? "bg-teal-50" : ""}`}
-                        >
-                          <RadioGroupItem value="credit-card" id="credit-card" />
-                          <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
-                            <CreditCard className="h-5 w-5 mr-2" />
-                            Credit/Debit Card
-                          </Label>
-                        </div>
-
-                        {/* Card Details Form - Shown directly below when selected */}
-                        {paymentMethod === "credit-card" && (
-                          <div className="p-4 space-y-4 border-t">
-                            <div>
-                              <Label htmlFor="cardNumber">Card Number</Label>
-                              <Input
-                                id="cardNumber"
-                                placeholder="1234 5678 9012 3456"
-                                value={cardNumber}
-                                onChange={(e) => setCardNumber(e.target.value)}
-                              />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="expiryDate">Expiry Date</Label>
-                                <Input
-                                  id="expiryDate"
-                                  placeholder="MM/YY"
-                                  value={expiryDate}
-                                  onChange={(e) => setExpiryDate(e.target.value)}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="cvv">CVV</Label>
-                                <Input
-                                  id="cvv"
-                                  placeholder="123"
-                                  value={cvv}
-                                  onChange={(e) => setCvv(e.target.value)}
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <Label htmlFor="nameOnCard">Name on Card</Label>
-                              <Input
-                                id="nameOnCard"
-                                value={cardHolder}
-                                onChange={(e) => setCardHolder(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                        )}
+                        <RadioGroupItem value="credit-card" id="credit-card" />
+                        <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
+                          <CreditCard className="h-5 w-5 mr-2" />
+                          Credit/Debit Card
+                        </Label>
                       </div>
                     )}
 
@@ -1073,6 +1088,22 @@ export default function CheckoutPage() {
                   </div>
                 </RadioGroup>
 
+                {/* PhonePe Information */}
+                {paymentMethod === "phonepe" && (
+                  <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-md">
+                    <h3 className="font-medium text-purple-800 mb-2">PhonePe Payment Information</h3>
+                    <p className="text-sm text-purple-700 mb-2">
+                      Pay securely using PhonePe - India's most trusted digital payment platform.
+                    </p>
+                    <ul className="text-xs text-purple-600 list-disc list-inside space-y-1">
+                      <li>Supports UPI, Credit/Debit Cards, Net Banking, and Wallets</li>
+                      <li>Instant payment confirmation and receipt</li>
+                      <li>Bank-level security with 256-bit SSL encryption</li>
+                      <li>No additional charges for UPI payments</li>
+                    </ul>
+                  </div>
+                )}
+
                 {/* COD Information */}
                 {paymentMethod === "cod" && (
                   <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
@@ -1093,68 +1124,109 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Saved Payment Methods */}
-                {paymentMethod !== "cod" && paymentMethods.length > 0 && !newPaymentMode && (
-                  <div className="mb-6">
-                    <Label htmlFor="savedPayment" className="mb-2 block">
-                      Select a Saved Payment Method
-                    </Label>
-                    <Select value={selectedPaymentMethodId} onValueChange={handlePaymentMethodChange}>
-                      <SelectTrigger id="savedPayment">
-                        <SelectValue placeholder="Select a payment method" />
-                      </SelectTrigger>
-                      ``
-                      <SelectContent>
-                        {paymentMethods.map((method) => (
-                          <SelectItem key={method._id} value={method._id}>
-                            <div className="flex items-center">
-                              {method.type === "credit-card" && <CreditCard className="h-4 w-4 mr-2" />}
-                              {method.type === "paypal" && <PaypalLogo className="h-4 w-4 mr-2" />}
-                              <span>
-                                {method.type === "credit-card"
-                                  ? `Card ending in ${method.card_number?.slice(-4)}`
-                                  : method.type
-                                    ? method.type.charAt(0).toUpperCase() + method.type.slice(1)
-                                    : "Unknown"}
-                              </span>
-                              {method.is_default && (
-                                <Badge variant="outline" className="ml-2">
-                                  Default
-                                </Badge>
-                              )}
+                {paymentMethod !== "cod" &&
+                  paymentMethod !== "phonepe" &&
+                  paymentMethods.length > 0 &&
+                  !newPaymentMode && (
+                    <div className="mb-6">
+                      <Label htmlFor="savedPayment" className="mb-2 block">
+                        Select a Saved Payment Method
+                      </Label>
+                      <Select value={selectedPaymentMethodId} onValueChange={handlePaymentMethodChange}>
+                        <SelectTrigger id="savedPayment">
+                          <SelectValue placeholder="Select a payment method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {paymentMethods.map((method) => (
+                            <SelectItem key={method._id} value={method._id}>
+                              <div className="flex items-center">
+                                {method.type === "credit-card" && <CreditCard className="h-4 w-4 mr-2" />}
+                                {method.type === "paypal" && <PaypalLogo className="h-4 w-4 mr-2" />}
+                                <span>
+                                  {method.type === "credit-card"
+                                    ? `Card ending in ${method.card_number?.slice(-4)}`
+                                    : method.type
+                                      ? method.type.charAt(0).toUpperCase() + method.type.slice(1)
+                                      : "Unknown"}
+                                </span>
+                                {method.is_default && (
+                                  <Badge variant="outline" className="ml-2">
+                                    Default
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="new">
+                            <div className="flex items-center text-teal-700">
+                              <PlusCircle className="h-4 w-4 mr-2" />
+                              <span>Add New Payment Method</span>
                             </div>
                           </SelectItem>
-                        ))}
-                        <SelectItem value="new">
-                          <div className="flex items-center text-teal-700">
-                            <PlusCircle className="h-4 w-4 mr-2" />
-                            <span>Add New Payment Method</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
 
-                {/* Save buttons for new payment mode */}
-                {paymentMethod !== "cod" && newPaymentMode && (
-                  <div className="flex justify-end gap-2 mt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setNewPaymentMode(false)
-                        if (paymentMethods.length > 0 && selectedPaymentMethodId) {
-                          handlePaymentMethodChange(selectedPaymentMethodId)
-                        }
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="button" onClick={saveNewPaymentMethod}>
-                      Save Payment Method
-                    </Button>
-                  </div>
-                )}
+                {/* New Payment Method Form */}
+                {paymentMethod !== "cod" &&
+                  paymentMethod !== "phonepe" &&
+                  (newPaymentMode || paymentMethods.length === 0) && (
+                    <>
+                      {paymentMethod === "credit-card" && (
+                        <div className="mt-4 space-y-4 p-4 border rounded-md">
+                          <div>
+                            <Label htmlFor="cardNumber">Card Number</Label>
+                            <Input
+                              id="cardNumber"
+                              placeholder="1234 5678 9012 3456"
+                              value={cardNumber}
+                              onChange={(e) => setCardNumber(e.target.value)}
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="expiryDate">Expiry Date</Label>
+                              <Input
+                                id="expiryDate"
+                                placeholder="MM/YY"
+                                value={expiryDate}
+                                onChange={(e) => setExpiryDate(e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="cvv">CVV</Label>
+                              <Input id="cvv" placeholder="123" value={cvv} onChange={(e) => setCvv(e.target.value)} />
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="nameOnCard">Name on Card</Label>
+                            <Input id="nameOnCard" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
+                          </div>
+                        </div>
+                      )}
+
+                      {newPaymentMode && (
+                        <div className="flex justify-end gap-2 mt-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setNewPaymentMode(false)
+                              if (paymentMethods.length > 0 && selectedPaymentMethodId) {
+                                handlePaymentMethodChange(selectedPaymentMethodId)
+                              }
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button type="button" onClick={saveNewPaymentMethod}>
+                            Save Payment Method
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
 
                 <div className="mt-6 text-xs text-gray-500 flex items-center">
                   <Lock className="h-4 w-4 mr-1 text-green-600" />
@@ -1164,10 +1236,16 @@ export default function CheckoutPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-teal-700 hover:bg-teal-800 text-lg py-6"
+                className={`w-full text-lg py-6 ${
+                  paymentMethod === "phonepe" ? "bg-purple-600 hover:bg-purple-700" : "bg-teal-700 hover:bg-teal-800"
+                }`}
                 disabled={processingOrder}
               >
-                {processingOrder ? "Processing..." : `Place Order - ₹${finalTotal.toLocaleString("en-IN")}`}
+                {processingOrder
+                  ? "Processing..."
+                  : paymentMethod === "phonepe"
+                    ? `Pay with PhonePe - ₹${finalTotal.toLocaleString("en-IN")}`
+                    : `Place Order - ₹${finalTotal.toLocaleString("en-IN")}`}
               </Button>
             </form>
           </div>

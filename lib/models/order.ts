@@ -1,66 +1,53 @@
 import mongoose, { Schema, type Document } from "mongoose"
 
-export interface OrderItem {
-  product_id: mongoose.Types.ObjectId
-  variation_id: mongoose.Types.ObjectId
-  quantity: number
-  price: number
-  name: string
-  image: string
-  size: string
-  color: string
-}
-
-export interface Address {
-  full_name: string
-  address_line1: string
-  address_line2?: string
-  city: string
-  state: string
-  postal_code: string
-  country: string
-  phone: string
-}
-
-export interface StatusHistoryEntry {
-  status: string
-  timestamp: Date
-  user_id: string
-  user_email: string
-}
-
-export interface IOrder extends Document {
-  user_id: mongoose.Types.ObjectId
+interface OrderDocument extends Document {
+  user_id: mongoose.Schema.Types.ObjectId
   order_number: string
-  items: OrderItem[]
+  items: {
+    product_id: mongoose.Schema.Types.ObjectId
+    variation_id: mongoose.Schema.Types.ObjectId
+    quantity: number
+    price: number
+    name: string
+    image: string
+    size: string
+    color: string
+  }[]
   total: number
   subtotal: number
   discount: number
   coupon_code?: string
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled" | "returned" | "return_requested"
-  payment_method: "credit-card" | "paypal" | "bank-transfer" | "cod"
-  payment_status: "pending" | "processing" | "completed" | "failed" | "refunded"
-  shipping_address: Address
-  billing_address: Address
+  status: string
+  shipping_address: {
+    full_name: string
+    address_line1: string
+    address_line2?: string
+    city: string
+    state: string
+    postal_code: string
+    country: string
+    phone: string
+  }
+  billing_address: {
+    full_name: string
+    address_line1: string
+    address_line2?: string
+    city: string
+    state: string
+    postal_code: string
+    country: string
+    phone: string
+  }
+  payment_method: string
+  payment_status: string
   tracking_number?: string
-  notes?: string
-  cancel_reason?: string
-  return_reason?: string
-  additionalComments?: string
-  return_items?: string[]
-  status_history?: StatusHistoryEntry[]
+  shipping_carrier?: string
+  estimated_delivery?: Date
   createdAt: Date
   updatedAt: Date
 }
 
-const StatusHistorySchema = new Schema<StatusHistoryEntry>({
-  status: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now },
-  user_id: { type: String, required: true },
-  user_email: { type: String, required: true },
-})
-
-const OrderSchema = new Schema<IOrder>(
+const OrderSchema: Schema = new Schema(
   {
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     order_number: { type: String, required: true, unique: true },
@@ -71,9 +58,9 @@ const OrderSchema = new Schema<IOrder>(
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
         name: { type: String, required: true },
-        image: { type: String, required: true },
-        size: { type: String, required: true },
-        color: { type: String, required: true },
+        image: { type: String },
+        size: { type: String },
+        color: { type: String },
       },
     ],
     total: { type: Number, required: true },
@@ -82,17 +69,7 @@ const OrderSchema = new Schema<IOrder>(
     coupon_code: { type: String },
     status: {
       type: String,
-      enum: ["pending", "processing", "shipped", "delivered", "cancelled", "returned", "return_requested"],
-      default: "pending",
-    },
-    payment_method: {
-      type: String,
-      enum: ["credit-card", "paypal", "bank-transfer", "cod"],
-      required: true,
-    },
-    payment_status: {
-      type: String,
-      enum: ["pending", "processing", "completed", "failed", "refunded"],
+      enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "returned"],
       default: "pending",
     },
     shipping_address: {
@@ -115,15 +92,32 @@ const OrderSchema = new Schema<IOrder>(
       country: { type: String, required: true },
       phone: { type: String, required: true },
     },
+    payment_method: {
+      type: String,
+      enum: ["cod", "phonepe", "credit-card", "paypal", "bank-transfer"],
+      required: true,
+    },
+    payment_status: {
+      type: String,
+      enum: ["pending", "processing", "completed", "failed", "refunded"],
+      default: "pending",
+    },
     tracking_number: { type: String },
-    notes: { type: String },
-    cancel_reason: { type: String },
-    return_reason: { type: String },
-    additionalComments: { type: String },
-    return_items: [{ type: String }],
-    status_history: [StatusHistorySchema],
+    shipping_carrier: { type: String },
+    estimated_delivery: { type: Date },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 )
 
-export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema)
+// Create indexes
+OrderSchema.index({ user_id: 1 })
+OrderSchema.index({ order_number: 1 })
+OrderSchema.index({ status: 1 })
+OrderSchema.index({ payment_status: 1 })
+OrderSchema.index({ createdAt: -1 })
+
+const Order = mongoose.models.Order || mongoose.model<OrderDocument>("Order", OrderSchema)
+
+export { Order, type OrderDocument }
