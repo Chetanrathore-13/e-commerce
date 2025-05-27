@@ -281,7 +281,7 @@ export default function CouponsPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="text-red-500 border-red-200 hover:bg-red-50"
+                                className="bg-gray-500 text-white  hover:bg-red-600 hover:text-white transition-all"
                                 onClick={() => handleDeleteClick(coupon._id)}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -333,7 +333,7 @@ export default function CouponsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-red-500 hover:bg-red-600">
+            <AlertDialogAction onClick={confirmDelete} className="bg-gray-500 hover:bg-red-600">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

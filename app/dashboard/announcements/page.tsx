@@ -246,7 +246,7 @@ export default function AnnouncementsPage() {
                       </Link>
                       <button
                         onClick={() => handleDelete(announcement._id)}
-                        className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-gray-100"
+                        className="bg-gray-500 hover:bg-red-600 p-2 text-white rounded-md "
                       >
                         <Trash2 size={16} />
                       </button>

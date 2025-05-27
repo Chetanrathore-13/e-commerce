@@ -835,6 +835,7 @@ export default function AdminContactPage() {
                             </Button>
                             <DeleteConfirmationDialog
                               title="Delete Contact Information"
+                              
                               description="Are you sure you want to delete this contact information? This action cannot be undone."
                               itemName={item.title}
                               onConfirm={() => deleteContactInfo(item._id)}

@@ -158,7 +158,7 @@ export default function EmailsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Email Management</h1>
         <p className="text-gray-600">Send emails and manage newsletter subscribers</p>
@@ -178,7 +178,7 @@ export default function EmailsPage() {
             <CardContent>
               <form onSubmit={handleSendEmail} className="space-y-4">
                 <div>
-                  <Label htmlFor="emailType">Email Type</Label>
+                  <Label htmlFor="emailType" className="text-lg mb-2 block">Email Type</Label>
                   <Select value={emailType} onValueChange={setEmailType}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select email type" />
@@ -194,7 +194,7 @@ export default function EmailsPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="recipient">Recipient Email</Label>
+                  <Label htmlFor="recipient"  className="text-lg mb-2 block">Recipient Email</Label>
                   <Input
                     id="recipient"
                     type="email"
@@ -206,7 +206,7 @@ export default function EmailsPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="subject">Subject</Label>
+                  <Label htmlFor="subject"  className="text-lg mb-2 block">Subject</Label>
                   <Input
                     id="subject"
                     value={subject}
@@ -217,7 +217,7 @@ export default function EmailsPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="content">Content</Label>
+                  <Label htmlFor="content"  className="text-lg mb-2 block">Content</Label>
                   <Textarea
                     id="content"
                     value={content}
@@ -229,14 +229,16 @@ export default function EmailsPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <Button type="submit" disabled={isLoading}>
+                  <Button type="submit" disabled={isLoading} className="bg-teal-600 text-white hover:bg-teal-700">
                     <Send className="h-4 w-4 mr-2" />
                     {isLoading ? "Sending..." : "Send Email"}
                   </Button>
 
                   <Button
+                   
                     type="button"
                     variant="outline"
+                    className="bg-teal-200 text-black hover:bg-teal-700"
                     onClick={handleSendToAllSubscribers}
                     disabled={isLoading || subscribers.length === 0}
                   >
@@ -273,7 +275,7 @@ export default function EmailsPage() {
               <div className="text-3xl font-bold text-amber-600 mb-2">{subscribers.length}</div>
               <p className="text-gray-600 mb-4">Total subscribers</p>
 
-              <Button variant="outline" className="w-full" onClick={fetchSubscribers}>
+              <Button variant="outline" className="w-full bg-teal-600 text-white hover:bg-teal-700 hover:text-white" onClick={fetchSubscribers}>
                 Refresh
               </Button>
             </CardContent>

@@ -181,7 +181,7 @@ export default function TestimonialsPage() {
                       <Edit className="h-4 w-4 mr-1" />
                       Edit
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => confirmDelete(testimonial._id)}>
+                    <Button variant="outline" size="sm" className="text-white bg-gray-500 hover:bg-red-600 hover:text-white transition-all" onClick={() => confirmDelete(testimonial._id)}>
                       <Trash2 className="h-4 w-4 mr-1" />
                       Delete
                     </Button>
