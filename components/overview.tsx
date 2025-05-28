@@ -1,59 +1,32 @@
 "use client"
 
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
-
-const data = [
-  {
-    name: "Jan",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Feb",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Mar",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Apr",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "May",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Jun",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Jul",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Aug",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Sep",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Oct",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Nov",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-  {
-    name: "Dec",
-    total: Math.floor(Math.random() * 5000) + 1000,
-  },
-]
+import { useEffect, useState } from "react"
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from "recharts"
 
 export function Overview() {
+  const [data, setData] = useState<{ name: string; total: number }[]>([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/sale")
+        const json = await res.json()
+        setData(json)
+      } catch (error) {
+        console.error("Failed to fetch sales data", error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={data}>
@@ -64,13 +37,10 @@ export function Overview() {
           tickLine={false}
           axisLine={false}
           tickFormatter={(value) => {
-            // On small screens, show fewer labels
             const width = window.innerWidth
             if (width < 500) {
-              // For very small screens, show only every 3rd month
               return ["Jan", "Apr", "Jul", "Oct"].includes(value) ? value : ""
             } else if (width < 768) {
-              // For medium screens, show every other month
               return ["Jan", "Mar", "May", "Jul", "Sep", "Nov"].includes(value) ? value : ""
             }
             return value
@@ -81,10 +51,18 @@ export function Overview() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={(value) => `₹${value}`}
         />
-        <Tooltip formatter={(value) => [`$${value}`, "Revenue"]} labelFormatter={(label) => `Month: ${label}`} />
-        <Bar dataKey="total" fill="currentColor" radius={[4, 4, 0, 0]} className="fill-primary" />
+        <Tooltip
+          formatter={(value) => [`₹ ${Number(value).toFixed(2)}`, "Revenue"]}
+          labelFormatter={(label) => `Month: ${label}`}
+        />
+        <Bar
+          dataKey="total"
+          fill="currentColor"
+          radius={[4, 4, 0, 0]}
+          className="fill-primary"
+        />
       </BarChart>
     </ResponsiveContainer>
   )

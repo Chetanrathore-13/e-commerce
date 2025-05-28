@@ -142,6 +142,7 @@ export default async function DashboardPage() {
             <Overview />
           </CardContent>
         </Card>
+        
         <Card className="col-span-full lg:col-span-3">
           <CardHeader>
             <CardTitle>Recent Products</CardTitle>

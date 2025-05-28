@@ -36,7 +36,7 @@ export function ResizableSidebar() {
 
   if (isCollapsed) {
     return (
-      <div className="hidden md:flex flex-col items-center w-12 h-[calc(100vh-4rem)] border-r bg-gray-50 dark:bg-gray-900">
+      <div className="hidden md:flex flex-col items-center w-12 h-[calc(100vh-4rem)] border-r bg-gray-500 dark:bg-gray-900 mb-4">
         <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mt-2">
           <ChevronRight className="h-4 w-4" />
           <span className="sr-only">Expand Sidebar</span>
