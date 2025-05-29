@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectToDatabase } from "@/lib/db"
-import Order from "@/lib/models/order"
+import{ Order }from "@/lib/models/order"
 import {User} from "@/lib/models"
 
 export async function GET(request: NextRequest) {
