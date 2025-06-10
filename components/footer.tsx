@@ -15,7 +15,7 @@ import {
   Globe,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import Logo from "../public/Logo/ParPraWhite.png";
+import Logo from "../public/Logo/ParPraWhite.webp";
 import PhonePe from "../public/Payment-icons/PhonePe.png";
 import Cash from "../public/Payment-icons/cash.png";
 import Upi from "../public/Payment-icons/upi.png";
