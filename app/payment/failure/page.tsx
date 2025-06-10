@@ -20,7 +20,7 @@ export default function PaymentFailurePage() {
       // Optionally check payment status to get more details
       checkPaymentStatus()
     }
-  }, [txnId])
+  }, [txnId, checkPaymentStatus])
 
   const checkPaymentStatus = async () => {
     try {

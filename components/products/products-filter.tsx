@@ -71,7 +71,7 @@ export function ProductsFilter({ brands, categories }: ProductsFilterProps) {
     return () => {
       debouncedUpdateUrl.cancel()
     }
-  }, [name, brandId, categoryId, date])
+  }, [name, brandId, categoryId, date, debouncedUpdateUrl])
 
   const handleReset = () => {
     setName("")

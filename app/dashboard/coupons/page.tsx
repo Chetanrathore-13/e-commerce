@@ -53,10 +53,7 @@ export default function CouponsPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
 
   useEffect(() => {
-    fetchCoupons()
-  }, [currentPage, searchQuery, sortField, sortDirection])
-
-  const fetchCoupons = async () => {
+    const fetchCoupons = async () => {
     try {
       setLoading(true)
       const queryParams = new URLSearchParams({
@@ -90,6 +87,44 @@ export default function CouponsPage() {
       setLoading(false)
     }
   }
+    fetchCoupons()
+  }, [currentPage, searchQuery, sortField, sortDirection, toast])
+
+   const fetchCoupons = async () => {
+    try {
+      setLoading(true)
+      const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: "10",
+        sort: sortField,
+        direction: sortDirection,
+      })
+
+      if (searchQuery) {
+        queryParams.append("search", searchQuery)
+      }
+
+      const response = await fetch(`/api/admin/coupons?${queryParams.toString()}`)
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch coupons")
+      }
+
+      const data = await response.json()
+      setCoupons(data.coupons)
+      setTotalPages(data.pagination.totalPages)
+    } catch (error) {
+      console.error("Error fetching coupons:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load coupons",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+  
 
   const handleSort = (field: string) => {
     if (field === sortField) {

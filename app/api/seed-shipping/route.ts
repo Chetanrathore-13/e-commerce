@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/lib/mongoose"
-import ShippingInfo from "@/models/ShippingInfo"
+import { connectToDatabase } from "@/lib/mongodb"
+import ShippingInfo from "@/lib/models/ShippingInfo"
 
 // Initial shipping information data
 const initialShippingInfo = [
@@ -116,7 +116,7 @@ const initialShippingInfo = [
 
 export async function GET() {
   try {
-    await dbConnect()
+    await connectToDatabase()
 
     // Check if the ShippingInfo collection is empty
     const count = await ShippingInfo.countDocuments()

@@ -34,7 +34,7 @@ export default function HomepageSectionsPage() {
 
   useEffect(() => {
     fetchSections();
-  }, []);
+  }, [ ]);
 
   const fetchSections = async () => {
     try {

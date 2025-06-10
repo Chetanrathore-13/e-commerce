@@ -1,59 +1,68 @@
-import { Suspense } from "react"
-import { notFound } from "next/navigation"
-import { Skeleton } from "@/components/ui/skeleton"
-import ProductList from "@/components/product-list"
-import { getProductsData } from "@/lib/api"
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import ProductList from "@/components/product-list";
+import { getProductsData } from "@/lib/api";
 
+type Props = {
+  params: { category: string }
+  searchParams?: { [key: string]: string | string[] | undefined }
+}
 async function getCategory(slug: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/category/${slug}`, {
-      cache: "no-store",
-    })
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/category/${slug}`,
+      {
+        cache: "no-store",
+      }
+    );
 
     if (!res.ok) {
       if (res.status === 404) {
-        return null
+        return null;
       }
-      throw new Error("Failed to fetch category")
+      throw new Error("Failed to fetch category");
     }
 
-    return res.json()
+    return res.json();
   } catch (error) {
-    console.error("Error loading category:", error)
-    throw error
+    console.error("Error loading category:", error);
+    throw error;
   }
 }
 
 async function getProductsByCategory(categoryId: string) {
   try {
-    const data = await getProductsData({ category: categoryId })
-    return data
+    const data = await getProductsData({ category: categoryId });
+    return data;
   } catch (error) {
-    console.error("Error loading products:", error)
-    return { products: [] }
+    console.error("Error loading products:", error);
+    return { products: [] };
   }
 }
 
-export default async function CategoryPage({ params }: { params: { category: string } }) {
-  const category = await getCategory(params.category)
+export default async function CategoryPage({ params }: Props) {
+  const category = await getCategory(params.category);
 
   if (!category) {
-    notFound()
+    notFound();
   }
 
-  const { products = [] } = await getProductsByCategory(category._id)
+  const { products = [] } = await getProductsByCategory(category._id);
 
   return (
     <div className="container mx-auto px-4 py-8 mt-14  mb-14">
       <h1 className="text-3xl font-bold mb-8">{category.name}</h1>
 
-      {category.description && <p className="text-gray-600 mb-8">{category.description}</p>}
+      {category.description && (
+        <p className="text-gray-600 mb-8">{category.description}</p>
+      )}
 
       <Suspense fallback={<ProductListSkeleton />}>
         <ProductList products={products} categoryId={category._id} />
       </Suspense>
     </div>
-  )
+  );
 }
 
 function ProductListSkeleton() {
@@ -67,5 +76,5 @@ function ProductListSkeleton() {
         </div>
       ))}
     </div>
-  )
+  );
 }

@@ -36,7 +36,7 @@ interface CartModalProps {
 }
 
 export default function CartModal({ isOpen, onClose }: CartModalProps) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const { toast } = useToast();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,12 +45,7 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
   const [promoCode, setPromoCode] = useState("");
 
    useEffect(() => {
-  if (isOpen && status === "authenticated" && cartItems.length === 0) {
-    fetchCart()
-  }
-}, [isOpen, status])
-
-  const fetchCart = async () => {
+     const fetchCart = async () => {
     setLoading(true)
 
     if (status === "authenticated") {
@@ -79,6 +74,12 @@ export default function CartModal({ isOpen, onClose }: CartModalProps) {
       }
     }
   }
+  if (isOpen && status === "authenticated" && cartItems.length === 0) {
+    fetchCart()
+  }
+}, [isOpen, status, toast, cartItems.length])
+
+ 
 
    const calculateTotal = (items: CartItem[]) => {
     let sum = 0

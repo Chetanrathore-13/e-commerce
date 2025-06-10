@@ -256,35 +256,4 @@ export class PhonePeService {
   getMerchantId(): string {
     return this.merchantId
   }
-
-  // Utility methods for payment status checking
-  getPaymentUrl(response: PhonePeServiceResponse): string | null {
-    if (response.success && response.data?.instrumentResponse?.redirectInfo?.url) {
-      return response.data.instrumentResponse.redirectInfo.url
-    }
-    return null
-  }
-
-  isPaymentSuccessful(statusResponse: PhonePeServiceResponse): boolean {
-    return (
-      statusResponse.success &&
-      statusResponse.data?.state === "COMPLETED" &&
-      statusResponse.data?.responseCode === "SUCCESS"
-    )
-  }
-
-  isPaymentPending(statusResponse: PhonePeServiceResponse): boolean {
-    return (
-      statusResponse.success &&
-      (statusResponse.data?.state === "PENDING" || statusResponse.data?.state === "IN_PROGRESS")
-    )
-  }
-
-  isPaymentFailed(statusResponse: PhonePeServiceResponse): boolean {
-    return (
-      !statusResponse.success ||
-      statusResponse.data?.state === "FAILED" ||
-      statusResponse.data?.responseCode === "FAILURE"
-    )
-  }
 }

@@ -45,7 +45,7 @@ export function UsersFilter() {
     return () => {
       debouncedUpdateUrl.cancel()
     }
-  }, [name, email])
+  }, [name, email, debouncedUpdateUrl])
 
   const handleReset = () => {
     setName("")

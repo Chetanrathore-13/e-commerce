@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import { connectToDatabase } from "@/lib/mongodb"
-import Order from "@/lib/models/order"
+import {Order} from "@/lib/models/order"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { OrderDetail } from "./order-detail"

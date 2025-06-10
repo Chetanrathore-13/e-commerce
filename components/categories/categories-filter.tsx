@@ -51,7 +51,7 @@ export function CategoriesFilter({ parentCategories }: CategoriesFilterProps) {
     return () => {
       debouncedUpdateUrl.cancel()
     }
-  }, [name, parentId])
+  }, [name, parentId, debouncedUpdateUrl])
 
   const handleReset = () => {
     setName("")

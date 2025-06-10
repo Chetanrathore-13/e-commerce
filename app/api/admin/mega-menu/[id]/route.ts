@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/db"
-import { MegaMenuConfig } from "@/lib/models"
+import { MegaMenuConfig } from "@/lib/models/mega-menu-config"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {

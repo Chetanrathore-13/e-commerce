@@ -118,7 +118,7 @@ export default function OrderDetailsPage({
 }: {
   params: { id: string };
 }) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
   const [order, setOrder] = useState<Order | null>(null);
@@ -132,17 +132,7 @@ export default function OrderDetailsPage({
   const [returnType, setReturnType] = useState<"full" | "partial">("full");
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login?redirect=/account/orders");
-      return;
-    }
-
-    if (status === "authenticated" && params.id) {
-      fetchOrder(params.id);
-    }
-  }, [status, params.id, router]);
-
-  const fetchOrder = async (orderId: string) => {
+     const fetchOrder = async (orderId: string) => {
     try {
       setLoading(true);
       const response = await fetch(`/api/orders/${orderId}`);
@@ -164,6 +154,17 @@ export default function OrderDetailsPage({
       setLoading(false);
     }
   };
+    if (status === "unauthenticated") {
+      router.push("/login?redirect=/account/orders");
+      return;
+    }
+
+    if (status === "authenticated" && params.id) {
+      fetchOrder(params.id);
+    }
+  }, [status, params.id, router, toast]);
+
+ 
 
   const handleCancelOrder = async () => {
     if (!order) return;

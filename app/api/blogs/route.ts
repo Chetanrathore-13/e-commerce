@@ -13,7 +13,6 @@ export async function GET(request: Request) {
     const page = Number.parseInt(searchParams.get("page") || "1")
     const category = searchParams.get("category")
     const tag = searchParams.get("tag")
-    const showAll = searchParams.get("showAll") === "true"
 
     const skip = (page - 1) * limit
 

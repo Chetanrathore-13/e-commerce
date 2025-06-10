@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { PhonePeService } from "@/lib/services/phonepe"
 import Payment from "@/lib/models/payment"
-import Order from "@/lib/models/order"
+import {Order} from "@/lib/models/order"
 import { connectToDatabase } from "@/lib/mongodb"
 
 export async function POST(request: NextRequest) {
@@ -9,24 +9,29 @@ export async function POST(request: NextRequest) {
     await connectToDatabase()
 
     const body = await request.json()
+    console.log("PhonePe callback received:", body)
+
     const { response, checksum } = body
 
     if (!response || !checksum) {
+      console.error("Missing response or checksum in callback")
       return NextResponse.json({ error: "Invalid callback data" }, { status: 400 })
     }
 
     // Initialize PhonePe service
     const phonePeService = new PhonePeService()
 
-    // Verify callback
+    // Verify callback using PhonePe SDK
     const isValid = phonePeService.verifyCallback(response, checksum)
     if (!isValid) {
       console.error("PhonePe callback verification failed")
-      return NextResponse.json({ error: "Invalid callback" }, { status: 400 })
+      return NextResponse.json({ error: "Invalid callback signature" }, { status: 400 })
     }
 
     // Decode response
     const decodedResponse = JSON.parse(Buffer.from(response, "base64").toString())
+    console.log("Decoded PhonePe response:", decodedResponse)
+
     const { merchantTransactionId, transactionId, amount, state, responseCode } = decodedResponse
 
     // Find payment record
@@ -36,13 +41,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Payment record not found" }, { status: 404 })
     }
 
-    // Update payment status
+    // Update payment status based on PhonePe response
     let paymentStatus = "failed"
     let orderStatus = "pending"
 
     if (state === "COMPLETED" && responseCode === "SUCCESS") {
       paymentStatus = "completed"
-      orderStatus = "processing"
+      orderStatus = "confirmed"
     } else if (state === "FAILED") {
       paymentStatus = "failed"
       orderStatus = "cancelled"
@@ -57,6 +62,7 @@ export async function POST(request: NextRequest) {
       transactionId,
       phonepeResponse: decodedResponse,
       completedAt: paymentStatus === "completed" ? new Date() : null,
+      updatedAt: new Date(),
     })
 
     // Update order status
@@ -64,20 +70,26 @@ export async function POST(request: NextRequest) {
       await Order.findByIdAndUpdate(payment.orderId, {
         payment_status: paymentStatus === "completed" ? "paid" : "pending",
         status: orderStatus,
+        updatedAt: new Date(),
       })
     }
 
     console.log(`Payment ${merchantTransactionId} updated to ${paymentStatus}`)
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, status: paymentStatus })
   } catch (error) {
     console.error("PhonePe callback processing error:", error)
     return NextResponse.json(
       {
         success: false,
-        error: "Internal server error",
+        error: error instanceof Error ? error.message : "Internal server error",
       },
       { status: 500 },
     )
   }
+}
+
+// Handle GET requests for webhook verification
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ message: "PhonePe callback endpoint is active" })
 }

@@ -8,7 +8,7 @@ import { UserNav } from "@/components/user-nav";
 import { ResizableSidebar } from "@/components/resizable-sidebar";
 import { SidebarProvider } from "@/components/sidebar-context";
 import Link from "next/link";
-
+import Image from "next/image";
 export default async function DashboardLayout({
   children,
 }: {
@@ -28,7 +28,7 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-2">
               <MobileSidebar />
               <Link href="/dashboard" className="hidden sm:inline-block">
-                <img src="/Logo/Parpra.png" alt="Logo" className="h-16 w-16" />
+                <Image src="/Logo/Parpra.png" alt="Logo" className="h-16 w-16" />
               </Link>
               <Link href="/dashboard">
                 <span className="hidden font-bold sm:inline-block">

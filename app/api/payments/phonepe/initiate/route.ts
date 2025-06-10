@@ -18,8 +18,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { orderId, amount, mobileNumber } = body
 
+    console.log("PhonePe payment initiation request:", { orderId, amount, mobileNumber })
+
     if (!orderId || !amount) {
       return NextResponse.json({ error: "Order ID and amount are required" }, { status: 400 })
+    }
+
+    // Validate amount
+    if (amount <= 0) {
+      return NextResponse.json({ error: "Invalid amount" }, { status: 400 })
     }
 
     // Generate unique transaction ID
@@ -39,6 +46,7 @@ export async function POST(request: NextRequest) {
     })
 
     await payment.save()
+    console.log("Payment record created:", payment._id)
 
     // Initialize PhonePe service
     const phonePeService = new PhonePeService()
@@ -57,14 +65,19 @@ export async function POST(request: NextRequest) {
       },
     }
 
+    console.log("PhonePe payment request:", paymentRequest)
+
     // Initiate payment with PhonePe
     const response = await phonePeService.initiatePayment(paymentRequest)
 
+    console.log("PhonePe initiation response:", response)
+
     if (response.success) {
-      // Update payment record with transaction ID
+      // Update payment record with PhonePe response
       await Payment.findByIdAndUpdate(payment._id, {
         transactionId: response.data?.transactionId,
         phonepeResponse: response,
+        updatedAt: new Date(),
       })
 
       return NextResponse.json({
@@ -80,12 +93,14 @@ export async function POST(request: NextRequest) {
       await Payment.findByIdAndUpdate(payment._id, {
         status: "failed",
         phonepeResponse: response,
+        updatedAt: new Date(),
       })
 
       return NextResponse.json(
         {
           success: false,
           error: response.message || "Payment initiation failed",
+          code: response.code,
         },
         { status: 400 },
       )
@@ -95,7 +110,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "Internal server error",
+        error: error instanceof Error ? error.message : "Internal server error",
       },
       { status: 500 },
     )

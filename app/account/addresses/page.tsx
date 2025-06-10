@@ -26,23 +26,14 @@ interface Address {
 }
 
 export default function AddressesPage() {
-  const { data: session, status } = useSession()
+  const {  status } = useSession()
   const router = useRouter()
   const { toast } = useToast()
   const [addresses, setAddresses] = useState<Address[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login?redirect=/account/addresses")
-    }
-
-    if (status === "authenticated") {
-      fetchAddresses()
-    }
-  }, [status, router])
-
-  const fetchAddresses = async () => {
+    const fetchAddresses = async () => {
     try {
       const response = await fetch("/api/user/addresses")
       if (!response.ok) {
@@ -61,6 +52,16 @@ export default function AddressesPage() {
       setLoading(false)
     }
   }
+    if (status === "unauthenticated") {
+      router.push("/login?redirect=/account/addresses")
+    }
+
+    if (status === "authenticated") {
+      fetchAddresses()
+    }
+  }, [status, router, toast])
+
+  
 
   const handleAddAddress = () => {
     router.push("/account/addresses/new")

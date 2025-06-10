@@ -34,7 +34,7 @@ interface CartItem {
 
 export default function CartPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [subtotal, setSubtotal] = useState(0);
@@ -50,15 +50,7 @@ export default function CartPage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      // Redirect to login if not authenticated
-      setIsAuthModalOpen(true);
-    } else if (status === "authenticated") {
-      fetchCart();
-    }
-  }, [status]);
-
-  const fetchCart = async () => {
+    const fetchCart = async () => {
     setLoading(true);
     try {
       const response = await fetch("/api/cart");
@@ -79,6 +71,15 @@ export default function CartPage() {
       setLoading(false);
     }
   };
+    if (status === "unauthenticated") {
+      // Redirect to login if not authenticated
+      setIsAuthModalOpen(true);
+    } else if (status === "authenticated") {
+      fetchCart();
+    }
+  }, [status, toast]);
+
+  
 
   const calculateSubtotal = (items: CartItem[]) => {
     const total = items.reduce((sum, item) => {

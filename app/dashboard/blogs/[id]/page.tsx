@@ -89,7 +89,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
     } else if (status === "unauthenticated") {
       router.push("/login?redirect=/admin/blogs")
     }
-  }, [status, id, session?.user?.name])
+  }, [status, id, session?.user?.name, isNew, router])
 
   const fetchBlog = async () => {
     try {

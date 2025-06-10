@@ -9,7 +9,6 @@ import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import AuthPopup from "./auth-popup";
 
 interface Product {
@@ -46,7 +45,6 @@ export default function BestSellers({
   const [showAuthPopup, setShowAuthPopup] = useState(false);
 
   const { data: session } = useSession();
-  const router = useRouter();
   const { toast } = useToast();
 
   const checkScrollButtons = () => {

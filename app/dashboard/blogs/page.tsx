@@ -114,7 +114,7 @@ const formatDateTime = (
 };
 
 export default function BlogsAdminPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const { toast } = useToast();
 
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -130,14 +130,7 @@ export default function BlogsAdminPage() {
   const [blogToDelete, setBlogToDelete] = useState<Blog | null>(null);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      fetchBlogs();
-    } else if (status === "unauthenticated") {
-      window.location.href = "/login?redirect=/admin/blogs";
-    }
-  }, [status, pagination.page]);
-
-  const fetchBlogs = async () => {
+    const fetchBlogs = async () => {
     setIsLoading(true);
     try {
       const response = await fetch(
@@ -173,6 +166,14 @@ export default function BlogsAdminPage() {
       setIsLoading(false);
     }
   };
+    if (status === "authenticated") {
+      fetchBlogs();
+    } else if (status === "unauthenticated") {
+      window.location.href = "/login?redirect=/admin/blogs";
+    }
+  }, [status, pagination.page, pagination.limit, searchTerm, toast]);
+
+  
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

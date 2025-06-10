@@ -13,25 +13,25 @@ import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import UserAccountSidebar from "@/components/user-account-sidebar";
 
-interface Address {
-  _id: string;
-  full_name: string;
-  address_line1: string;
-  address_line2?: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  country: string;
-  phone: string;
-  is_default: boolean;
-}
+// interface Address {
+//   _id: string;
+//   full_name: string;
+//   address_line1: string;
+//   address_line2?: string;
+//   city: string;
+//   state: string;
+//   postal_code: string;
+//   country: string;
+//   phone: string;
+//   is_default: boolean;
+// }
 
 export default function EditAddressPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,16 +49,7 @@ export default function EditAddressPage({
   const [isDefault, setIsDefault] = useState(false);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push(`/login?redirect=/account/addresses/${params.id}`);
-    }
-
-    if (status === "authenticated") {
-      fetchAddress();
-    }
-  }, [status, router, params.id]);
-
-  const fetchAddress = async () => {
+    const fetchAddress = async () => {
     try {
       const response = await fetch(`/api/user/addresses/${params.id}`);
       if (!response.ok) {
@@ -88,6 +79,16 @@ export default function EditAddressPage({
       setLoading(false);
     }
   };
+    if (status === "unauthenticated") {
+      router.push(`/login?redirect=/account/addresses/${params.id}`);
+    }
+
+    if (status === "authenticated") {
+      fetchAddress();
+    }
+  }, [status, router, params.id, toast]);
+
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

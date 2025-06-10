@@ -37,7 +37,7 @@ export function BrandsFilter() {
     return () => {
       debouncedUpdateUrl.cancel()
     }
-  }, [name])
+  }, [name, debouncedUpdateUrl])
 
   const handleReset = () => {
     setName("")

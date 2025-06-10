@@ -72,14 +72,7 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
   }
 
   useEffect(() => {
-    fetchExistingSections()
-
-    if (!isNew) {
-      fetchSection()
-    }
-  }, [id, isNew])
-
-  const fetchExistingSections = async () => {
+    const fetchExistingSections = async () => {
     try {
       addLog("Fetching existing homepage sections...")
       const response = await fetch("/api/admin/homepage-sections")
@@ -102,6 +95,14 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
       addLog(`Error: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
+    fetchExistingSections()
+
+    if (!isNew) {
+      fetchSection()
+    }
+  }, [id, isNew])
+
+  
 
   const fetchSection = async () => {
     try {

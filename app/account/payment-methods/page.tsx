@@ -22,23 +22,14 @@ interface PaymentMethod {
 }
 
 export default function PaymentMethodsPage() {
-  const { data: session, status } = useSession();
+  const {  status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login?redirect=/account/payment-methods");
-    }
-
-    if (status === "authenticated") {
-      fetchPaymentMethods();
-    }
-  }, [status, router]);
-
-  const fetchPaymentMethods = async () => {
+    const fetchPaymentMethods = async () => {
     try {
       const response = await fetch("/api/user/payment-methods");
       if (!response.ok) {
@@ -57,6 +48,16 @@ export default function PaymentMethodsPage() {
       setLoading(false);
     }
   };
+    if (status === "unauthenticated") {
+      router.push("/login?redirect=/account/payment-methods");
+    }
+
+    if (status === "authenticated") {
+      fetchPaymentMethods();
+    }
+  }, [status, router, toast]);
+
+  
 
   const handleAddPaymentMethod = () => {
     router.push("/account/payment-methods/new");

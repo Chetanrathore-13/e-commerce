@@ -4,10 +4,7 @@ import Image from "next/image";
 import { ChevronRight, Users, Award, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import About from "@/public/aboutpage/80.jpg";
-import Prof1 from "@/public/aboutpage/21850.jpg";
-import Prof2 from "@/public/aboutpage/26982.jpg";
-import Prof3 from "@/public/aboutpage/60157.jpg";
-import Prof4 from "@/public/aboutpage/189532.jpg";
+import Link from "next/link";
 
 export default function AboutPageClient() {
   const fadeIn = {
@@ -19,13 +16,6 @@ export default function AboutPageClient() {
     <div className=" min-h-screen bg-gradient-to-b from-neutral-50 to-white w-full">
       {/* Hero Section */}
       <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
-        {/* <Image
-          src="/placeholder.svg?key=cdn2v"
-          alt="About Us Hero"
-          fill
-          className="object-cover brightness-75"
-          priority
-        /> */}
         <div className="absolute inset-0 bg-teal-900 to-transparent flex items-center">
           <div className="container mx-auto px-4">
             <motion.div
@@ -399,13 +389,13 @@ export default function AboutPageClient() {
                 Discover our latest collections and be part of our story as we
                 continue to celebrate the rich heritage of Indian fashion.
               </p>
-              <a
+              <Link
                 href="/products"
                 className="inline-flex items-center bg-white text-teal-700 font-medium px-6 py-3 rounded-full hover:bg-teal-50 transition-colors"
               >
                 Explore Our Collections
                 <ChevronRight className="ml-2 h-5 w-5" />
-              </a>
+              </Link>
             </div>
           </motion.section>
         </div>

@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectToDatabase } from "@/lib/mongodb"
-import Order from "@/lib/models/order"
+import { Order } from "@/lib/models/order"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {

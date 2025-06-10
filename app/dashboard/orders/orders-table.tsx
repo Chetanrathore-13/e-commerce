@@ -25,7 +25,7 @@ export function OrdersTable() {
 
   useEffect(() => {
     fetchOrders()
-  }, [page, statusFilter, sortField, sortDirection])
+  }, [page, statusFilter, sortField, sortDirection,])
 
   const fetchOrders = async () => {
     setLoading(true)

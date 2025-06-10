@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 import Link from "next/link"
 import {
   DropdownMenu,
@@ -36,7 +37,7 @@ export function UserNav({ user }: UserNavProps) {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
             {user.image ? (
-              <img src={user.image || "/placeholder.svg"} alt={user.name || "User"} className="h-full w-full" />
+              <Image src={user.image || "/placeholder.svg"} alt={user.name || "User"} className="h-full w-full" />
             ) : (
               <AvatarFallback>{initials}</AvatarFallback>
             )}

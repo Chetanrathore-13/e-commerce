@@ -39,7 +39,7 @@ export default function TestimonialsPage() {
 
   useEffect(() => {
     fetchTestimonials()
-  }, [])
+  }, [fetchTestimonials])
 
   const fetchTestimonials = async () => {
     try {

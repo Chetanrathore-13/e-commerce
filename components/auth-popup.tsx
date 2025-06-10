@@ -8,7 +8,7 @@ import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -261,9 +261,9 @@ export const AuthPopup = ({ onClose }: AuthPopupProps) => {
                         </FormControl>
                         <Label htmlFor="acceptTerms" className="text-sm">
                           I agree to the{" "}
-                          <a href="/terms" className="text-teal-600 hover:underline">
+                          <Link href="/terms" className="text-teal-600 hover:underline">
                             Terms & Conditions
-                          </a>
+                          </Link>
                         </Label>
                         <FormMessage />
                       </FormItem>

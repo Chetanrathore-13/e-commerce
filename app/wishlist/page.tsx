@@ -32,19 +32,14 @@ interface WishlistItem {
 }
 
 export default function WishlistPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      fetchWishlist();
-    }
-  }, [status, router]);
-
-  const fetchWishlist = async () => {
+    const fetchWishlist = async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/wishlist");
@@ -66,6 +61,12 @@ export default function WishlistPage() {
       setLoading(false);
     }
   };
+    if (status === "authenticated") {
+      fetchWishlist();
+    }
+  }, [status, router, toast]);
+
+  
 
   const removeFromWishlist = async (itemId: string) => {
     try {

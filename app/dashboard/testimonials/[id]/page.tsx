@@ -59,7 +59,7 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
     if (!isNew) {
       fetchTestimonial()
     }
-  }, [id, isNew])
+  }, [id, isNew, fetchTestimonial])
 
   const fetchTestimonial = async () => {
     try {

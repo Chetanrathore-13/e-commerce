@@ -93,7 +93,7 @@ export default function Testimonials({
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [])
+  }, [nextTestimonial])
 
   // Add useEffect to detect screen size
   useEffect(() => {

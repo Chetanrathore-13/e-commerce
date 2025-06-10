@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
+import Script from "next/script"
 import {
   ArrowLeft,
   Check,
@@ -17,7 +18,6 @@ import {
   AlertCircle,
   Truck,
   Banknote,
-  Smartphone,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,6 +31,13 @@ import { useToast } from "@/hooks/use-toast"
 import { useSession } from "next-auth/react"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useCallback } from "react"
+// Declare Razorpay global
+declare global {
+  interface Window {
+    Razorpay: any
+  }
+}
 
 interface CartItem {
   _id: string
@@ -118,6 +125,7 @@ export default function CheckoutPage() {
   const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(false)
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings | null>(null)
   const [loadingPaymentSettings, setLoadingPaymentSettings] = useState(false)
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false)
 
   // Coupon state
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null)
@@ -143,7 +151,7 @@ export default function CheckoutPage() {
   const [countryCode, setCountryCode] = useState("+91")
   const [mobileNumber, setMobileNumber] = useState("")
   const [sameAsBilling, setSameAsBilling] = useState(true)
-  const [paymentMethod, setPaymentMethod] = useState("phonepe")
+  const [paymentMethod, setPaymentMethod] = useState("razorpay")
   const [processingOrder, setProcessingOrder] = useState(false)
 
   // Credit card details
@@ -166,126 +174,126 @@ export default function CheckoutPage() {
         setEmail(session.user.email)
       }
     }
-  }, [status, router, session])
+  }, [status, router, session, fetchCart, fetchAddresses, fetchPaymentMethods, fetchPaymentSettings])
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
-      setLoading(true)
-      const response = await fetch("/api/cart")
+    setLoading(true)
+    const response = await fetch("/api/cart")
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch cart")
-      }
-
-      const data = await response.json()
-
-      if (!data.items || data.items.length === 0) {
-        router.push("/cart")
-        return
-      }
-
-      setCart(data)
-    } catch (error) {
-      console.error("Error fetching cart:", error)
-      toast({
-        title: "Error",
-        description: "Failed to load cart items",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
+    if (!response.ok) {
+      throw new Error("Failed to fetch cart")
     }
+
+    const data = await response.json()
+
+    if (!data.items || data.items.length === 0) {
+      router.push("/cart")
+      return
+    }
+
+    setCart(data)
+  } catch (error) {
+    console.error("Error fetching cart:", error)
+    toast({
+      title: "Error",
+      description: "Failed to load cart items",
+      variant: "destructive",
+    })
+  } finally {
+    setLoading(false)
   }
+}, [router, toast])
 
-  const fetchAddresses = async () => {
-    try {
-      setLoadingAddresses(true)
-      const response = await fetch("/api/user/addresses")
+const fetchAddresses = useCallback(async () => {
+  try {
+    setLoadingAddresses(true)
+    const response = await fetch("/api/user/addresses")
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch addresses")
+    if (!response.ok) {
+      throw new Error("Failed to fetch addresses")
+    }
+
+    const data = await response.json()
+    setAddresses(data.addresses || [])
+
+    // Select default address if available
+    const defaultAddress = data.addresses.find((addr: Address) => addr.is_default)
+    if (defaultAddress) {
+      setSelectedAddressId(defaultAddress._id)
+      // Pre-fill form with default address
+      setFirstName(defaultAddress.full_name.split(" ")[0] || "")
+      setLastName(defaultAddress.full_name.split(" ").slice(1).join(" ") || "")
+      setAddress(defaultAddress.address_line1)
+      setCity(defaultAddress.city)
+      setState(defaultAddress.state)
+      setZipcode(defaultAddress.postal_code)
+      setCountry(defaultAddress.country)
+      const phone = defaultAddress.phone.split(" ")
+      if (phone.length > 1) {
+        setCountryCode(phone[0])
+        setMobileNumber(phone[1])
+      } else {
+        setMobileNumber(defaultAddress.phone)
       }
+    }
+  } catch (error) {
+    console.error("Error fetching addresses:", error)
+  } finally {
+    setLoadingAddresses(false)
+  }
+}, [])
 
-      const data = await response.json()
-      setAddresses(data.addresses || [])
+const fetchPaymentMethods = useCallback(async () => {
+  try {
+    setLoadingPaymentMethods(true)
+    const response = await fetch("/api/user/payment-methods")
 
-      // Select default address if available
-      const defaultAddress = data.addresses.find((addr: Address) => addr.is_default)
-      if (defaultAddress) {
-        setSelectedAddressId(defaultAddress._id)
-        // Pre-fill form with default address
-        setFirstName(defaultAddress.full_name.split(" ")[0] || "")
-        setLastName(defaultAddress.full_name.split(" ").slice(1).join(" ") || "")
-        setAddress(defaultAddress.address_line1)
-        setCity(defaultAddress.city)
-        setState(defaultAddress.state)
-        setZipcode(defaultAddress.postal_code)
-        setCountry(defaultAddress.country)
-        const phone = defaultAddress.phone.split(" ")
-        if (phone.length > 1) {
-          setCountryCode(phone[0])
-          setMobileNumber(phone[1])
-        } else {
-          setMobileNumber(defaultAddress.phone)
+    if (!response.ok) {
+      throw new Error("Failed to fetch payment methods")
+    }
+
+    const data = await response.json()
+    setPaymentMethods(data.paymentMethods || [])
+
+    // Select default payment method if available
+    const defaultPaymentMethod = data.paymentMethods.find((method: PaymentMethod) => method.is_default)
+    if (defaultPaymentMethod) {
+      setSelectedPaymentMethodId(defaultPaymentMethod._id)
+      setPaymentMethod(defaultPaymentMethod.type)
+
+      if (defaultPaymentMethod.type === "credit-card") {
+        setCardNumber(defaultPaymentMethod.card_number || "")
+        setCardHolder(defaultPaymentMethod.card_holder_name || "")
+        if (defaultPaymentMethod.expiry_month && defaultPaymentMethod.expiry_year) {
+          setExpiryDate(`${defaultPaymentMethod.expiry_month}/${defaultPaymentMethod.expiry_year.slice(-2)}`)
         }
       }
-    } catch (error) {
-      console.error("Error fetching addresses:", error)
-    } finally {
-      setLoadingAddresses(false)
     }
+  } catch (error) {
+    console.error("Error fetching payment methods:", error)
+  } finally {
+    setLoadingPaymentMethods(false)
   }
+}, [])
 
-  const fetchPaymentMethods = async () => {
-    try {
-      setLoadingPaymentMethods(true)
-      const response = await fetch("/api/user/payment-methods")
+const fetchPaymentSettings = useCallback(async () => {
+  try {
+    setLoadingPaymentSettings(true)
+    const response = await fetch("/api/payment-settings")
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch payment methods")
-      }
-
-      const data = await response.json()
-      setPaymentMethods(data.paymentMethods || [])
-
-      // Select default payment method if available
-      const defaultPaymentMethod = data.paymentMethods.find((method: PaymentMethod) => method.is_default)
-      if (defaultPaymentMethod) {
-        setSelectedPaymentMethodId(defaultPaymentMethod._id)
-        setPaymentMethod(defaultPaymentMethod.type)
-
-        if (defaultPaymentMethod.type === "credit-card") {
-          setCardNumber(defaultPaymentMethod.card_number || "")
-          setCardHolder(defaultPaymentMethod.card_holder_name || "")
-          if (defaultPaymentMethod.expiry_month && defaultPaymentMethod.expiry_year) {
-            setExpiryDate(`${defaultPaymentMethod.expiry_month}/${defaultPaymentMethod.expiry_year.slice(-2)}`)
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching payment methods:", error)
-    } finally {
-      setLoadingPaymentMethods(false)
+    if (!response.ok) {
+      throw new Error("Failed to fetch payment settings")
     }
+
+    const data = await response.json()
+    setPaymentSettings(data)
+  } catch (error) {
+    console.error("Error fetching payment settings:", error)
+  } finally {
+    setLoadingPaymentSettings(false)
   }
-
-  const fetchPaymentSettings = async () => {
-    try {
-      setLoadingPaymentSettings(true)
-      const response = await fetch("/api/payment-settings")
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch payment settings")
-      }
-
-      const data = await response.json()
-      setPaymentSettings(data)
-    } catch (error) {
-      console.error("Error fetching payment settings:", error)
-    } finally {
-      setLoadingPaymentSettings(false)
-    }
-  }
+}, [])
 
   const validateCoupon = async (code: string) => {
     if (!code) return
@@ -527,12 +535,21 @@ export default function CheckoutPage() {
     return orderTotal >= paymentSettings.cod_min_order_value && orderTotal <= paymentSettings.cod_max_order_value
   }
 
-  const handlePhonePePayment = async (orderId: string) => {
+  const handleRazorpayPayment = async (orderId: string) => {
     try {
-      const finalTotal = (cart?.total || 0) - discountAmount
-      const userMobile = mobileNumber || session?.user?.phone || ""
+      if (!razorpayLoaded) {
+        toast({
+          title: "Error",
+          description: "Razorpay is still loading. Please try again.",
+          variant: "destructive",
+        })
+        return
+      }
 
-      const response = await fetch("/api/payments/phonepe/initiate", {
+      const finalTotal = (cart?.total || 0) - discountAmount
+
+      // Create Razorpay order
+      const response = await fetch("/api/payments/razorpay/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -540,25 +557,83 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           orderId,
           amount: finalTotal,
-          mobileNumber: userMobile,
         }),
       })
 
       const data = await response.json()
 
-      if (data.success && data.data.paymentUrl) {
-        // Redirect to PhonePe payment page
-        window.location.href = data.data.paymentUrl
-      } else {
-        throw new Error(data.error || "Failed to initiate PhonePe payment")
+      if (!data.success) {
+        throw new Error(data.error || "Failed to create Razorpay order")
       }
+
+      // Configure Razorpay options
+      const options = {
+        key: data.data.key,
+        amount: data.data.amount,
+        currency: data.data.currency,
+        name: data.data.name,
+        description: data.data.description,
+        image: data.data.image,
+        order_id: data.data.orderId,
+        prefill: data.data.prefill,
+        theme: data.data.theme,
+        handler: async (response: any) => {
+          try {
+            // Verify payment
+            const verifyResponse = await fetch("/api/payments/razorpay/verify", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            })
+
+            const verifyData = await verifyResponse.json()
+
+            if (verifyData.success) {
+              toast({
+                variant: "success",
+                title: "Payment Successful!",
+                description: "Your order has been placed successfully.",
+              })
+
+              // Redirect to order confirmation page
+              router.push(`/account/orders/${verifyData.data.orderId}`)
+            } else {
+              throw new Error(verifyData.error || "Payment verification failed")
+            }
+          } catch (error) {
+            console.error("Payment verification error:", error)
+            toast({
+              title: "Payment Verification Failed",
+              description: error instanceof Error ? error.message : "Please contact support",
+              variant: "destructive",
+            })
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            console.log("Razorpay modal dismissed")
+            setProcessingOrder(false)
+          },
+        },
+      }
+
+      // Open Razorpay checkout
+      const rzp = new window.Razorpay(options)
+      rzp.open()
     } catch (error) {
-      console.error("PhonePe payment error:", error)
+      console.error("Razorpay payment error:", error)
       toast({
         title: "Payment Error",
-        description: error instanceof Error ? error.message : "Failed to initiate PhonePe payment",
+        description: error instanceof Error ? error.message : "Failed to initiate Razorpay payment",
         variant: "destructive",
       })
+      setProcessingOrder(false)
     }
   }
 
@@ -597,7 +672,7 @@ export default function CheckoutPage() {
     }
 
     // Validate payment details if using new payment method
-    if (paymentMethod !== "cod" && paymentMethod !== "phonepe" && (newPaymentMode || paymentMethods.length === 0)) {
+    if (paymentMethod !== "cod" && paymentMethod !== "razorpay" && (newPaymentMode || paymentMethods.length === 0)) {
       if (paymentMethod === "credit-card" && (!cardNumber || !expiryDate || !cardHolder)) {
         toast({
           title: "Error",
@@ -646,9 +721,9 @@ export default function CheckoutPage() {
       if (paymentMethod === "cod") {
         selectedPaymentType = "cod"
       }
-      // If using PhonePe
-      else if (paymentMethod === "phonepe") {
-        selectedPaymentType = "phonepe"
+      // If using Razorpay
+      else if (paymentMethod === "razorpay") {
+        selectedPaymentType = "razorpay"
       }
       // If using a saved payment method
       else if (selectedPaymentMethodId && selectedPaymentMethodId !== "new" && !newPaymentMode) {
@@ -763,9 +838,9 @@ export default function CheckoutPage() {
         }
       }
 
-      // Handle PhonePe payment
-      if (paymentMethod === "phonepe") {
-        await handlePhonePePayment(data.order._id)
+      // Handle Razorpay payment
+      if (paymentMethod === "razorpay") {
+        await handleRazorpayPayment(data.order._id)
         return // Don't show success message yet, wait for payment completion
       }
 
@@ -818,338 +893,93 @@ export default function CheckoutPage() {
   const finalTotal = subtotal - discountAmount + shipping
 
   return (
-    <div className="bg-neutral-50 min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <Link href="/" className="flex items-center justify-center">
-            <Image src="/parpra-logo.png" alt="PARPRA" width={180} height={60} />
-          </Link>
-          <div className="hidden md:flex items-center">
-            <Link href="/cart" className="text-gray-600 hover:text-teal-700 flex items-center">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to cart
+    <>
+      {/* Load Razorpay Script */}
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        onLoad={() => {
+          console.log("Razorpay script loaded")
+          setRazorpayLoaded(true)
+        }}
+        onError={() => {
+          console.error("Failed to load Razorpay script")
+          toast({
+            title: "Payment Error",
+            description: "Failed to load payment gateway. Please refresh the page.",
+            variant: "destructive",
+          })
+        }}
+      />
+
+      <div className="bg-neutral-50 min-h-screen py-8">
+        <div className="container mx-auto px-4">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <Link href="/" className="flex items-center justify-center">
+              <Image src="/parpra-logo.png" alt="PARPRA" width={180} height={60} />
             </Link>
+            <div className="hidden md:flex items-center">
+              <Link href="/cart" className="text-gray-600 hover:text-teal-700 flex items-center">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to cart
+              </Link>
+            </div>
           </div>
-        </div>
 
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-light">Secure Checkout</h1>
-          <Separator className="my-4" />
-        </div>
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-light">Secure Checkout</h1>
+            <Separator className="my-4" />
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Checkout Form */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit}>
-              {/* Contact Information */}
-              <div className="bg-white p-6 rounded-md shadow-sm mb-6">
-                <h2 className="text-xl font-medium mb-4">Contact Information</h2>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  </div>
-                </div>
-              </div>
-
-              {/* Shipping Information */}
-              <div className="bg-white p-6 rounded-md shadow-sm mb-6">
-                <h2 className="text-xl font-medium mb-4">Shipping Information</h2>
-                <div className="bg-teal-50 p-4 border border-teal-200 rounded-md mb-4 flex items-center">
-                  <div className="mr-3 bg-teal-700 rounded-full p-1">
-                    <Check className="h-4 w-4 text-white" />
-                  </div>
-                  <p className="text-sm">Unlocking Global Shopping With Free Worldwide Shipping!</p>
-                </div>
-
-                {/* Saved Addresses */}
-                {addresses.length > 0 && !newAddressMode && (
-                  <div className="mb-6">
-                    <Label htmlFor="savedAddress" className="mb-2 block">
-                      Select a Saved Address
-                    </Label>
-                    <Select value={selectedAddressId} onValueChange={handleAddressChange}>
-                      <SelectTrigger id="savedAddress">
-                        <SelectValue placeholder="Select an address" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {addresses.map((addr) => (
-                          <SelectItem key={addr._id} value={addr._id}>
-                            <div className="flex items-center">
-                              <span>
-                                {addr.full_name} - {addr.address_line1}, {addr.city}
-                              </span>
-                              {addr.is_default && (
-                                <Badge variant="outline" className="ml-2">
-                                  Default
-                                </Badge>
-                              )}
-                            </div>
-                          </SelectItem>
-                        ))}
-                        <SelectItem value="new">
-                          <div className="flex items-center text-teal-700">
-                            <PlusCircle className="h-4 w-4 mr-2" />
-                            <span>Add New Address</span>
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {/* New Address Form */}
-                {(newAddressMode || addresses.length === 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Checkout Form */}
+            <div className="lg:col-span-2">
+              <form onSubmit={handleSubmit}>
+                {/* Contact Information */}
+                <div className="bg-white p-6 rounded-md shadow-sm mb-6">
+                  <h2 className="text-xl font-medium mb-4">Contact Information</h2>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name *</Label>
-                        <Input
-                          id="firstName"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName">Last Name *</Label>
-                        <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-                      </div>
-                    </div>
                     <div>
-                      <Label htmlFor="address">Address *</Label>
-                      <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="country">Country *</Label>
-                        <Select value={country} onValueChange={setCountry}>
-                          <SelectTrigger id="country">
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="India">India</SelectItem>
-                            <SelectItem value="United States">United States</SelectItem>
-                            <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                            <SelectItem value="Canada">Canada</SelectItem>
-                            <SelectItem value="Australia">Australia</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="state">State/Province *</Label>
-                        <Input id="state" value={state} onChange={(e) => setState(e.target.value)} required />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="city">City *</Label>
-                        <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} required />
-                      </div>
-                      <div>
-                        <Label htmlFor="zipcode">Zipcode *</Label>
-                        <Input id="zipcode" value={zipcode} onChange={(e) => setZipcode(e.target.value)} required />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-4 gap-4">
-                      <div>
-                        <Label htmlFor="countryCode">Code *</Label>
-                        <Select value={countryCode} onValueChange={setCountryCode}>
-                          <SelectTrigger id="countryCode">
-                            <SelectValue placeholder="Code" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="+91">+91</SelectItem>
-                            <SelectItem value="+1">+1</SelectItem>
-                            <SelectItem value="+44">+44</SelectItem>
-                            <SelectItem value="+61">+61</SelectItem>
-                            <SelectItem value="+81">+81</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="col-span-3">
-                        <Label htmlFor="mobileNumber">Mobile No. *</Label>
-                        <Input
-                          id="mobileNumber"
-                          value={mobileNumber}
-                          onChange={(e) => setMobileNumber(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {newAddressMode && (
-                      <div className="flex justify-end gap-2 mt-4">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            setNewAddressMode(false)
-                            if (addresses.length > 0 && selectedAddressId) {
-                              handleAddressChange(selectedAddressId)
-                            }
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button type="button" onClick={saveNewAddress}>
-                          Save Address
-                        </Button>
-                      </div>
-                    )}
                   </div>
-                )}
-
-                <div className="flex items-center space-x-2 mt-4">
-                  <Checkbox
-                    id="sameAsBilling"
-                    checked={sameAsBilling}
-                    onCheckedChange={(checked) => setSameAsBilling(checked as boolean)}
-                  />
-                  <label
-                    htmlFor="sameAsBilling"
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    My Billing Address Is Same As My Shipping Address
-                  </label>
                 </div>
-              </div>
 
-              {/* Payment Method */}
-              <div className="bg-white p-6 rounded-md shadow-sm mb-6">
-                <h2 className="text-xl font-medium mb-4">Payment Method</h2>
-
-                {/* Payment Method Selection */}
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="mb-6">
-                  <div className="space-y-4">
-                    {/* PhonePe Option */}
-                    <div
-                      className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "phonepe" ? "border-purple-500 bg-purple-50" : ""}`}
-                    >
-                      <RadioGroupItem value="phonepe" id="phonepe" />
-                      <Label htmlFor="phonepe" className="flex items-center cursor-pointer">
-                        <Smartphone className="h-5 w-5 mr-2 text-purple-600" />
-                        PhonePe
-                      </Label>
+                {/* Shipping Information */}
+                <div className="bg-white p-6 rounded-md shadow-sm mb-6">
+                  <h2 className="text-xl font-medium mb-4">Shipping Information</h2>
+                  <div className="bg-teal-50 p-4 border border-teal-200 rounded-md mb-4 flex items-center">
+                    <div className="mr-3 bg-teal-700 rounded-full p-1">
+                      <Check className="h-4 w-4 text-white" />
                     </div>
-
-                    {/* Cash on Delivery Option */}
-                    {isCodAvailable() && (
-                      <div
-                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "cod" ? "border-teal-500 bg-teal-50" : ""}`}
-                      >
-                        <RadioGroupItem value="cod" id="cod" />
-                        <Label htmlFor="cod" className="flex items-center cursor-pointer">
-                          <Banknote className="h-5 w-5 mr-2 text-teal-700" />
-                          Cash on Delivery (COD)
-                        </Label>
-                      </div>
-                    )}
-
-                    {/* Credit Card Option */}
-                    {paymentSettings?.online_payment_enabled && (
-                      <div
-                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "credit-card" ? "border-teal-500 bg-teal-50" : ""}`}
-                      >
-                        <RadioGroupItem value="credit-card" id="credit-card" />
-                        <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
-                          <CreditCard className="h-5 w-5 mr-2" />
-                          Credit/Debit Card
-                        </Label>
-                      </div>
-                    )}
-
-                    {/* PayPal Option */}
-                    {paymentSettings?.paypal_enabled && (
-                      <div
-                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "paypal" ? "border-teal-500 bg-teal-50" : ""}`}
-                      >
-                        <RadioGroupItem value="paypal" id="paypal" />
-                        <Label htmlFor="paypal" className="flex items-center cursor-pointer">
-                          <PaypalLogo className="h-5 w-5 mr-2" />
-                          PayPal
-                        </Label>
-                      </div>
-                    )}
-
-                    {/* Bank Transfer Option */}
-                    {paymentSettings?.bank_transfer_enabled && (
-                      <div
-                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "bank-transfer" ? "border-teal-500 bg-teal-50" : ""}`}
-                      >
-                        <RadioGroupItem value="bank-transfer" id="bank-transfer" />
-                        <Label htmlFor="bank-transfer" className="flex items-center cursor-pointer">
-                          <Truck className="h-5 w-5 mr-2" />
-                          Bank Transfer
-                        </Label>
-                      </div>
-                    )}
+                    <p className="text-sm">Unlocking Global Shopping With Free Worldwide Shipping!</p>
                   </div>
-                </RadioGroup>
 
-                {/* PhonePe Information */}
-                {paymentMethod === "phonepe" && (
-                  <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-md">
-                    <h3 className="font-medium text-purple-800 mb-2">PhonePe Payment Information</h3>
-                    <p className="text-sm text-purple-700 mb-2">
-                      Pay securely using PhonePe - India's most trusted digital payment platform.
-                    </p>
-                    <ul className="text-xs text-purple-600 list-disc list-inside space-y-1">
-                      <li>Supports UPI, Credit/Debit Cards, Net Banking, and Wallets</li>
-                      <li>Instant payment confirmation and receipt</li>
-                      <li>Bank-level security with 256-bit SSL encryption</li>
-                      <li>No additional charges for UPI payments</li>
-                    </ul>
-                  </div>
-                )}
-
-                {/* COD Information */}
-                {paymentMethod === "cod" && (
-                  <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
-                    <h3 className="font-medium text-amber-800 mb-2">Cash on Delivery Information</h3>
-                    <p className="text-sm text-amber-700 mb-2">
-                      Pay with cash when your order is delivered to your doorstep.
-                    </p>
-                    <ul className="text-xs text-amber-600 list-disc list-inside space-y-1">
-                      <li>Please keep the exact amount ready for a smooth delivery experience</li>
-                      <li>Our delivery partner will provide a receipt upon payment</li>
-                      <li>
-                        COD is available for orders between ₹
-                        {paymentSettings?.cod_min_order_value.toLocaleString("en-IN")} and ₹
-                        {paymentSettings?.cod_max_order_value.toLocaleString("en-IN")}
-                      </li>
-                    </ul>
-                  </div>
-                )}
-
-                {/* Saved Payment Methods */}
-                {paymentMethod !== "cod" &&
-                  paymentMethod !== "phonepe" &&
-                  paymentMethods.length > 0 &&
-                  !newPaymentMode && (
+                  {/* Saved Addresses */}
+                  {addresses.length > 0 && !newAddressMode && (
                     <div className="mb-6">
-                      <Label htmlFor="savedPayment" className="mb-2 block">
-                        Select a Saved Payment Method
+                      <Label htmlFor="savedAddress" className="mb-2 block">
+                        Select a Saved Address
                       </Label>
-                      <Select value={selectedPaymentMethodId} onValueChange={handlePaymentMethodChange}>
-                        <SelectTrigger id="savedPayment">
-                          <SelectValue placeholder="Select a payment method" />
+                      <Select value={selectedAddressId} onValueChange={handleAddressChange}>
+                        <SelectTrigger id="savedAddress">
+                          <SelectValue placeholder="Select an address" />
                         </SelectTrigger>
                         <SelectContent>
-                          {paymentMethods.map((method) => (
-                            <SelectItem key={method._id} value={method._id}>
+                          {addresses.map((addr) => (
+                            <SelectItem key={addr._id} value={addr._id}>
                               <div className="flex items-center">
-                                {method.type === "credit-card" && <CreditCard className="h-4 w-4 mr-2" />}
-                                {method.type === "paypal" && <PaypalLogo className="h-4 w-4 mr-2" />}
                                 <span>
-                                  {method.type === "credit-card"
-                                    ? `Card ending in ${method.card_number?.slice(-4)}`
-                                    : method.type
-                                      ? method.type.charAt(0).toUpperCase() + method.type.slice(1)
-                                      : "Unknown"}
+                                  {addr.full_name} - {addr.address_line1}, {addr.city}
                                 </span>
-                                {method.is_default && (
+                                {addr.is_default && (
                                   <Badge variant="outline" className="ml-2">
                                     Default
                                   </Badge>
@@ -1160,7 +990,7 @@ export default function CheckoutPage() {
                           <SelectItem value="new">
                             <div className="flex items-center text-teal-700">
                               <PlusCircle className="h-4 w-4 mr-2" />
-                              <span>Add New Payment Method</span>
+                              <span>Add New Address</span>
                             </div>
                           </SelectItem>
                         </SelectContent>
@@ -1168,229 +998,515 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                {/* New Payment Method Form */}
-                {paymentMethod !== "cod" &&
-                  paymentMethod !== "phonepe" &&
-                  (newPaymentMode || paymentMethods.length === 0) && (
-                    <>
-                      {paymentMethod === "credit-card" && (
-                        <div className="mt-4 space-y-4 p-4 border rounded-md">
-                          <div>
-                            <Label htmlFor="cardNumber">Card Number</Label>
-                            <Input
-                              id="cardNumber"
-                              placeholder="1234 5678 9012 3456"
-                              value={cardNumber}
-                              onChange={(e) => setCardNumber(e.target.value)}
-                            />
-                          </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <Label htmlFor="expiryDate">Expiry Date</Label>
-                              <Input
-                                id="expiryDate"
-                                placeholder="MM/YY"
-                                value={expiryDate}
-                                onChange={(e) => setExpiryDate(e.target.value)}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="cvv">CVV</Label>
-                              <Input id="cvv" placeholder="123" value={cvv} onChange={(e) => setCvv(e.target.value)} />
-                            </div>
-                          </div>
-                          <div>
-                            <Label htmlFor="nameOnCard">Name on Card</Label>
-                            <Input id="nameOnCard" value={cardHolder} onChange={(e) => setCardHolder(e.target.value)} />
-                          </div>
+                  {/* New Address Form */}
+                  {(newAddressMode || addresses.length === 0) && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="firstName">First Name *</Label>
+                          <Input
+                            id="firstName"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            required
+                          />
                         </div>
-                      )}
+                        <div>
+                          <Label htmlFor="lastName">Last Name *</Label>
+                          <Input
+                            id="lastName"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="address">Address *</Label>
+                        <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="country">Country *</Label>
+                          <Select value={country} onValueChange={setCountry}>
+                            <SelectTrigger id="country">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="India">India</SelectItem>
+                              <SelectItem value="United States">United States</SelectItem>
+                              <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                              <SelectItem value="Canada">Canada</SelectItem>
+                              <SelectItem value="Australia">Australia</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="state">State/Province *</Label>
+                          <Input id="state" value={state} onChange={(e) => setState(e.target.value)} required />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="city">City *</Label>
+                          <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} required />
+                        </div>
+                        <div>
+                          <Label htmlFor="zipcode">Zipcode *</Label>
+                          <Input id="zipcode" value={zipcode} onChange={(e) => setZipcode(e.target.value)} required />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-4 gap-4">
+                        <div>
+                          <Label htmlFor="countryCode">Code *</Label>
+                          <Select value={countryCode} onValueChange={setCountryCode}>
+                            <SelectTrigger id="countryCode">
+                              <SelectValue placeholder="Code" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="+91">+91</SelectItem>
+                              <SelectItem value="+1">+1</SelectItem>
+                              <SelectItem value="+44">+44</SelectItem>
+                              <SelectItem value="+61">+61</SelectItem>
+                              <SelectItem value="+81">+81</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="col-span-3">
+                          <Label htmlFor="mobileNumber">Mobile No. *</Label>
+                          <Input
+                            id="mobileNumber"
+                            value={mobileNumber}
+                            onChange={(e) => setMobileNumber(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
 
-                      {newPaymentMode && (
+                      {newAddressMode && (
                         <div className="flex justify-end gap-2 mt-4">
                           <Button
                             type="button"
                             variant="outline"
                             onClick={() => {
-                              setNewPaymentMode(false)
-                              if (paymentMethods.length > 0 && selectedPaymentMethodId) {
-                                handlePaymentMethodChange(selectedPaymentMethodId)
+                              setNewAddressMode(false)
+                              if (addresses.length > 0 && selectedAddressId) {
+                                handleAddressChange(selectedAddressId)
                               }
                             }}
                           >
                             Cancel
                           </Button>
-                          <Button type="button" onClick={saveNewPaymentMethod}>
-                            Save Payment Method
+                          <Button type="button" onClick={saveNewAddress}>
+                            Save Address
                           </Button>
                         </div>
                       )}
-                    </>
+                    </div>
                   )}
 
-                <div className="mt-6 text-xs text-gray-500 flex items-center">
-                  <Lock className="h-4 w-4 mr-1 text-green-600" />
-                  Your payment information is secure and encrypted
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className={`w-full text-lg py-6 ${
-                  paymentMethod === "phonepe" ? "bg-purple-600 hover:bg-purple-700" : "bg-teal-700 hover:bg-teal-800"
-                }`}
-                disabled={processingOrder}
-              >
-                {processingOrder
-                  ? "Processing..."
-                  : paymentMethod === "phonepe"
-                    ? `Pay with PhonePe - ₹${finalTotal.toLocaleString("en-IN")}`
-                    : `Place Order - ₹${finalTotal.toLocaleString("en-IN")}`}
-              </Button>
-            </form>
-          </div>
-
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white p-6 rounded-md shadow-sm sticky top-20">
-              <h2 className="text-xl font-medium mb-6">Order Summary</h2>
-
-              {/* Mobile Order Details Toggle */}
-              <div className="lg:hidden mb-6">
-                <Button
-                  variant="outline"
-                  className="w-full flex justify-between"
-                  onClick={() => setIsOrderDetailsOpen(!isOrderDetailsOpen)}
-                >
-                  <span>Order Details ({cartItems.length} items)</span>
-                  <span>{isOrderDetailsOpen ? "−" : "+"}</span>
-                </Button>
-              </div>
-
-              {/* Order Items - Mobile Collapsible / Desktop Always Visible */}
-              <div
-                className={`${isOrderDetailsOpen ? "block" : "hidden"} lg:block space-y-4 max-h-80 overflow-y-auto mb-6`}
-              >
-                {cartItems.map((item) => (
-                  <div key={item._id} className="flex gap-4">
-                    <div className="relative h-24 w-24 rounded-md overflow-hidden flex-shrink-0">
-                      <Image
-                        src={item.variation.image || "/placeholder.svg"}
-                        alt={item.product.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-sm font-medium line-clamp-2">{item.product.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        Size: {item.variation.size}, Color: {item.variation.color}
-                      </p>
-                      <div className="flex justify-between mt-2">
-                        <span className="text-sm">Qty: {item.quantity}</span>
-                        <span className="font-medium">₹{item.price.toLocaleString("en-IN")}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Promo Code */}
-              <div className="mb-6">
-                <p className="font-medium mb-2">PROMOCODE?</p>
-                <div className="flex">
-                  <Input
-                    type="text"
-                    placeholder="Enter coupon code here"
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                    className="rounded-r-none"
-                    disabled={!!appliedCoupon}
-                  />
-                  {appliedCoupon ? (
-                    <Button className="rounded-l-none bg-red-600 hover:bg-red-700" onClick={removeCoupon}>
-                      Remove
-                    </Button>
-                  ) : (
-                    <Button
-                      className="rounded-l-none bg-teal-700 hover:bg-teal-800"
-                      onClick={applyPromoCode}
-                      disabled={!promoCode || applyingCoupon}
+                  <div className="flex items-center space-x-2 mt-4">
+                    <Checkbox
+                      id="sameAsBilling"
+                      checked={sameAsBilling}
+                      onCheckedChange={(checked) => setSameAsBilling(checked as boolean)}
+                    />
+                    <label
+                      htmlFor="sameAsBilling"
+                      className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
-                      {applyingCoupon ? "Applying..." : "Apply"}
-                    </Button>
+                      My Billing Address Is Same As My Shipping Address
+                    </label>
+                  </div>
+                </div>
+
+                {/* Payment Method */}
+                <div className="bg-white p-6 rounded-md shadow-sm mb-6">
+                  <h2 className="text-xl font-medium mb-4">Payment Method</h2>
+
+                  {/* Payment Method Selection */}
+                  <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="mb-6">
+                    <div className="space-y-4">
+                      {/* Razorpay Option */}
+                      <div
+                        className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "razorpay" ? "border-blue-500 bg-blue-50" : ""}`}
+                      >
+                        <RadioGroupItem value="razorpay" id="razorpay" />
+                        <Label htmlFor="razorpay" className="flex items-center cursor-pointer">
+                          <CreditCard className="h-5 w-5 mr-2 text-blue-600" />
+                          Razorpay (Cards, UPI, Wallets, Net Banking)
+                        </Label>
+                      </div>
+
+                      {/* Cash on Delivery Option */}
+                      {isCodAvailable() && (
+                        <div
+                          className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "cod" ? "border-teal-500 bg-teal-50" : ""}`}
+                        >
+                          <RadioGroupItem value="cod" id="cod" />
+                          <Label htmlFor="cod" className="flex items-center cursor-pointer">
+                            <Banknote className="h-5 w-5 mr-2 text-teal-700" />
+                            Cash on Delivery (COD)
+                          </Label>
+                        </div>
+                      )}
+
+                      {/* Credit Card Option */}
+                      {paymentSettings?.online_payment_enabled && (
+                        <div
+                          className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "credit-card" ? "border-teal-500 bg-teal-50" : ""}`}
+                        >
+                          <RadioGroupItem value="credit-card" id="credit-card" />
+                          <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
+                            <CreditCard className="h-5 w-5 mr-2" />
+                            Credit/Debit Card
+                          </Label>
+                        </div>
+                      )}
+
+                      {/* PayPal Option */}
+                      {paymentSettings?.paypal_enabled && (
+                        <div
+                          className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "paypal" ? "border-teal-500 bg-teal-50" : ""}`}
+                        >
+                          <RadioGroupItem value="paypal" id="paypal" />
+                          <Label htmlFor="paypal" className="flex items-center cursor-pointer">
+                            <PaypalLogo className="h-5 w-5 mr-2" />
+                            PayPal
+                          </Label>
+                        </div>
+                      )}
+
+                      {/* Bank Transfer Option */}
+                      {paymentSettings?.bank_transfer_enabled && (
+                        <div
+                          className={`flex items-center space-x-2 border rounded-md p-4 ${paymentMethod === "bank-transfer" ? "border-teal-500 bg-teal-50" : ""}`}
+                        >
+                          <RadioGroupItem value="bank-transfer" id="bank-transfer" />
+                          <Label htmlFor="bank-transfer" className="flex items-center cursor-pointer">
+                            <Truck className="h-5 w-5 mr-2" />
+                            Bank Transfer
+                          </Label>
+                        </div>
+                      )}
+                    </div>
+                  </RadioGroup>
+
+                  {/* Razorpay Information */}
+                  {paymentMethod === "razorpay" && (
+                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                      <h3 className="font-medium text-blue-800 mb-2">Razorpay Payment Information</h3>
+                      <p className="text-sm text-blue-700 mb-2">
+                        Pay securely using Razorpay - India's leading payment gateway trusted by millions.
+                      </p>
+                      <ul className="text-xs text-blue-600 list-disc list-inside space-y-1">
+                        <li>Supports Credit/Debit Cards, UPI, Net Banking, and Digital Wallets</li>
+                        <li>Instant payment confirmation and receipt</li>
+                        <li>Bank-level security with 256-bit SSL encryption</li>
+                        <li>No additional charges for most payment methods</li>
+                        <li>Easy refunds and customer support</li>
+                      </ul>
+                      {!razorpayLoaded && <div className="mt-2 text-xs text-amber-600">Loading payment gateway...</div>}
+                    </div>
+                  )}
+
+                  {/* COD Information */}
+                  {paymentMethod === "cod" && (
+                    <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+                      <h3 className="font-medium text-amber-800 mb-2">Cash on Delivery Information</h3>
+                      <p className="text-sm text-amber-700 mb-2">
+                        Pay with cash when your order is delivered to your doorstep.
+                      </p>
+                      <ul className="text-xs text-amber-600 list-disc list-inside space-y-1">
+                        <li>Please keep the exact amount ready for a smooth delivery experience</li>
+                        <li>Our delivery partner will provide a receipt upon payment</li>
+                        <li>
+                          COD is available for orders between ₹
+                          {paymentSettings?.cod_min_order_value.toLocaleString("en-IN")} and ₹
+                          {paymentSettings?.cod_max_order_value.toLocaleString("en-IN")}
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Saved Payment Methods */}
+                  {paymentMethod !== "cod" &&
+                    paymentMethod !== "razorpay" &&
+                    paymentMethods.length > 0 &&
+                    !newPaymentMode && (
+                      <div className="mb-6">
+                        <Label htmlFor="savedPayment" className="mb-2 block">
+                          Select a Saved Payment Method
+                        </Label>
+                        <Select value={selectedPaymentMethodId} onValueChange={handlePaymentMethodChange}>
+                          <SelectTrigger id="savedPayment">
+                            <SelectValue placeholder="Select a payment method" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {paymentMethods.map((method) => (
+                              <SelectItem key={method._id} value={method._id}>
+                                <div className="flex items-center">
+                                  {method.type === "credit-card" && <CreditCard className="h-4 w-4 mr-2" />}
+                                  {method.type === "paypal" && <PaypalLogo className="h-4 w-4 mr-2" />}
+                                  <span>
+                                    {method.type === "credit-card"
+                                      ? `Card ending in ${method.card_number?.slice(-4)}`
+                                      : method.type
+                                        ? method.type.charAt(0).toUpperCase() + method.type.slice(1)
+                                        : "Unknown"}
+                                  </span>
+                                  {method.is_default && (
+                                    <Badge variant="outline" className="ml-2">
+                                      Default
+                                    </Badge>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="new">
+                              <div className="flex items-center text-teal-700">
+                                <PlusCircle className="h-4 w-4 mr-2" />
+                                <span>Add New Payment Method</span>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                  {/* New Payment Method Form */}
+                  {paymentMethod !== "cod" &&
+                    paymentMethod !== "razorpay" &&
+                    (newPaymentMode || paymentMethods.length === 0) && (
+                      <>
+                        {paymentMethod === "credit-card" && (
+                          <div className="mt-4 space-y-4 p-4 border rounded-md">
+                            <div>
+                              <Label htmlFor="cardNumber">Card Number</Label>
+                              <Input
+                                id="cardNumber"
+                                placeholder="1234 5678 9012 3456"
+                                value={cardNumber}
+                                onChange={(e) => setCardNumber(e.target.value)}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="expiryDate">Expiry Date</Label>
+                                <Input
+                                  id="expiryDate"
+                                  placeholder="MM/YY"
+                                  value={expiryDate}
+                                  onChange={(e) => setExpiryDate(e.target.value)}
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="cvv">CVV</Label>
+                                <Input
+                                  id="cvv"
+                                  placeholder="123"
+                                  value={cvv}
+                                  onChange={(e) => setCvv(e.target.value)}
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label htmlFor="nameOnCard">Name on Card</Label>
+                              <Input
+                                id="nameOnCard"
+                                value={cardHolder}
+                                onChange={(e) => setCardHolder(e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {newPaymentMode && (
+                          <div className="flex justify-end gap-2 mt-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => {
+                                setNewPaymentMode(false)
+                                if (paymentMethods.length > 0 && selectedPaymentMethodId) {
+                                  handlePaymentMethodChange(selectedPaymentMethodId)
+                                }
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                            <Button type="button" onClick={saveNewPaymentMethod}>
+                              Save Payment Method
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                  <div className="mt-6 text-xs text-gray-500 flex items-center">
+                    <Lock className="h-4 w-4 mr-1 text-green-600" />
+                    Your payment information is secure and encrypted
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className={`w-full text-lg py-6 ${
+                    paymentMethod === "razorpay" ? "bg-blue-600 hover:bg-blue-700" : "bg-teal-700 hover:bg-teal-800"
+                  }`}
+                  disabled={processingOrder || (paymentMethod === "razorpay" && !razorpayLoaded)}
+                >
+                  {processingOrder
+                    ? "Processing..."
+                    : paymentMethod === "razorpay"
+                      ? `Pay with Razorpay - ₹${finalTotal.toLocaleString("en-IN")}`
+                      : `Place Order - ₹${finalTotal.toLocaleString("en-IN")}`}
+                </Button>
+              </form>
+            </div>
+
+            {/* Order Summary */}
+            <div className="lg:col-span-1">
+              <div className="bg-white p-6 rounded-md shadow-sm sticky top-20">
+                <h2 className="text-xl font-medium mb-6">Order Summary</h2>
+
+                {/* Mobile Order Details Toggle */}
+                <div className="lg:hidden mb-6">
+                  <Button
+                    variant="outline"
+                    className="w-full flex justify-between"
+                    onClick={() => setIsOrderDetailsOpen(!isOrderDetailsOpen)}
+                  >
+                    <span>Order Details ({cartItems.length} items)</span>
+                    <span>{isOrderDetailsOpen ? "−" : "+"}</span>
+                  </Button>
+                </div>
+
+                {/* Order Items - Mobile Collapsible / Desktop Always Visible */}
+                <div
+                  className={`${isOrderDetailsOpen ? "block" : "hidden"} lg:block space-y-4 max-h-80 overflow-y-auto mb-6`}
+                >
+                  {cartItems.map((item) => (
+                    <div key={item._id} className="flex gap-4">
+                      <div className="relative h-24 w-24 rounded-md overflow-hidden flex-shrink-0">
+                        <Image
+                          src={item.variation.image || "/placeholder.svg"}
+                          alt={item.product.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-medium line-clamp-2">{item.product.name}</h3>
+                        <p className="text-sm text-gray-500">
+                          Size: {item.variation.size}, Color: {item.variation.color}
+                        </p>
+                        <div className="flex justify-between mt-2">
+                          <span className="text-sm">Qty: {item.quantity}</span>
+                          <span className="font-medium">₹{item.price.toLocaleString("en-IN")}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Promo Code */}
+                <div className="mb-6">
+                  <p className="font-medium mb-2">PROMOCODE?</p>
+                  <div className="flex">
+                    <Input
+                      type="text"
+                      placeholder="Enter coupon code here"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                      className="rounded-r-none"
+                      disabled={!!appliedCoupon}
+                    />
+                    {appliedCoupon ? (
+                      <Button className="rounded-l-none bg-red-600 hover:bg-red-700" onClick={removeCoupon}>
+                        Remove
+                      </Button>
+                    ) : (
+                      <Button
+                        className="rounded-l-none bg-teal-700 hover:bg-teal-800"
+                        onClick={applyPromoCode}
+                        disabled={!promoCode || applyingCoupon}
+                      >
+                        {applyingCoupon ? "Applying..." : "Apply"}
+                      </Button>
+                    )}
+                  </div>
+
+                  {couponError && (
+                    <Alert variant="destructive" className="mt-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>{couponError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {appliedCoupon && (
+                    <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
+                      <div className="flex items-start">
+                        <Tag className="h-4 w-4 text-green-600 mt-0.5 mr-2" />
+                        <div>
+                          <p className="text-sm font-medium text-green-800">{appliedCoupon.code}</p>
+                          <p className="text-xs text-green-700">{appliedCoupon.description}</p>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                {couponError && (
-                  <Alert variant="destructive" className="mt-2">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{couponError}</AlertDescription>
-                  </Alert>
-                )}
+                <Separator className="my-4" />
 
-                {appliedCoupon && (
-                  <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
-                    <div className="flex items-start">
-                      <Tag className="h-4 w-4 text-green-600 mt-0.5 mr-2" />
-                      <div>
-                        <p className="text-sm font-medium text-green-800">{appliedCoupon.code}</p>
-                        <p className="text-xs text-green-700">{appliedCoupon.description}</p>
-                      </div>
+                {/* Order Details */}
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Sub Total</span>
+                    <span className="font-medium">₹{subtotal.toLocaleString("en-IN")}</span>
+                  </div>
+
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-green-600">
+                      <span className="flex items-center">
+                        <Tag className="h-4 w-4 mr-1" /> Discount
+                        {appliedCoupon.discount_type === "percentage" && ` (${appliedCoupon.discount_value}%)`}
+                      </span>
+                      <span className="font-medium">-₹{discountAmount.toLocaleString("en-IN")}</span>
                     </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="font-medium text-green-600">FREE</span>
                   </div>
-                )}
-              </div>
+                  <Separator className="my-2" />
+                  <div className="flex justify-between">
+                    <span className="text-lg font-medium">Order Total</span>
+                    <span className="text-lg font-medium">₹{finalTotal.toLocaleString("en-IN")}</span>
+                  </div>
 
-              <Separator className="my-4" />
+                  {/* COD Eligibility Message */}
+                  {isCodAvailable() && (
+                    <div className="mt-2 text-xs text-green-600 flex items-center">
+                      <Check className="h-4 w-4 mr-1" />
+                      Eligible for Cash on Delivery
+                    </div>
+                  )}
 
-              {/* Order Details */}
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Sub Total</span>
-                  <span className="font-medium">₹{subtotal.toLocaleString("en-IN")}</span>
+                  {!isCodAvailable() && paymentSettings?.cod_enabled && (
+                    <div className="mt-2 text-xs text-amber-600">
+                      COD available for orders between ₹{paymentSettings.cod_min_order_value.toLocaleString("en-IN")}{" "}
+                      and ₹{paymentSettings.cod_max_order_value.toLocaleString("en-IN")}
+                    </div>
+                  )}
                 </div>
-
-                {appliedCoupon && (
-                  <div className="flex justify-between text-green-600">
-                    <span className="flex items-center">
-                      <Tag className="h-4 w-4 mr-1" /> Discount
-                      {appliedCoupon.discount_type === "percentage" && ` (${appliedCoupon.discount_value}%)`}
-                    </span>
-                    <span className="font-medium">-₹{discountAmount.toLocaleString("en-IN")}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping</span>
-                  <span className="font-medium text-green-600">FREE</span>
-                </div>
-                <Separator className="my-2" />
-                <div className="flex justify-between">
-                  <span className="text-lg font-medium">Order Total</span>
-                  <span className="text-lg font-medium">₹{finalTotal.toLocaleString("en-IN")}</span>
-                </div>
-
-                {/* COD Eligibility Message */}
-                {isCodAvailable() && (
-                  <div className="mt-2 text-xs text-green-600 flex items-center">
-                    <Check className="h-4 w-4 mr-1" />
-                    Eligible for Cash on Delivery
-                  </div>
-                )}
-
-                {!isCodAvailable() && paymentSettings?.cod_enabled && (
-                  <div className="mt-2 text-xs text-amber-600">
-                    COD available for orders between ₹{paymentSettings.cod_min_order_value.toLocaleString("en-IN")} and
-                    ₹{paymentSettings.cod_max_order_value.toLocaleString("en-IN")}
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

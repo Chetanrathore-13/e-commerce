@@ -43,16 +43,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login?redirect=/account/orders")
-    }
-
-    if (status === "authenticated") {
-      fetchOrders()
-    }
-  }, [status, router])
-
-  const fetchOrders = async () => {
+    const fetchOrders = async () => {
     try {
       setLoading(true)
       const response = await fetch("/api/orders")
@@ -74,6 +65,16 @@ export default function OrdersPage() {
       setLoading(false)
     }
   }
+    if (status === "unauthenticated") {
+      router.push("/login?redirect=/account/orders")
+    }
+
+    if (status === "authenticated") {
+      fetchOrders()
+    }
+  }, [status, router, toast])
+
+  
 
   const getStatusIcon = (status: string) => {
     switch (status) {
