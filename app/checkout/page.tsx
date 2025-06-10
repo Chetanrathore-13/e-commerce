@@ -174,7 +174,7 @@ export default function CheckoutPage() {
         setEmail(session.user.email)
       }
     }
-  }, [status, router, session, fetchCart, fetchAddresses, fetchPaymentMethods, fetchPaymentSettings])
+  }, [status, router, session])
 
   const fetchCart = useCallback(async () => {
     try {

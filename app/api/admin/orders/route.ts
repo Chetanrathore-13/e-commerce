@@ -2,11 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { connectToDatabase } from "@/lib/db"
-<<<<<<< HEAD
-import {Order} from "@/lib/models/order"
-=======
 import{ Order }from "@/lib/models/order"
->>>>>>> 23b4827ba4b148d6ff5312a1ce1fa4fb3be6357a
 import {User} from "@/lib/models"
 
 export async function GET(request: NextRequest) {
