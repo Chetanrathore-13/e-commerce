@@ -44,7 +44,7 @@ export function DeleteConfirmationDialog({
 
   const getButtonClass = () => {
     if (variant === "danger") {
-      return "text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200";
+      return "bg-gray-500 hover:bg-red-600 text-white hover:text-white";
     }
     return "text-amber-600 hover:text-amber-700 hover:bg-amber-50 border-amber-200";
   };
@@ -62,7 +62,7 @@ export function DeleteConfirmationDialog({
         onClick={() => setOpen(true)}
         variant="outline"
         size={buttonSize === "icon" ? "icon" : buttonSize}
-        className={`${getButtonClass()} ${getButtonSize()}`}
+        className={`bg-gray-500 hover:bg-red-600 text-white hover:text-white ${getButtonClass()} ${getButtonSize()}`}
       >
         {buttonIcon && (
           <Trash2
@@ -71,6 +71,7 @@ export function DeleteConfirmationDialog({
         )}
         {buttonText}
       </Button>
+
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>

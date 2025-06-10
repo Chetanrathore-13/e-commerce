@@ -386,7 +386,7 @@ export default function AdminReviewsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteReview(review._id)}
-                        className="text-gray-500 hover:text-red-700"
+                        className="bg-gray-500 hover:bg-red-600 hover:text-white text-white transition-all"
                       >
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete</span>

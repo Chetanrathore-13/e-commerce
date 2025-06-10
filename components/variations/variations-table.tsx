@@ -111,7 +111,7 @@ export function VariationsTable({ productId, variations, totalPages, page, per_p
                   <TableCell className="font-medium">{variation.sku}</TableCell>
                   <TableCell>{variation.size}</TableCell>
                   <TableCell>{variation.color}</TableCell>
-                  <TableCell>${variation.price}</TableCell>
+                  <TableCell>₹ {variation.price}</TableCell>
                   <TableCell>{variation.quantity}</TableCell>
                   <TableCell>{new Date(variation.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
@@ -124,7 +124,7 @@ export function VariationsTable({ productId, variations, totalPages, page, per_p
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                          <Button variant="ghost" size="icon" className="text-white  bg-gray-500 hover:bg-red-600 hover:text-white transition-all">
                             <Trash2 className="h-4 w-4" />
                             <span className="sr-only">Delete</span>
                           </Button>

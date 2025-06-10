@@ -231,13 +231,14 @@ export default function AdminReviewDetailPage({ params }: { params: { id: string
   }
 
   return (
-    <div>
-      <div className="flex items-center mb-6">
-        <Button variant="ghost" onClick={() => router.push("/dashboard/reviews")} className="mr-4">
+    <div className="p-6 md:p-8">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Review Details</h1>
+        <Button variant="ghost" onClick={() => router.push("/dashboard/reviews")} className="mr-4 bg-teal-600 hover:bg-teal-700 text-white hover:text-white">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold">Review Details</h1>
+        
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -351,10 +352,10 @@ export default function AdminReviewDetailPage({ params }: { params: { id: string
             </div>
 
             <div className="flex flex-col gap-2">
-              <Button onClick={handleSave} className="w-full bg-amber-700 hover:bg-amber-800" disabled={saving}>
+              <Button onClick={handleSave} className="w-full bg-teal-600 hover:bg-teal-700 text-white hover:text-white" disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-              <Button variant="outline" onClick={handleDelete} className="w-full text-red-600 hover:bg-red-50">
+              <Button variant="outline" onClick={handleDelete} className="w-full text-black hover:bg-teal-50">
                 Delete Review
               </Button>
             </div>

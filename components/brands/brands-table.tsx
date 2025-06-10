@@ -95,7 +95,7 @@ export function BrandsTable({ brands, totalPages, page, per_page }: BrandsTableP
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+              <Button variant="ghost" size="icon" className="text-white bg-gray-500 hover:bg-red-600 hover:text-white">
                 <Trash2 className="h-4 w-4" />
                 <span className="sr-only">Delete</span>
               </Button>
