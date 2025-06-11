@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { orderId, amount, currency = "INR" } = body
 
-    console.log("Razorpay order creation request:", { orderId, amount, currency })
+    
 
     if (!orderId || !amount) {
       return NextResponse.json({ error: "Order ID and amount are required" }, { status: 400 })
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       })
 
       await payment.save()
-      console.log("Payment record created:", payment._id)
+      
 
       return NextResponse.json({
         success: true,
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
           },
           modal: {
             ondismiss: () => {
-              console.log("Payment modal dismissed")
+              
             },
           },
         },

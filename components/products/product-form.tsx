@@ -70,15 +70,12 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   // Update form when product data changes
   useEffect(() => {
     if (product) {
-      console.log("Product data:", product) // Debug log
+      
 
       const brandId = extractId(product.brand_id)
       const categoryId = extractId(product.category_id)
       const tagsString = formatTags(product.tags)
 
-      console.log("Extracted brandId:", brandId) // Debug log
-      console.log("Extracted categoryId:", categoryId) // Debug log
-      console.log("Formatted tags:", tagsString) // Debug log
 
       form.reset({
         name: product.name || "",

@@ -49,8 +49,7 @@ async function getBlogPost(slug: string) {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
     const url = `${baseUrl}/api/blogs/${slug}`
 
-    console.log("Fetching blog from:", url)
-
+   
     const res = await fetch(url, {
       cache: "no-store",
       headers: {
@@ -58,11 +57,11 @@ async function getBlogPost(slug: string) {
       },
     })
 
-    console.log("Response status:", res.status)
+    
 
     if (!res.ok) {
       if (res.status === 404) {
-        console.log("Blog not found (404)")
+        
         return null
       }
       const errorText = await res.text()
@@ -71,12 +70,7 @@ async function getBlogPost(slug: string) {
     }
 
     const data = await res.json()
-    console.log("Received blog data:", {
-      hasCategories: data.blog?.categories ? true : false,
-      hasTags: data.blog?.tags ? true : false,
-      categories: data.blog?.categories,
-      tags: data.blog?.tags,
-    })
+    
     return data
   } catch (error) {
     console.error(`Error fetching blog post with slug ${slug}:`, error)
@@ -86,12 +80,12 @@ async function getBlogPost(slug: string) {
 
 export default async function BlogDetailPage({ params }: PageProps) {
   const { slug } = await params
-  console.log("Blog detail page for slug:", slug)
+ 
 
   const data = await getBlogPost(slug)
 
   if (!data || !data.blog) {
-    console.log("No blog data found, showing 404")
+    
     notFound()
   }
 

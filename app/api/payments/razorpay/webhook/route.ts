@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const body = await request.text()
     const signature = request.headers.get("x-razorpay-signature")
 
-    console.log("Razorpay webhook received")
+    
 
     if (!signature) {
       return NextResponse.json({ error: "Missing signature" }, { status: 400 })
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const event = JSON.parse(body)
-    console.log("Razorpay webhook event:", event.event, event.payload?.payment?.entity?.id)
+    
 
     // Handle different webhook events
     switch (event.event) {
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         await handleOrderPaid(event.payload.order.entity)
         break
       default:
-        console.log("Unhandled webhook event:", event.event)
+       
     }
 
     return NextResponse.json({ success: true })
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentCaptured(payment: any) {
   try {
-    console.log("Handling payment captured:", payment.id)
+   
 
     // Find payment record
     const paymentRecord = await Payment.findOne({
@@ -85,7 +85,7 @@ async function handlePaymentCaptured(payment: any) {
         updatedAt: new Date(),
       })
 
-      console.log("Payment captured and order updated:", paymentRecord.orderId)
+      
     }
   } catch (error) {
     console.error("Error handling payment captured:", error)
@@ -94,7 +94,7 @@ async function handlePaymentCaptured(payment: any) {
 
 async function handlePaymentFailed(payment: any) {
   try {
-    console.log("Handling payment failed:", payment.id)
+   
 
     // Find payment record
     const paymentRecord = await Payment.findOne({
@@ -110,7 +110,7 @@ async function handlePaymentFailed(payment: any) {
         updatedAt: new Date(),
       })
 
-      console.log("Payment failed and record updated:", paymentRecord.orderId)
+      
     }
   } catch (error) {
     console.error("Error handling payment failed:", error)
@@ -119,7 +119,7 @@ async function handlePaymentFailed(payment: any) {
 
 async function handleOrderPaid(order: any) {
   try {
-    console.log("Handling order paid:", order.id)
+    
 
     // Find payment record
     const paymentRecord = await Payment.findOne({ razorpayOrderId: order.id })
@@ -132,7 +132,7 @@ async function handleOrderPaid(order: any) {
         updatedAt: new Date(),
       })
 
-      console.log("Order paid and status updated:", paymentRecord.orderId)
+      
     }
   } catch (error) {
     console.error("Error handling order paid:", error)

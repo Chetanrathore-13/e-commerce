@@ -20,11 +20,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = body
 
-    console.log("Razorpay payment verification request:", {
-      razorpay_order_id,
-      razorpay_payment_id,
-      signature_present: !!razorpay_signature,
-    })
+    
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return NextResponse.json({ error: "Missing required payment parameters" }, { status: 400 })
@@ -95,7 +91,7 @@ export async function POST(request: NextRequest) {
       { new: true },
     )
 
-    console.log(`Payment ${razorpay_payment_id} verified and order ${payment.orderId} updated`)
+    
 
     // Send order confirmation email
     if (order && session.user.email) {
@@ -109,7 +105,7 @@ export async function POST(request: NextRequest) {
           shippingAddress: order.shipping_address,
           _id: order._id,
         })
-        console.log("Order confirmation email sent")
+        ("Order confirmation email sent")
       } catch (emailError) {
         console.error("Error sending order confirmation email:", emailError)
         // Don't fail the payment if email fails

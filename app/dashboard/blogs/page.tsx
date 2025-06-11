@@ -142,7 +142,7 @@ export default function BlogsAdminPage() {
       }
 
       const data = await response.json();
-      console.log("Fetched blogs data:", data); // Debug log
+      
 
       setBlogs(data.blogs || []);
       setPagination(

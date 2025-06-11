@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Transaction ID is required" }, { status: 400 })
     }
 
-    console.log("Checking payment status for:", merchantTransactionId)
+    
+    
 
     // Find payment record
     const payment = await Payment.findOne({ merchantTransactionId })
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
     // Check payment status with PhonePe
     const response = await phonePeService.checkPaymentStatus(merchantTransactionId)
 
-    console.log("PhonePe status check response:", response)
+  
 
     if (response.success && response.data) {
       const { state, responseCode, amount, transactionId } = response.data

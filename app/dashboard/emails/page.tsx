@@ -42,7 +42,7 @@ export default function EmailsPage() {
     setDebugInfo("")
 
     try {
-      console.log("Sending email with data:", { recipient, emailType, subject })
+
 
       const requestBody = {
         to: recipient,
@@ -56,7 +56,7 @@ export default function EmailsPage() {
         },
       }
 
-      console.log("Request body:", requestBody)
+      ("Request body:", requestBody)
 
       const response = await fetch("/api/email/send", {
         method: "POST",
@@ -66,11 +66,11 @@ export default function EmailsPage() {
         body: JSON.stringify(requestBody),
       })
 
-      console.log("Response status:", response.status)
-      console.log("Response headers:", Object.fromEntries(response.headers.entries()))
+     
+      
 
       const responseText = await response.text()
-      console.log("Raw response:", responseText)
+      
 
       let responseData
       try {

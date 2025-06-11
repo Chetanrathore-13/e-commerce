@@ -42,7 +42,7 @@ export default function Header() {
   const { toast } = useToast();
   // we have to take role from session
   const userRole = session?.user?.role;
- console.log("User Role:", userRole);
+ 
   // Fetch cart item count
   useEffect(() => {
     const fetchCartCount = async () => {

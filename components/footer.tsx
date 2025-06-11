@@ -82,7 +82,7 @@ export default function Footer() {
     fetchContactInfo();
   }, []);
 
-  console.log("Contact Info:", contactInfo);
+  
   const address = contactInfo.find((item) => item.type === "address");
   const phone = contactInfo.find((item) => item.type === "phone");
   const email = contactInfo.find((item) => item.type === "email");

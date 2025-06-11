@@ -67,9 +67,9 @@ export default function ProductsPage() {
 
         // Fetch brands
         const brandsData: any = await getBrands();
-        console.log("Brands data:", brandsData);
+        
          setBrands(brandsData?.brands  || []);
-       console.log("Brands:", brands)
+       
         // Extract unique materials and colors from products
         const productsResponse = await getProducts({ limit: 100 });
 

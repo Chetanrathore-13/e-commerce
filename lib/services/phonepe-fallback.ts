@@ -44,7 +44,7 @@ export class PhonePeService {
       throw new Error("PhonePe configuration is missing. Please check environment variables.")
     }
 
-    console.log(`PhonePe service initialized for ${this.environment} environment`)
+    
   }
 
   private generateChecksum(payload: string, endpoint: string): string {
@@ -76,10 +76,7 @@ export class PhonePeService {
       const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64")
       const checksum = this.generateChecksum(base64Payload, "/pg/v1/pay")
 
-      console.log("Initiating PhonePe payment with payload:", {
-        ...payload,
-        amount: payload.amount / 100, // Log in rupees for readability
-      })
+      
 
       const response = await fetch(`${this.apiUrl}/pg/v1/pay`, {
         method: "POST",
@@ -100,8 +97,7 @@ export class PhonePeService {
         throw new Error(result.message || "Payment initiation failed")
       }
 
-      console.log("PhonePe payment response:", result)
-
+    
       return {
         success: result.success,
         code: result.code,
@@ -121,8 +117,7 @@ export class PhonePeService {
 
   async checkPaymentStatus(merchantTransactionId: string): Promise<PhonePeServiceResponse> {
     try {
-      console.log("Checking PhonePe payment status for:", merchantTransactionId)
-
+      
       const checksum = this.generateStatusChecksum(merchantTransactionId)
 
       const response = await fetch(`${this.apiUrl}/pg/v1/status/${this.merchantId}/${merchantTransactionId}`, {
@@ -141,8 +136,6 @@ export class PhonePeService {
         console.error("PhonePe status check error:", result)
         throw new Error(result.message || "Status check failed")
       }
-
-      console.log("PhonePe status response:", result)
 
       return {
         success: result.success,
@@ -165,7 +158,7 @@ export class PhonePeService {
     try {
       const expectedChecksum = this.generateChecksum(response, "")
       const isValid = expectedChecksum === checksum
-      console.log("PhonePe callback verification result:", isValid)
+      
       return isValid
     } catch (error) {
       console.error("PhonePe callback verification error:", error)
@@ -178,7 +171,7 @@ export class PhonePeService {
       const expectedSignature = crypto.createHmac("sha256", this.saltKey).update(JSON.stringify(payload)).digest("hex")
 
       const isValid = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))
-      console.log("PhonePe webhook verification result:", isValid)
+      
       return isValid
     } catch (error) {
       console.error("PhonePe webhook verification error:", error)
@@ -202,11 +195,7 @@ export class PhonePeService {
       const base64Payload = Buffer.from(JSON.stringify(payload)).toString("base64")
       const checksum = this.generateChecksum(base64Payload, "/pg/v1/refund")
 
-      console.log("Initiating PhonePe refund with payload:", {
-        ...payload,
-        amount: payload.amount / 100, // Log in rupees for readability
-      })
-
+  
       const response = await fetch(`${this.apiUrl}/pg/v1/refund`, {
         method: "POST",
         headers: {
@@ -225,8 +214,6 @@ export class PhonePeService {
         console.error("PhonePe refund error:", result)
         throw new Error(result.message || "Refund failed")
       }
-
-      console.log("PhonePe refund response:", result)
 
       return {
         success: result.success,

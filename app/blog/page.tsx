@@ -14,7 +14,7 @@ async function getBlogs() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
     const url = `${baseUrl}/api/blogs?limit=9`
 
-    console.log("Fetching blogs from:", url)
+    
 
     const res = await fetch(url, {
       cache: "no-store",
@@ -23,7 +23,7 @@ async function getBlogs() {
       },
     })
 
-    console.log("Response status:", res.status)
+    
 
     if (!res.ok) {
       const errorText = await res.text()
@@ -32,10 +32,7 @@ async function getBlogs() {
     }
 
     const data = await res.json()
-    console.log("Received data:", {
-      blogCount: data.blogs?.length || 0,
-      total: data.pagination?.total || 0,
-    })
+   
 
     return data
   } catch (error) {
@@ -53,7 +50,7 @@ async function getCategoriesAndTags() {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
     const url = `${baseUrl}/api/blogs/categories-tags`
 
-    console.log("Fetching categories and tags from:", url)
+   
 
     const res = await fetch(url, {
       cache: "no-store",
@@ -67,7 +64,7 @@ async function getCategoriesAndTags() {
     }
 
     const data = await res.json()
-    console.log("Categories and tags data:", data)
+    
 
     return data
   } catch (error) {

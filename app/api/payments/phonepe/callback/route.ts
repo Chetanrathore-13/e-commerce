@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Decode response
     const decodedResponse = JSON.parse(Buffer.from(response, "base64").toString())
-    console.log("Decoded PhonePe response:", decodedResponse)
+    
 
     const { merchantTransactionId, transactionId, amount, state, responseCode } = decodedResponse
 
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    console.log(`Payment ${merchantTransactionId} updated to ${paymentStatus}`)
+  
 
     return NextResponse.json({ success: true, status: paymentStatus })
   } catch (error) {

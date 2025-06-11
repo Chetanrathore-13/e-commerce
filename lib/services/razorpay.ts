@@ -23,11 +23,9 @@ export class RazorpayService {
         payment_capture: 1, // Auto capture payment
       }
 
-      console.log("Creating Razorpay order with options:", options)
-
+  
       const order = await this.razorpay.orders.create(options)
-      console.log("Razorpay order created:", order)
-
+    
       return {
         success: true,
         data: order,
@@ -51,12 +49,6 @@ export class RazorpayService {
         .digest("hex")
 
       const isValid = expectedSignature === razorpaySignature
-
-      console.log("Payment verification:", {
-        razorpayOrderId,
-        razorpayPaymentId,
-        isValid,
-      })
 
       return {
         success: true,

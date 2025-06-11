@@ -44,7 +44,7 @@ export default function ShippingPageClient() {
         const response = await fetch("/api/shipping-info")
         if (response.ok) {
           const data = await response.json()
-          console.log(data)
+         
           setShippingInfo(data)
 
           // Find the most recent update date

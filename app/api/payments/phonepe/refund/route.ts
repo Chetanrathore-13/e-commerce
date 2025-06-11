@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Transaction ID and refund amount are required" }, { status: 400 })
     }
 
-    console.log("PhonePe refund request:", { merchantTransactionId, refundAmount, reason })
+    
+    
 
     // Find the original payment
     const originalPayment = await Payment.findOne({ merchantTransactionId })
@@ -52,7 +53,8 @@ export async function POST(request: NextRequest) {
       refundAmount,
     )
 
-    console.log("PhonePe refund response:", response)
+    
+    
 
     if (response.success) {
       // Create refund payment record

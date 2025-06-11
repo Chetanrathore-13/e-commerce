@@ -11,12 +11,6 @@ const createTransporter = () => {
     },
   }
 
-  console.log("Creating email transporter with config:", {
-    host: config.host,
-    port: config.port,
-    user: config.auth.user ? "***" : "missing",
-    pass: config.auth.pass ? "***" : "missing",
-  })
 
   return nodemailer.createTransport(config)
 }
@@ -158,8 +152,7 @@ export const emailTemplates = {
 export const emailService = {
   async sendEmail(to: string, template: { subject: string; html: string }) {
     try {
-      console.log("Attempting to send email to:", to)
-
+      
       // Validate environment variables
       if (!process.env.MAILTRAP_USER || !process.env.MAILTRAP_PASS) {
         throw new Error("Mailtrap credentials not configured")
@@ -174,14 +167,9 @@ export const emailService = {
         html: template.html,
       }
 
-      console.log("Sending email with options:", {
-        from: mailOptions.from,
-        to: mailOptions.to,
-        subject: mailOptions.subject,
-      })
-
+      
       const result = await transporter.sendMail(mailOptions)
-      console.log("Email sent successfully:", result.messageId)
+      
       return { success: true, messageId: result.messageId }
     } catch (error) {
       console.error("Error sending email:", error)

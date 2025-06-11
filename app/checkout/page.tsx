@@ -674,7 +674,7 @@ export default function CheckoutPage() {
         },
         modal: {
           ondismiss: () => {
-            console.log("Razorpay modal dismissed");
+          
             setProcessingOrder(false);
           },
         },
@@ -857,7 +857,7 @@ export default function CheckoutPage() {
       };
 
       // Log the data being sent for debugging
-      console.log("Sending order data:", JSON.stringify(orderData, null, 2));
+    
 
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -868,11 +868,8 @@ export default function CheckoutPage() {
       });
 
       // Log the raw response for debugging
-      console.log("Order API response status:", response.status);
-      console.log(
-        "Order API response headers:",
-        Object.fromEntries([...response.headers.entries()])
-      );
+      
+    
 
       // Try to parse the response as JSON, but handle non-JSON responses
       let responseData: responseData = {};
@@ -880,12 +877,12 @@ export default function CheckoutPage() {
 
       try {
         responseText = await response.text();
-        console.log("Raw response text:", responseText);
+       
 
         if (responseText) {
           try {
             responseData = JSON.parse(responseText);
-            console.log("Parsed response data:", responseData);
+           
           } catch (parseError) {
             console.error("Error parsing response as JSON:", parseError);
             responseData = {
@@ -927,7 +924,7 @@ export default function CheckoutPage() {
         }
       }
 
-      console.log("Order created successfully:", data);
+      
 
       // If we have a coupon, apply it to the order
       if (appliedCoupon) {
@@ -1017,7 +1014,7 @@ export default function CheckoutPage() {
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
         onLoad={() => {
-          console.log("Razorpay script loaded");
+          
           setRazorpayLoaded(true);
         }}
         onError={() => {

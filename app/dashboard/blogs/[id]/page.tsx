@@ -76,7 +76,7 @@ const isNew = id === "new"
    
   const fetchBlog = useCallback(async () => {
     try {
-      console.log("Fetching blog with ID:", id)
+      
       const response = await fetch(`/api/admin/blogs/${id}`)
 
       if (!response.ok) {
@@ -86,7 +86,7 @@ const isNew = id === "new"
       }
 
       const blog = await response.json()
-      console.log("Blog fetched successfully:", blog)
+      
       setBlogData(blog)
       setImagePreview(blog.featured_image)
     } catch (error) {
@@ -252,8 +252,7 @@ const isNew = id === "new"
           const formData = new FormData()
           formData.append("file", imageFile)
 
-          console.log("Uploading image:", imageFile.name, imageFile.type, imageFile.size)
-
+      
           const uploadResponse = await fetch("/api/upload-image", {
             method: "POST",
             body: formData,
@@ -274,7 +273,6 @@ const isNew = id === "new"
 
           const uploadData = await uploadResponse.json()
           imageUrl = uploadData.url
-          console.log("Image uploaded successfully:", imageUrl)
         } catch (error) {
           console.error("Error uploading image:", error)
           toast({
@@ -293,7 +291,7 @@ const isNew = id === "new"
         featured_image: imageUrl,
       }
 
-      console.log("Submitting blog data:", dataToSubmit)
+     
 
       // Create or update the blog
       const url = isNew ? "/api/admin/blogs" : `/api/admin/blogs/${id}`
@@ -327,7 +325,7 @@ const isNew = id === "new"
         throw new Error(responseData.error || "Failed to save blog")
       }
 
-      console.log("Blog saved successfully:", responseData)
+     
 
       toast({
         title: "Success",

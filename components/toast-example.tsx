@@ -79,7 +79,7 @@ export function ToastExample() {
             title: "Toast with Action",
             description: "Your cart has been updated.",
             action: (
-              <Button variant="outline" className="h-8 px-3 text-xs" onClick={() => console.log("Action clicked")}>
+              <Button variant="outline" className="h-8 px-3 text-xs" onClick={() => }>
                 Undo
               </Button>
             ),
