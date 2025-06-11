@@ -1,21 +1,20 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import {Blog} from "@/lib/models/blog"
 
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
-    console.log("Fetching blog with slug:", params.slug)
     await connectToDatabase()
 
-    const slug = params.slug
+    const {slug} = await params
 
     // Find the blog by slug
-    const blog = await Blog.findOne({ slug }).lean()
+    const blog: any = await Blog.findOne({ slug }).lean()
 
-    console.log("Found blog:", blog ? "Yes" : "No")
+  
 
     if (!blog) {
-      console.log("Blog not found for slug:", slug)
+    
       return NextResponse.json({ error: "Blog not found" }, { status: 404 })
     }
 
@@ -28,7 +27,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
       .limit(3)
       .lean()
 
-    console.log("Found related blogs:", relatedBlogs.length)
+
 
     return NextResponse.json({
       blog: {
@@ -47,8 +46,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
     return NextResponse.json(
       {
         error: "Failed to fetch blog",
-        details: (error as Error).message,
-        slug: params.slug,
+        details: (error as Error).message
       },
       { status: 500 },
     )

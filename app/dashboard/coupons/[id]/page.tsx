@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Calendar, Tag, Percent, DollarSign, Info, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -34,13 +34,12 @@ interface Coupon {
   applicable_products?: string[]
 }
 
-export default function EditCouponPage({ params }: { params: { id: string } }) {
+export default  function EditCouponPage({ params }: { params: Promise<{ id: string }>}) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [coupon, setCoupon] = useState<Coupon | null>(null)
-
   // Form state
   const [code, setCode] = useState("")
   const [description, setDescription] = useState("")
@@ -52,15 +51,18 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
   const [usageLimit, setUsageLimit] = useState("")
   const [isActive, setIsActive] = useState(true)
   const [appliesTo, setAppliesTo] = useState<"all" | "categories" | "products">("all")
-
+  const [id, setId] = useState("")
   useEffect(() => {
-    fetchCoupon()
-  }, [params.id])
-
-  const fetchCoupon = async () => {
+    const fetchId = async () => {
+      const param = await params
+      setId(param.id)
+    }
+    fetchId()
+  }, [params])
+ const fetchCoupon =useCallback( async () => {
     try {
       setIsLoading(true)
-      const response = await fetch(`/api/admin/coupons/${params.id}`)
+      const response = await fetch(`/api/admin/coupons/${id}`)
 
       if (!response.ok) {
         throw new Error("Failed to fetch coupon")
@@ -91,7 +93,12 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [ id, router, toast ])
+  useEffect(() => {
+    fetchCoupon()
+  }, [id, fetchCoupon])
+
+ 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -146,7 +153,7 @@ export default function EditCouponPage({ params }: { params: { id: string } }) {
         applicable_products: coupon?.applicable_products,
       }
 
-      const response = await fetch(`/api/admin/coupons/${params.id}`, {
+      const response = await fetch(`/api/admin/coupons/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

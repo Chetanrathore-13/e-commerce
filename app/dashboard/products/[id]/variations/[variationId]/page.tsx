@@ -12,9 +12,11 @@ export const metadata: Metadata = {
 export default async function EditVariationPage({
   params,
 }: {
-  params: { id: string; variationId: string }
+  params: Promise<{ id: string; variationId: string }>
 }) {
-  const [product, variation] = await Promise.all([getProductById(params.id), getVariationById(params.variationId)])
+  // Await the params promise
+  const param = await params
+  const [product, variation] = await Promise.all([getProductById(param.id), getVariationById(param.variationId)])
 
   if (!product || !variation) {
     notFound()
@@ -29,7 +31,7 @@ export default async function EditVariationPage({
         </div>
         <BackButton section="variations" />
       </div>
-      <VariationForm productId={params.id} variation={variation} />
+      <VariationForm productId={param.id} variation={variation} />
     </div>
   )
 }

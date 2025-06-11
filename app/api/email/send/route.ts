@@ -5,22 +5,22 @@ import { emailService } from "@/lib/services/email"
 
 export async function POST(request: Request) {
   try {
-    console.log("Email send API called")
+
 
     // Check authentication
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "admin") {
-      console.log("Unauthorized access attempt")
+ 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    console.log("User authenticated:", session.user.email)
+
 
     // Parse request body
     let body
     try {
       body = await request.json()
-      console.log("Request body parsed:", { ...body, data: body.data ? "present" : "missing" })
+      
     } catch (parseError) {
       console.error("Error parsing request body:", parseError)
       return NextResponse.json({ error: "Invalid JSON in request body" }, { status: 400 })
@@ -29,18 +29,18 @@ export async function POST(request: Request) {
     const { to, type, data } = body
 
     if (!to || !type) {
-      console.log("Missing required fields:", { to: !!to, type: !!type })
+     
       return NextResponse.json({ error: "Recipient email and type are required" }, { status: 400 })
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(to)) {
-      console.log("Invalid email format:", to)
+   
       return NextResponse.json({ error: "Invalid email format" }, { status: 400 })
     }
 
-    console.log("Sending email:", { to, type })
+    
 
     let result
     try {
@@ -61,11 +61,11 @@ export async function POST(request: Request) {
           result = await emailService.sendPasswordReset(to, data)
           break
         default:
-          console.log("Unknown email type:", type)
+         
           return NextResponse.json({ error: "Unknown email type" }, { status: 400 })
       }
 
-      console.log("Email service result:", result)
+   
 
       if (result.success) {
         return NextResponse.json({

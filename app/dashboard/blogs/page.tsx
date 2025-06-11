@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -128,9 +128,7 @@ export default function BlogsAdminPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [blogToDelete, setBlogToDelete] = useState<Blog | null>(null);
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
+  const fetchBlogs = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch(
@@ -165,15 +163,22 @@ export default function BlogsAdminPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, searchTerm, toast]);
+
+  useEffect(() => {
     if (status === "authenticated") {
       fetchBlogs();
     } else if (status === "unauthenticated") {
       window.location.href = "/login?redirect=/admin/blogs";
     }
-  }, [status, pagination.page, pagination.limit, searchTerm, toast]);
-
-  
+  }, [
+    status,
+    pagination.page,
+    pagination.limit,
+    searchTerm,
+    toast,
+    fetchBlogs,
+  ]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

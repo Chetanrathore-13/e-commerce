@@ -14,11 +14,14 @@ export const metadata: Metadata = {
 export default async function BrandsPage({
   searchParams,
 }: {
-  searchParams: { page?: string; per_page?: string; name?: string }
+  searchParams: Promise<{ page?: string; per_page?: string; name?: string }>
 }) {
-  const page = Number(searchParams.page) || 1
-  const per_page = Number(searchParams.per_page) || 10
-  const name = searchParams.name || ""
+  // Await the searchParams promise
+  const searchParamsObj = await searchParams
+  const searchParam = searchParamsObj || {}
+  const page = Number(searchParam.page) || 1
+  const per_page = Number(searchParam.per_page) || 10
+  const name = searchParam.name || ""
 
   const { brands, totalPages } = await getBrands({ page, per_page, name })
 

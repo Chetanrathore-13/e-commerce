@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, type FormEvent } from "react"
+import { useState, useEffect, type FormEvent, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { ArrowLeft, Upload, Star, Loader2 } from "lucide-react"
@@ -25,7 +25,7 @@ interface Testimonial {
   isActive: boolean
 }
 
-export default function TestimonialEditPage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
+export default function TestimonialEditPage({ params }: { params: Promise<{ id: string }>| Promise<{ id: string }> }) {
   // Unwrap params using React.use()
   const unwrappedParams = "then" in params ? use(params) : params
   const id = unwrappedParams.id
@@ -55,13 +55,7 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
     setDebugLogs((prev) => [...prev, message])
   }
 
-  useEffect(() => {
-    if (!isNew) {
-      fetchTestimonial()
-    }
-  }, [id, isNew, fetchTestimonial])
-
-  const fetchTestimonial = async () => {
+   const fetchTestimonial =useCallback( async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/admin/testimonials/${id}`)
@@ -84,7 +78,14 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast, id])
+  useEffect(() => {
+    if (!isNew) {
+      fetchTestimonial()
+    }
+  }, [id, isNew, fetchTestimonial])
+
+ 
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -169,7 +170,7 @@ export default function TestimonialEditPage({ params }: { params: { id: string }
       let imagePath = testimonial.image
       if (imageFile) {
         addLog("Uploading image before saving testimonial...")
-        imagePath = await uploadImage()
+        imagePath = (await uploadImage()) ?? undefined
         if (!imagePath && imageFile) {
           // If upload failed but we have an image file, stop submission
           setSaving(false)

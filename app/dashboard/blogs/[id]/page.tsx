@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -34,9 +34,16 @@ interface BlogData {
   meta_description: string
 }
 
-export default function BlogEditPage({ params }: { params: { id: string } }) {
-  const { id } = params
-  const isNew = id === "new"
+export default  function BlogEditPage({ params }: { params: Promise<{ id: string }>}) {
+  const [id, setId] = useState<string>("")
+  useEffect(() => {
+    const fetchId = async () => {
+      const param = await params
+      setId(param.id)
+    }
+    fetchId()
+  }, [params])
+  
   const router = useRouter()
   const { data: session, status } = useSession()
   const { toast } = useToast()
@@ -56,7 +63,7 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
     meta_title: "",
     meta_description: "",
   })
-
+const isNew = id === "new"
   const [isLoading, setIsLoading] = useState(!isNew)
   const [isSaving, setIsSaving] = useState(false)
   const [imageFile, setImageFile] = useState<File | null>(null)
@@ -65,33 +72,9 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
   const [newTag, setNewTag] = useState("")
   const [existingCategories, setExistingCategories] = useState<string[]>([])
   const [existingTags, setExistingTags] = useState<string[]>([])
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      // Only fetch blog if we're editing an existing blog (not creating a new one)
-      if (!isNew) {
-        fetchBlog()
-      } else {
-        // For new blogs, we're not loading anything
-        setIsLoading(false)
-
-        // Set author from session if available
-        if (session?.user?.name) {
-          setBlogData((prev) => ({
-            ...prev,
-            author: session.user.name || "",
-          }))
-        }
-      }
-
-      // Always fetch categories and tags
-      fetchCategoriesAndTags()
-    } else if (status === "unauthenticated") {
-      router.push("/login?redirect=/admin/blogs")
-    }
-  }, [status, id, session?.user?.name, isNew, router])
-
-  const fetchBlog = async () => {
+  
+   
+  const fetchBlog = useCallback(async () => {
     try {
       console.log("Fetching blog with ID:", id)
       const response = await fetch(`/api/admin/blogs/${id}`)
@@ -116,7 +99,34 @@ export default function BlogEditPage({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [id, toast])
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      // Only fetch blog if we're editing an existing blog (not creating a new one)
+      if (!isNew) {
+        fetchBlog()
+      } else {
+        // For new blogs, we're not loading anything
+        setIsLoading(false)
+
+        // Set author from session if available
+        if (session?.user?.name) {
+          setBlogData((prev) => ({
+            ...prev,
+            author: session.user.name || "",
+          }))
+        }
+      }
+
+      // Always fetch categories and tags
+      fetchCategoriesAndTags()
+    } else if (status === "unauthenticated") {
+      router.push("/login?redirect=/admin/blogs")
+    }
+  }, [status, id, session?.user?.name, isNew, router, fetchBlog])
+
+  
 
   const fetchCategoriesAndTags = async () => {
     try {

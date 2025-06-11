@@ -67,7 +67,13 @@ export async function getProducts(params: Record<string, any> = {}): Promise<Pro
 // Search products
 export async function searchProducts(query: string, limit = 5): Promise<SearchResult> {
   if (!query || query.trim().length < 2) {
-    return { products: [], totalResults: 0 }
+      return {
+      products: [],
+      totalProducts: 0,
+      totalPages: 0,
+      currentPage: 1,
+      totalResults: 0,
+    }
   }
 
   const url = `${getBaseUrl()}/api/products/search?q=${encodeURIComponent(query)}&limit=${limit}`
@@ -77,7 +83,13 @@ export async function searchProducts(query: string, limit = 5): Promise<SearchRe
     return handleResponse<SearchResult>(response)
   } catch (error) {
     console.error("Error searching products:", error)
-    return { products: [], totalResults: 0 }
+    return {
+      products: [],
+      totalProducts: 0,
+      totalPages: 0,
+      currentPage: 1,
+      totalResults: 0,
+    }
   }
 }
 

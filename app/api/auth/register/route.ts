@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { User } from "@/lib/models"
 import { emailService } from "@/lib/services/email"
 import bcrypt from "bcryptjs"

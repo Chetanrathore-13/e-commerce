@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import Address from "@/lib/models/address"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"
 
 // Get a specific address
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const addressId = params.id
+    const addressId = id
 
     if (!mongoose.Types.ObjectId.isValid(addressId)) {
       return NextResponse.json({ error: "Invalid address ID" }, { status: 400 })
@@ -37,17 +37,17 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // Update an address
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const addressId = params.id
+    const addressId = id
     const addressData = await request.json()
 
     if (!mongoose.Types.ObjectId.isValid(addressId)) {
@@ -102,17 +102,17 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 }
 
 // Delete an address
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const addressId = params.id
+    const addressId = id
 
     if (!mongoose.Types.ObjectId.isValid(addressId)) {
       return NextResponse.json({ error: "Invalid address ID" }, { status: 400 })

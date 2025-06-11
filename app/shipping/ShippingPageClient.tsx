@@ -50,7 +50,7 @@ export default function ShippingPageClient() {
           // Find the most recent update date
           if (data.length > 0) {
             const dates = data.map((item: ShippingInfo) => new Date(item.lastUpdated))
-            const mostRecent = new Date(Math.max(...dates.map((date) => date.getTime())))
+            const mostRecent = new Date(Math.max(...dates.map((date : Date) => date.getTime())))
             setLastUpdated(mostRecent)
           }
         } else {

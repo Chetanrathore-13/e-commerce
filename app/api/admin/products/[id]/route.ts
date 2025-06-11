@@ -18,9 +18,9 @@ const productSchema = z.object({
   is_best_seller: z.boolean().optional(),
 })
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
-    const { id } = params
+    const { id } = await params
 
     if (!isValidObjectId(id)) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 })
@@ -41,7 +41,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -49,7 +49,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id } = params
+   const { id } = await params
 
     if (!isValidObjectId(id)) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 })
@@ -152,7 +152,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -160,7 +160,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id } = params
+   const { id } = await params
 
     if (!isValidObjectId(id)) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 })

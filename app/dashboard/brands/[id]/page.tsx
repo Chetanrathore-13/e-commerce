@@ -12,9 +12,11 @@ export const metadata: Metadata = {
 export default async function EditBrandPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const brand = await getBrandById(params.id)
+  // Await the params promise
+  const param = await params
+  const brand = await getBrandById(param.id)
 
   if (!brand) {
     notFound()

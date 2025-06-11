@@ -37,19 +37,21 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: product?.name || "",
-      description: product?.description || "",
-      brand_id: product?.brand_id ? product.brand_id.toString() : "",
-      category_id: product?.category_id ? product.category_id.toString() : "",
-      material: product?.material || "",
-      tags: product?.tags ? product.tags.join(", ") : "",
-      is_featured: product?.is_featured || false,
-      is_best_seller: product?.is_best_seller || false,
-    },
-  })
+
+  const form = useForm({
+  resolver: zodResolver(formSchema),
+  defaultValues: {
+    name: product?.name || "",
+    description: product?.description || "",
+    brand_id: product?.brand_id ? product.brand_id.toString() : "",
+    category_id: product?.category_id ? product.category_id.toString() : "",
+    material: product?.material || "",
+    tags: product?.tags ? product.tags.join(", ") : "",
+    is_featured: product?.is_featured || false,
+    is_best_seller: product?.is_best_seller || false,
+  },
+})
+
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
@@ -123,7 +125,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-8">
         <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
           <FormField
             control={form.control}

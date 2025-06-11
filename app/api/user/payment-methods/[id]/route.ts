@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import PaymentMethod from "@/lib/models/payment-mothod"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"
 
 // Get a specific payment method
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const paymentMethodId = params.id
+    const paymentMethodId = id
 
     if (!mongoose.Types.ObjectId.isValid(paymentMethodId)) {
       return NextResponse.json({ error: "Invalid payment method ID" }, { status: 400 })
@@ -37,17 +37,17 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // Update a payment method
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const paymentMethodId = params.id
+    const paymentMethodId =id
     const paymentData = await request.json()
 
     if (!mongoose.Types.ObjectId.isValid(paymentMethodId)) {
@@ -90,17 +90,17 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 }
 
 // Delete a payment method
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const paymentMethodId = params.id
+    const paymentMethodId = id
 
     if (!mongoose.Types.ObjectId.isValid(paymentMethodId)) {
       return NextResponse.json({ error: "Invalid payment method ID" }, { status: 400 })

@@ -2,14 +2,14 @@ import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/mongodb"
 import { Product } from "@/lib/models"
 
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
     await connectToDatabase()
 
-    const slug = params.slug
+    const { slug } = await params
 
     // Find the product by slug and populate related data
-    const product = await Product.findOne({ slug })
+    const product: any = await Product.findOne({ slug })
       .populate("brand_id")
       .populate("category_id")
       .populate("variations")
@@ -55,11 +55,11 @@ export async function GET(request: Request, { params }: { params: { slug: string
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { slug: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
     await connectToDatabase()
 
-    const slug = params.slug
+    const { slug } = await params
     const body = await request.json()
 
     // Find the product by slug first
@@ -85,7 +85,7 @@ export async function PATCH(request: Request, { params }: { params: { slug: stri
     }
 
     // Update the product
-    const updatedProduct = await Product.findOneAndUpdate(
+    const updatedProduct : any = await Product.findOneAndUpdate(
       { slug },
       { $set: updateData },
       { new: true, runValidators: true },

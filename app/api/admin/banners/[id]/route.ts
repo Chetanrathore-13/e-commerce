@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import Banner from "@/lib/models/banner"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
 
-    const { id } = params
-    const banner = await Banner.findById(id).lean()
+    const { id } = await params
+    const banner: any = await Banner.findById(id).lean()
 
     if (!banner) {
       return NextResponse.json({ message: "Banner not found" }, { status: 404 })
@@ -23,11 +23,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
 
-    const { id } = params
+    const { id } = await params
     const data = await request.json()
 
     // Validate required fields
@@ -42,7 +42,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     // Make sure _id matches the URL parameter
     delete data._id
 
-    const updatedBanner = await Banner.findByIdAndUpdate(id, { $set: data }, { new: true, runValidators: true }).lean()
+    const updatedBanner: any = await Banner.findByIdAndUpdate(id, { $set: data }, { new: true, runValidators: true }).lean()
 
     if (!updatedBanner) {
       return NextResponse.json({ message: "Banner not found" }, { status: 404 })
@@ -52,7 +52,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       ...updatedBanner,
       _id: updatedBanner._id.toString(),
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating banner:", error)
 
     if (error.name === "ValidationError") {
@@ -63,12 +63,12 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
 
-    const { id } = params
-    const deletedBanner = await Banner.findByIdAndDelete(id).lean()
+    const { id } = await params
+    const deletedBanner: any = await Banner.findByIdAndDelete(id).lean()
 
     if (!deletedBanner) {
       return NextResponse.json({ message: "Banner not found" }, { status: 404 })

@@ -11,12 +11,15 @@ export const metadata: Metadata = {
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams: { page?: string; per_page?: string; name?: string; email?: string }
+  searchParams: Promise<{ page?: string; per_page?: string; name?: string; email?: string }>
 }) {
-  const page = Number(searchParams.page) || 1
-  const per_page = Number(searchParams.per_page) || 10
-  const name = searchParams.name || ""
-  const email = searchParams.email || ""
+  // Await the searchParams promise
+  const searchParamsObj = await searchParams
+  const searchParam = searchParamsObj || {}
+  const page = Number(searchParam.page) || 1
+  const per_page = Number(searchParam.per_page) || 10
+  const name = searchParam.name || ""
+  const email = searchParam.email || ""
 
   const { users, totalPages } = await getUsers({ page, per_page, name, email })
 

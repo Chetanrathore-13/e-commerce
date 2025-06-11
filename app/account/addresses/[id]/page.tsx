@@ -26,17 +26,17 @@ import UserAccountSidebar from "@/components/user-account-sidebar";
 //   is_default: boolean;
 // }
 
-export default function EditAddressPage({
+export default  function EditAddressPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  
   // Form state
   const [fullName, setFullName] = useState("");
   const [addressLine1, setAddressLine1] = useState("");
@@ -47,11 +47,26 @@ export default function EditAddressPage({
   const [country, setCountry] = useState("India");
   const [phone, setPhone] = useState("");
   const [isDefault, setIsDefault] = useState(false);
+  const [addressId, setAddressId] = useState<string | null>(null)
 
+  // ✅ Handle async params inside useEffect
+  useEffect(() => {
+    const resolveParams = async () => {
+      try {
+        const resolvedParams = await params
+        setAddressId(resolvedParams.id)
+      } catch (error) {
+        console.error("Error resolving params:", error)
+        router.push("/account/addresses")
+      }
+    }
+
+    resolveParams()
+  }, [params, router])
   useEffect(() => {
     const fetchAddress = async () => {
     try {
-      const response = await fetch(`/api/user/addresses/${params.id}`);
+      const response = await fetch(`/api/user/addresses/${addressId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch address");
       }
@@ -80,22 +95,20 @@ export default function EditAddressPage({
     }
   };
     if (status === "unauthenticated") {
-      router.push(`/login?redirect=/account/addresses/${params.id}`);
+      router.push(`/login?redirect=/account/addresses/${addressId}`);
     }
 
     if (status === "authenticated") {
       fetchAddress();
     }
-  }, [status, router, params.id, toast]);
-
-  
+  }, [status, router, addressId, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`/api/user/addresses/${params.id}`, {
+      const response = await fetch(`/api/user/addresses/${addressId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

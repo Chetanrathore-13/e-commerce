@@ -16,15 +16,18 @@ export default async function ProductVariationsPage({
   params,
   searchParams,
 }: {
-  params: { id: string }
-  searchParams: { page?: string; per_page?: string }
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ page?: string; per_page?: string }>
 }) {
-  const page = Number(searchParams.page) || 1
-  const per_page = Number(searchParams.per_page) || 10
+  // Await the params and searchParams promises
+  const paramsObj = await params
+  const searchParamsObj = await searchParams
+  const page = Number(searchParamsObj.page) || 1
+  const per_page = Number(searchParamsObj.per_page) || 10
 
   const [product, { variations, totalPages }] = await Promise.all([
-    getProductById(params.id),
-    getVariationsByProductId(params.id, { page, per_page }),
+    getProductById(paramsObj.id),
+    getVariationsByProductId(paramsObj.id, { page, per_page }),
   ])
 
   if (!product) {
@@ -41,7 +44,7 @@ export default async function ProductVariationsPage({
         <div className="flex gap-2">
           <BackButton section="products" />
           <Button asChild  className="hover:bg-teal-700 hover:text-white transition">
-            <Link href={`/dashboard/products/${params.id}/variations/new`}>
+            <Link href={`/dashboard/products/${paramsObj.id}/variations/new`}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Variation
             </Link>
@@ -49,7 +52,7 @@ export default async function ProductVariationsPage({
         </div>
       </div>
       <VariationsTable
-        productId={params.id}
+        productId={paramsObj.id}
         variations={variations}
         totalPages={totalPages}
         page={page}

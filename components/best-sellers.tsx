@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import AuthPopup from "./auth-popup";
+import { useMemo } from "react";
 
 interface Product {
   _id: string;
@@ -37,7 +38,9 @@ export default function BestSellers({
   sectionSubtitle,
 }: BestSellersProps) {
   // Ensure products is always an array
-  const safeProducts = Array.isArray(products) ? products : [];
+  const safeProducts = useMemo(() => {
+  return Array.isArray(products) ? products : [];
+}, [products]);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);

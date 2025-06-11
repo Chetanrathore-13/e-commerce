@@ -333,7 +333,7 @@ export default function ContactPageClient() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="lg:col-span-1 space-y-6"
             >
-              {displayContactInfo.map((item) => renderContactCard(item))}
+              {displayContactInfo.map((item) => renderContactCard(item as any))}
             </motion.div>
 
             {/* Contact Form */}

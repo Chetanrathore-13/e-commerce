@@ -49,9 +49,11 @@ async function getProductsByCategory(categoryId: string) {
 export default async function CategoryPage({
   params,
 }: {
-  params: { category: string };
+  params: Promise<{ category: string }>;
 }) {
-  const category = await getCategory(params.category);
+  // Await the params promise
+  const param = await params;
+  const category = await getCategory(param.category);
 
   if (!category) {
     notFound();

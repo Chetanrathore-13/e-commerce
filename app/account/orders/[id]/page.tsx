@@ -85,12 +85,14 @@ interface Order {
   shipping_address: Address;
   billing_address: Address;
   payment_method: string;
-  payment_status: "pending" | "paid" | "failed" | "refunded";
+  payment_status: "pending" | "paid" | "failed" | "refunded" | "completed";
   tracking_number?: string;
   cancel_reason?: string;
   return_reason?: string;
   createdAt: string;
   updatedAt: string;
+  additionalComments?: string;
+  returnType?: "full" | "partial";
 }
 
 const CANCELLATION_REASONS = [
@@ -116,7 +118,7 @@ const RETURN_REASONS = [
 export default function OrderDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { status } = useSession();
   const router = useRouter();
@@ -130,6 +132,15 @@ export default function OrderDetailsPage({
   const [additionalComments, setAdditionalComments] = useState("");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [returnType, setReturnType] = useState<"full" | "partial">("full");
+  const [ordersId, setOrdersId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchParams = async () => {
+      const resolvedParams = await params;
+      setOrdersId(resolvedParams.id);
+    };
+    fetchParams();
+  }, [params]);
 
   useEffect(() => {
      const fetchOrder = async (orderId: string) => {
@@ -159,12 +170,10 @@ export default function OrderDetailsPage({
       return;
     }
 
-    if (status === "authenticated" && params.id) {
-      fetchOrder(params.id);
+    if (status === "authenticated" && ordersId) {
+      fetchOrder(ordersId);
     }
-  }, [status, params.id, router, toast]);
-
- 
+  }, [status, ordersId, router, toast]);
 
   const handleCancelOrder = async () => {
     if (!order) return;
@@ -354,7 +363,7 @@ export default function OrderDetailsPage({
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-1/4">
-              <UserAccountSidebar />
+              <UserAccountSidebar activeItem="orders" />
             </div>
             <div className="md:w-3/4">
               <Skeleton className="h-12 w-1/3 mb-8" />
@@ -376,7 +385,7 @@ export default function OrderDetailsPage({
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-8">
             <div className="md:w-1/4">
-              <UserAccountSidebar />
+              <UserAccountSidebar activeItem="orders" />
             </div>
             <div className="md:w-3/4">
               <div className="bg-white p-8 rounded-md shadow-sm">
@@ -404,7 +413,7 @@ export default function OrderDetailsPage({
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-1/4">
-            <UserAccountSidebar />
+            <UserAccountSidebar activeItem="orders" />
           </div>
           <div className="md:w-3/4">
             <div className="bg-white p-6 rounded-md shadow-sm mb-6">

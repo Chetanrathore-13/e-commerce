@@ -6,7 +6,7 @@ import AuthPopup from '@/components/auth-popup';
 const Userlogin = () => {
   return (
     <div>
-     <AuthPopup/>
+     <AuthPopup onClose={() => {}}/>
     </div>
   );
 };

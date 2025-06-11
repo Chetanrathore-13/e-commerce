@@ -13,7 +13,7 @@ import { useSession } from "next-auth/react"
 import UserAccountSidebar from "@/components/user-account-sidebar"
 
 export default function ProfilePage() {
-  const { data: session, status, update } = useSession()
+  const { status, update } = useSession()
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(true)

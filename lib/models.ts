@@ -2,6 +2,7 @@ import mongoose, { Schema, type Document } from "mongoose"
 
 // User Interface
 interface IUser extends Document {
+  _id: mongoose.Types.ObjectId
   name: string
   email: string
   password: string
@@ -12,6 +13,7 @@ interface IUser extends Document {
 
 // Brand Interface
 interface IBrand extends Document {
+  _id: mongoose.Types.ObjectId
   name: string
   image: string | null
   createdAt: Date
@@ -20,6 +22,7 @@ interface IBrand extends Document {
 
 // Category Interface
 interface ICategory extends Document {
+  _id: mongoose.Types.ObjectId
   name: string
   image: string | null
   parent_category_id: mongoose.Types.ObjectId | null
@@ -29,6 +32,7 @@ interface ICategory extends Document {
 
 // Product Interface
 interface IProduct extends Document {
+  _id: mongoose.Types.ObjectId
   name: string
   description: string
   brand_id: mongoose.Types.ObjectId
@@ -45,6 +49,7 @@ interface IProduct extends Document {
 
 // Variation Interface
 interface IVariation extends Document {
+  _id: mongoose.Types.ObjectId
   product_id: mongoose.Types.ObjectId
   size: "XS" | "S" | "M" | "L" | "XL" | "XXL"
   color: string

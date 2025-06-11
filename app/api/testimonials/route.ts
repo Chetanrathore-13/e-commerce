@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { Testimonial } from "@/lib/models/testimonial"
 
 export async function GET() {
@@ -8,7 +8,7 @@ export async function GET() {
     const testimonials = await Testimonial.find({ isActive: true }).lean()
 
     return NextResponse.json({
-      testimonials: testimonials.map((testimonial) => ({
+      testimonials: testimonials.map((testimonial: any) => ({
         ...testimonial,
         _id: testimonial._id.toString(),
       })),

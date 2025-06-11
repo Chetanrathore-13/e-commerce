@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ChevronLeft, ChevronRight, Search, Filter, ArrowUpDown, Eye } from "lucide-react"
@@ -12,7 +12,16 @@ import { Badge } from "@/components/ui/badge"
 export function OrdersTable() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [orders, setOrders] = useState([])
+  interface Order {
+    _id: string;
+    order_number: string;
+    shipping_address?: { full_name: string };
+    createdAt: string;
+    status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+    total: number;
+    items: any[];
+  }
+  const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [totalPages, setTotalPages] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
@@ -22,12 +31,7 @@ export function OrdersTable() {
 
   const page = Number(searchParams.get("page") || "1")
   const limit = 10
-
-  useEffect(() => {
-    fetchOrders()
-  }, [page, statusFilter, sortField, sortDirection,])
-
-  const fetchOrders = async () => {
+const fetchOrders =useCallback( async () => {
     setLoading(true)
     try {
       const queryParams = new URLSearchParams({
@@ -53,15 +57,20 @@ export function OrdersTable() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, statusFilter, sortField, sortDirection, searchTerm])
+  useEffect(() => {
+    fetchOrders()
+  }, [page, statusFilter, sortField, sortDirection,fetchOrders])
 
-  const handleSearch = (e) => {
+  
+
+  const handleSearch = (e : React.FormEvent) => {
     e.preventDefault()
     router.push(`/dashboard/orders?page=1&status=${statusFilter}`)
     fetchOrders()
   }
 
-  const handleSort = (field) => {
+  const handleSort = (field : string) => {
     if (field === sortField) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc")
     } else {
@@ -70,12 +79,12 @@ export function OrdersTable() {
     }
   }
 
-  const handleStatusChange = (value) => {
+  const handleStatusChange = (value: 'all' | 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => {
     setStatusFilter(value)
     router.push(`/dashboard/orders?page=1&status=${value}`)
   }
 
-  const getStatusBadge = (status) => {
+  const getStatusBadge = (status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => {
     const statusStyles = {
       pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
       processing: "bg-blue-100 text-blue-800 border-blue-200",

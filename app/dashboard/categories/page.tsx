@@ -14,12 +14,15 @@ export const metadata: Metadata = {
 export default async function CategoriesPage({
   searchParams,
 }: {
-  searchParams: { page?: string; per_page?: string; name?: string; parent_id?: string }
+  searchParams: Promise<{ page?: string; per_page?: string; name?: string; parent_id?: string }>
 }) {
-  const page = Number(searchParams.page) || 1
-  const per_page = Number(searchParams.per_page) || 10
-  const name = searchParams.name || ""
-  const parent_id = searchParams.parent_id || ""
+  // Await the searchParams promise
+  const searchParamsObj = await searchParams
+  const searchParam = searchParamsObj || {}
+  const page = Number(searchParam.page) || 1
+  const per_page = Number(searchParam.per_page) || 10
+  const name = searchParam.name || ""
+  const parent_id = searchParam.parent_id || ""
 
   const { categories, totalPages } = await getCategories({
     page,

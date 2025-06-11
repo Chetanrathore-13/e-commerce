@@ -12,7 +12,7 @@ export default function ImportExportPage() {
   return (
     <div className="flex-1 p-4 pt-6 md:p-8">
       <div className="mb-6 flex items-center">
-        <BackButton href="/dashboard/products" />
+        <BackButton section="products" />
         <h2 className="text-3xl font-bold tracking-tight">Import/Export Products</h2>
       </div>
 

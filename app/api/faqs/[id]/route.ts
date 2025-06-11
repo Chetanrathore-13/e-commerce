@@ -2,10 +2,11 @@ import { type NextRequest, NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/mongodb"
 import Faq from "@/lib/models/Faq"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-    const faq = await Faq.findById(params.id)
+    const { id } = await params
+    const faq = await Faq.findById(id)
 
     if (!faq) {
       return NextResponse.json({ error: "FAQ not found" }, { status: 404 })
@@ -17,11 +18,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
     const data = await request.json()
-    const updatedFaq = await Faq.findByIdAndUpdate(params.id, data, { new: true })
+    const { id } = await params
+    const updatedFaq = await Faq.findByIdAndUpdate(id, data, { new: true })
 
     if (!updatedFaq) {
       return NextResponse.json({ error: "FAQ not found" }, { status: 404 })
@@ -33,10 +35,11 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-    const deletedFaq = await Faq.findByIdAndDelete(params.id)
+    const { id } = await params
+    const deletedFaq = await Faq.findByIdAndDelete(id)
 
     if (!deletedFaq) {
       return NextResponse.json({ error: "FAQ not found" }, { status: 404 })

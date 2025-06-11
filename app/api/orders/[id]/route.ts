@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { Order } from "@/lib/models/order"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"
 
 // Get order details
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
 
@@ -16,14 +16,15 @@ export async function GET(request: Request, { params }: { params: { id: string }
     }
 
     const userId = session.user.id
-    const orderId = params.id
+    const { id } = await params
+    const orderId = id
 
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       return NextResponse.json({ error: "Invalid order ID" }, { status: 400 })
     }
 
     // Find order
-    const order = await Order.findOne({ _id: orderId, user_id: userId }).lean()
+    const order: any = await Order.findOne({ _id: orderId, user_id: userId }).lean()
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
@@ -33,7 +34,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       ...order,
       _id: order._id.toString(),
       user_id: order.user_id.toString(),
-      items: order.items.map((item) => ({
+      items: order.items.map((item: any) => ({
         ...item,
         _id: item._id.toString(),
         product_id: item.product_id.toString(),
@@ -47,7 +48,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // Cancel order
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
 
@@ -57,7 +58,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
 
     const userId = session.user.id
-    const orderId = params.id
+    const { id } = await params
+    const orderId = id
 
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       return NextResponse.json({ error: "Invalid order ID" }, { status: 400 })

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import Coupon from "@/lib/models/coupon"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import mongoose from "mongoose"
 
 // Get a single coupon by ID (admin)
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
 
@@ -16,7 +16,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Validate ID format
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -38,7 +38,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // Update a coupon (admin)
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
 
@@ -48,7 +48,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
     const data = await request.json()
 
     // Validate ID format
@@ -95,7 +95,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 }
 
 // Delete a coupon (admin)
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
 
@@ -105,7 +105,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Validate ID format
     if (!mongoose.Types.ObjectId.isValid(id)) {

@@ -8,6 +8,7 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { LoadingProvider } from "@/components/loading-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { Suspense } from "react"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,6 +26,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <NextAuthSessionProvider>
@@ -45,5 +47,6 @@ export default function RootLayout({
         <Toaster />
       </body>
     </html>
+    </Suspense>
   )
 }

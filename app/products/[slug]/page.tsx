@@ -54,12 +54,14 @@ async function getRelatedProducts(categoryId: string, productId: string) {
 export default async function ProductPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const product = await getProduct(params.slug);
+  // Await the params promise to get the actual slug
+  const param = await params;
+  const product = await getProduct(param.slug);
 
   if (!product) {
-    console.error(`Product not found for slug: ${params.slug}`);
+    console.error(`Product not found for slug: ${param.slug}`);
     notFound();
   }
 

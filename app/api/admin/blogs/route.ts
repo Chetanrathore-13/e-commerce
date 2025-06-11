@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { Blog } from "@/lib/models/blog"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -9,7 +9,6 @@ export async function GET(request: Request) {
     const session = await getServerSession(authOptions)
     
     if (session?.user?.role !== "admin") {
-      console.log("❌ Unauthorized access attempt", session)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -29,7 +28,7 @@ export async function GET(request: Request) {
     const totalPages = Math.ceil(total / limit)
 
     return NextResponse.json({
-      blogs: blogs.map((blog) => ({
+      blogs: blogs.map((blog: any) => ({
         ...blog,
         _id: blog._id.toString(),
       })),
@@ -47,7 +46,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  console.log("📝 Blog creation API called")
 
   try {
     // Check authentication
@@ -57,12 +55,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    console.log("✅ Authentication successful")
+   
 
     // Connect to database
     try {
       await connectToDatabase()
-      console.log("✅ Database connection successful")
+      
     } catch (dbError) {
       console.error("❌ Database connection error:", dbError)
       return NextResponse.json(
@@ -78,23 +76,8 @@ export async function POST(request: Request) {
     let data
     try {
       data = await request.json()
-      console.log("✅ Request body parsed successfully")
-      console.log(
-        "📄 Blog data received:",
-        JSON.stringify(
-          {
-            title: data.title,
-            slug: data.slug,
-            excerpt: data.excerpt?.substring(0, 50) + "...",
-            content: data.content?.substring(0, 50) + "...",
-            featured_image: data.featured_image,
-            categories: data.categories,
-            tags: data.tags,
-          },
-          null,
-          2,
-        ),
-      )
+     
+      
     } catch (parseError) {
       console.error("❌ Failed to parse request body:", parseError)
       return NextResponse.json(
@@ -126,7 +109,7 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log("✅ All required fields present")
+    
 
     // Check if slug already exists
     try {
@@ -135,7 +118,7 @@ export async function POST(request: Request) {
         console.error(`❌ Slug already exists: ${data.slug}`)
         return NextResponse.json({ error: "Slug already exists" }, { status: 400 })
       }
-      console.log("✅ Slug is unique")
+  
     } catch (slugCheckError) {
       console.error("❌ Error checking slug uniqueness:", slugCheckError)
       return NextResponse.json(
@@ -169,7 +152,7 @@ export async function POST(request: Request) {
       const blog = new Blog(blogData)
       await blog.save()
 
-      console.log("✅ Blog created successfully with ID:", blog._id.toString())
+      
 
       return NextResponse.json({
         message: "Blog created successfully",

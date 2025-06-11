@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Quote } from "lucide-react"
 import { getTestimonialsData } from "@/lib/api"
@@ -54,7 +54,7 @@ export default function Testimonials({
   const pairCount = Math.ceil(displayTestimonials.length / 2)
   const totalSlides = displayTestimonials.length
 
-  const nextTestimonial = () => {
+  const nextTestimonial = useCallback( () => {
     if (isTransitioning) return
 
     setIsTransitioning(true)
@@ -68,7 +68,7 @@ export default function Testimonials({
     setTimeout(() => {
       setIsTransitioning(false)
     }, 500)
-  }
+  }, [ isTransitioning, totalSlides, pairCount ])
 
   const prevTestimonial = () => {
     if (isTransitioning) return

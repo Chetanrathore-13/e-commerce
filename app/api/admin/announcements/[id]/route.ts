@@ -1,11 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import Announcement from "@/lib/models/announcement"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Await the params promise to get the actual ID
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -13,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     await connectToDatabase()
 
-    const announcement = await Announcement.findById(params.id)
+    const announcement = await Announcement.findById(id)
 
     if (!announcement) {
       return NextResponse.json({ error: "Announcement not found" }, { status: 404 })
@@ -26,7 +28,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }>}) {
+  // Await the params promise to get the actual ID
+  const param = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "admin") {
@@ -43,7 +47,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     const announcement = await Announcement.findByIdAndUpdate(
-      params.id,
+      param.id,
       { ...data },
       { new: true, runValidators: true },
     )
@@ -59,7 +63,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }>}) {
+  // Await the params promise to get the actual ID
+  const param = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session || session.user.role !== "admin") {
@@ -68,7 +74,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     await connectToDatabase()
 
-    const announcement = await Announcement.findByIdAndDelete(params.id)
+    const announcement = await Announcement.findByIdAndDelete(param.id)
 
     if (!announcement) {
       return NextResponse.json({ error: "Announcement not found" }, { status: 404 })

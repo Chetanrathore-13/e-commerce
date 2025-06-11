@@ -4,7 +4,9 @@ import { Product, Variation } from "@/lib/models"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import * as XLSX from "xlsx"
-import { stringify } from "papaparse"
+import Papa from "papaparse"
+
+
 
 export async function GET(req: Request) {
   try {
@@ -25,8 +27,8 @@ export async function GET(req: Request) {
     // For JSON format, we can keep the nested structure
     if (fileType === "json") {
       const productsWithVariations = await Promise.all(
-        products.map(async (product) => {
-          const variations = await Variation.find({ product_id: product._id }).lean()
+        products.map(async (product: any) => {
+          const variations: any = await Variation.find({ product_id: product._id }).lean()
 
           return {
             id: product._id.toString(),
@@ -41,7 +43,7 @@ export async function GET(req: Request) {
             is_featured: product.is_featured,
             is_best_seller: product.is_best_seller,
             slug: product.slug,
-            variations: variations.map((variation) => ({
+            variations: variations.map((variation: any) => ({
               id: variation._id.toString(),
               size: variation.size,
               color: variation.color,
@@ -69,7 +71,7 @@ export async function GET(req: Request) {
       const flattenedData: any[] = []
 
       await Promise.all(
-        products.map(async (product) => {
+        products.map(async (product: any) => {
           const variations = await Variation.find({ product_id: product._id }).lean()
 
           // If no variations, add the product as a single row
@@ -99,7 +101,7 @@ export async function GET(req: Request) {
             })
           } else {
             // Add each variation as a separate row with product details
-            variations.forEach((variation) => {
+            variations.forEach((variation: any) => {
               flattenedData.push({
                 product_id: product._id.toString(),
                 product_name: product.name,
@@ -142,7 +144,7 @@ export async function GET(req: Request) {
           },
         })
       } else if (fileType === "csv") {
-        const csv = stringify(flattenedData, { header: true })
+        const csv = Papa.unparse(flattenedData, { header: true })
 
         return new Response(csv, {
           headers: {

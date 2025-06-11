@@ -12,10 +12,11 @@ export const metadata: Metadata = {
 export default async function EditProductPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const param = await params
   const [product, { brands }, { categories }] = await Promise.all([
-    getProductById(params.id),
+    getProductById(param.id),
     getBrands({ page: 1, per_page: 100 }),
     getCategories({ page: 1, per_page: 100 }),
   ])

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { connectToDatabase } from "@/lib/db";
+import { connectToDatabase } from "@/lib/mongodb";
 import { Blog } from "@/lib/models/blog";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }>}
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,13 +18,13 @@ export async function GET(
 
     await connectToDatabase();
 
-    const id = params.id;
+    const {id} = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid blog ID" }, { status: 400 });
     }
 
-    const blog = await Blog.findById(id).lean();
+    const blog: any = await Blog.findById(id).lean();
 
     if (!blog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
@@ -45,7 +45,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }>}
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -56,7 +56,7 @@ export async function PUT(
 
     await connectToDatabase();
 
-    const id = params.id;
+    const { id } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid blog ID" }, { status: 400 });
@@ -95,7 +95,7 @@ export async function PUT(
       }
     }
 
-    const blog = await Blog.findByIdAndUpdate(id, data, { new: true }).lean();
+    const blog : any = await Blog.findByIdAndUpdate(id, data, { new: true }).lean();
 
     if (!blog) {
       return NextResponse.json({ error: "Blog not found" }, { status: 404 });
@@ -119,7 +119,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }>}
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -130,7 +130,7 @@ export async function DELETE(
 
     await connectToDatabase();
 
-    const id = params.id;
+    const {id} = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: "Invalid blog ID" }, { status: 400 });

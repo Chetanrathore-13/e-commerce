@@ -66,9 +66,10 @@ export default function ProductsPage() {
         setCategories(categoriesData?.categories || []);
 
         // Fetch brands
-        const brandsData = await getBrands();
-        setBrands(brandsData?.brands || []);
-
+        const brandsData: any = await getBrands();
+        console.log("Brands data:", brandsData);
+         setBrands(brandsData?.brands  || []);
+       console.log("Brands:", brands)
         // Extract unique materials and colors from products
         const productsResponse = await getProducts({ limit: 100 });
 
@@ -517,23 +518,41 @@ export default function ProductsPage() {
 
 // Desktop Filters Component
 function DesktopFilters({
-  categories,
-  brands,
-  materials,
-  colors,
-  sizes,
-  selectedCategories,
-  selectedBrands,
-  selectedMaterials,
-  selectedColors,
-  selectedSizes,
-  priceRange,
-  toggleCategory,
-  toggleBrand,
-  toggleMaterial,
-  toggleColor,
-  toggleSize,
-  setPriceRange,
+  categories = [],
+  brands = [],
+  materials = [],
+  colors = [],
+  sizes = [],
+  selectedCategories = [],
+  selectedBrands = [],
+  selectedMaterials = [],
+  selectedColors = [],
+  selectedSizes = [],
+  priceRange = [0, 100000],
+  toggleCategory = () => {},
+  toggleBrand = () => {},
+  toggleMaterial = () => {},
+  toggleColor = () => {},
+  toggleSize = () => {},
+  setPriceRange = () => {},
+}: {
+  categories: Category[];
+  brands: Brand[];
+  materials: string[];
+  colors: string[];
+  sizes: string[];
+  selectedCategories: string[];
+  selectedBrands: string[];
+  selectedMaterials: string[];
+  selectedColors: string[];
+  selectedSizes: string[];
+  priceRange: [number, number];
+  toggleCategory: (id: string) => void;
+  toggleBrand: (id: string) => void;
+  toggleMaterial: (material: string) => void;
+  toggleColor: (color: string) => void;
+  toggleSize: (size: string) => void;
+  setPriceRange: (range: [number, number]) => void;
 }) {
   return (
     <div className="space-y-6 ">
@@ -598,7 +617,7 @@ function DesktopFilters({
         <AccordionItem value="brands">
           <AccordionTrigger>Brands</AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-2">
+            <div className="space-y-2">           
               {brands && brands.length > 0 ? (
                 brands.map((brand) => {
                   return (
@@ -734,6 +753,25 @@ function MobileFilters({
   toggleSize,
   setPriceRange,
   clearAllFilters,
+}: {
+  categories: Category[];
+  brands: Brand[];
+  materials: string[];
+  colors: string[];
+  sizes: string[];
+  selectedCategories: string[];
+  selectedBrands: string[];
+  selectedMaterials: string[];
+  selectedColors: string[];
+  selectedSizes: string[];
+  priceRange: [number, number];
+  toggleCategory: (id: string) => void;
+  toggleBrand: (id: string) => void;
+  toggleMaterial: (material: string) => void;
+  toggleColor: (color: string) => void;
+  toggleSize: (size: string) => void;
+  setPriceRange: (range: [number, number]) => void;
+  clearAllFilters: () => void;
 }) {
   return (
     <div className="space-y-6">

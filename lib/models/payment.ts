@@ -13,11 +13,11 @@ const PaymentSchema = new mongoose.Schema({
   merchantTransactionId: {
     type: String,
     required: true,
-    unique: true,
+    unique: true, // This is okay – it's intentional and useful
   },
   transactionId: {
     type: String,
-    sparse: true, // Allows multiple null values
+    sparse: true,
   },
   amount: {
     type: Number,
@@ -38,18 +38,14 @@ const PaymentSchema = new mongoose.Schema({
     enum: ["pending", "completed", "failed", "cancelled", "refunded"],
     default: "pending",
   },
-  // PhonePe specific fields
   phonepeResponse: {
     type: mongoose.Schema.Types.Mixed,
   },
-  // Razorpay specific fields
   razorpayOrderId: {
-    type: String,
-    sparse: true,
+    type: String, // ✅ removed sparse: true
   },
   razorpayPaymentId: {
-    type: String,
-    sparse: true,
+    type: String, // ✅ removed sparse: true
   },
   razorpaySignature: {
     type: String,
@@ -70,11 +66,11 @@ const PaymentSchema = new mongoose.Schema({
   },
 })
 
-// Index for faster queries
-PaymentSchema.index({ merchantTransactionId: 1 })
+// ✅ Define all indexes in one place
 PaymentSchema.index({ userId: 1, createdAt: -1 })
 PaymentSchema.index({ orderId: 1 })
 PaymentSchema.index({ razorpayOrderId: 1 })
 PaymentSchema.index({ razorpayPaymentId: 1 })
 
 export default mongoose.models.Payment || mongoose.model("Payment", PaymentSchema)
+

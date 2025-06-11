@@ -486,9 +486,7 @@ export default function CartPage() {
       {/* Auth Modal */}
       {isAuthModalOpen && (
         <AuthPopup
-          isOpen={isAuthModalOpen}
           onClose={() => setIsAuthModalOpen(false)}
-          initialView="login"
         />
       )}
     </>

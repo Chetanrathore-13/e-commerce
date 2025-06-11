@@ -28,7 +28,8 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-2">
               <MobileSidebar />
               <Link href="/dashboard" className="hidden sm:inline-block">
-                <Image src="/Logo/Parpra.png" alt="Logo" className="h-16 w-16" />
+                <Image src="/Logo/Parpra.png" alt="Logo" width={64} // 16 * 4 (Tailwind's rem base)
+  height={64} className="h-16 w-16" />
               </Link>
               <Link href="/dashboard">
                 <span className="hidden font-bold sm:inline-block">

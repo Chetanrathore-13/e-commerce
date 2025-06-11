@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { Testimonial } from "@/lib/models/testimonial"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-    const testimonial = await Testimonial.findById(params.id).lean()
+    const { id } = await params
+    const testimonial: any = await Testimonial.findById(id).lean()
 
     if (!testimonial) {
       return NextResponse.json({ error: "Testimonial not found" }, { status: 404 })
@@ -21,12 +22,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
+    const { id } = await params
     const data = await request.json()
 
-    const testimonial = await Testimonial.findByIdAndUpdate(params.id, data, { new: true }).lean()
+    const testimonial: any = await Testimonial.findByIdAndUpdate(id, data, { new: true }).lean()
 
     if (!testimonial) {
       return NextResponse.json({ error: "Testimonial not found" }, { status: 404 })
@@ -42,10 +44,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-    const testimonial = await Testimonial.findByIdAndDelete(params.id)
+    const { id } = await params
+    const testimonial = await Testimonial.findByIdAndDelete(id)
 
     if (!testimonial) {
       return NextResponse.json({ error: "Testimonial not found" }, { status: 404 })

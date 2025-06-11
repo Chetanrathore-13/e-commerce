@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import Review from "@/lib/models/review"
 import {Product} from "@/lib/models"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }): Promise<NextResponse> {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }>}): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -13,18 +13,18 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    const { id } = params
+   const { id } = await params
 
     await connectToDatabase()
 
-    const review = await Review.findById(id).lean()
+    const review: any = await Review.findById(id).lean()
 
     if (!review) {
       return NextResponse.json({ error: "Review not found" }, { status: 404 })
     }
 
     // Get product details
-    const product = await Product.findById(review.product_id).select("name slug").lean()
+    const product: any = await Product.findById(review.product_id).select("name slug").lean()
 
     return NextResponse.json({
       review: {
@@ -32,13 +32,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         product: product || { name: "Unknown Product", slug: "" },
       },
     })
-  } catch (error) {
-    console.error(`Error fetching review ${params.id}:`, error)
+  } catch (error: any) {
+    console.error(`Error fetching review :`, error)
     return NextResponse.json({ error: "Failed to fetch review" }, { status: 500 })
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }): Promise<NextResponse> {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }>}): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -46,7 +46,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    const { id } = params
+   const { id } = await params
     const { status, title, comment, rating, pros, cons } = await request.json()
 
     await connectToDatabase()
@@ -75,12 +75,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       },
     })
   } catch (error) {
-    console.error(`Error updating review ${params.id}:`, error)
+    console.error(`Error updating review :`, error)
     return NextResponse.json({ error: "Failed to update review" }, { status: 500 })
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }): Promise<NextResponse> {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }>}): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions)
 
@@ -88,7 +88,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    const { id } = params
+   const { id } = await params
 
     await connectToDatabase()
 
@@ -104,7 +104,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       message: "Review deleted successfully",
     })
   } catch (error) {
-    console.error(`Error deleting review ${params.id}:`, error)
+    console.error(`Error deleting review :`, error)
     return NextResponse.json({ error: "Failed to delete review" }, { status: 500 })
   }
 }

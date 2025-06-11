@@ -1,34 +1,34 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import Cart from "@/lib/models/cart"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
 interface Params {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 // Get a specific cart item
 export async function GET(request: Request, { params }: Params) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const itemId = params.id
+    const itemId = id
 
     const cart = await Cart.findOne({ user_id: userId })
     if (!cart) {
       return NextResponse.json({ error: "Cart not found" }, { status: 404 })
     }
 
-    const item = cart.items.find((item) => item._id.toString() === itemId)
+    const item = cart.items.find((item: any) => item._id.toString() === itemId)
     if (!item) {
       return NextResponse.json({ error: "Item not found in cart" }, { status: 404 })
     }
@@ -44,14 +44,14 @@ export async function GET(request: Request, { params }: Params) {
 export async function PATCH(request: Request, { params }: Params) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const itemId = params.id
+    const itemId = id
     const { quantity } = await request.json()
 
     if (quantity <= 0) {
@@ -63,7 +63,7 @@ export async function PATCH(request: Request, { params }: Params) {
       return NextResponse.json({ error: "Cart not found" }, { status: 404 })
     }
 
-    const itemIndex = cart.items.findIndex((item) => item._id.toString() === itemId)
+    const itemIndex = cart.items.findIndex((item: any) => item._id.toString() === itemId)
     if (itemIndex === -1) {
       return NextResponse.json({ error: "Item not found in cart" }, { status: 404 })
     }
@@ -72,7 +72,7 @@ export async function PATCH(request: Request, { params }: Params) {
     cart.items[itemIndex].quantity = quantity
 
     // Recalculate total
-    cart.total = cart.items.reduce((total, item) => total + item.price * item.quantity, 0)
+    cart.total = cart.items.reduce((total: number, item: any) => total + item.price * item.quantity, 0)
 
     await cart.save()
 
@@ -87,14 +87,14 @@ export async function PATCH(request: Request, { params }: Params) {
 export async function DELETE(request: Request, { params }: Params) {
   try {
     await connectToDatabase()
-
+    const { id } = await params
     const session = await getServerSession(authOptions)
     if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const userId = session.user.id
-    const itemId = params.id
+    const itemId = id
 
     const cart = await Cart.findOne({ user_id: userId })
     if (!cart) {
@@ -102,7 +102,7 @@ export async function DELETE(request: Request, { params }: Params) {
     }
 
     // Find the item index
-    const itemIndex = cart.items.findIndex((item) => item._id.toString() === itemId)
+    const itemIndex = cart.items.findIndex((item: any) => item._id.toString() === itemId)
     if (itemIndex === -1) {
       return NextResponse.json({ error: "Item not found in cart" }, { status: 404 })
     }
@@ -111,7 +111,7 @@ export async function DELETE(request: Request, { params }: Params) {
     cart.items.splice(itemIndex, 1)
 
     // Recalculate total
-    cart.total = cart.items.reduce((total, item) => total + item.price * item.quantity, 0)
+    cart.total = cart.items.reduce((total: number, item: any) => total + item.price * item.quantity, 0)
 
     await cart.save()
 

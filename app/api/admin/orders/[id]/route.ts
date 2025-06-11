@@ -4,10 +4,9 @@ import { authOptions } from "@/lib/auth"
 import { connectToDatabase } from "@/lib/mongodb"
 import { Order } from "@/lib/models/order"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }>}) {
   try {
     const session = await getServerSession(authOptions)
-
     if (!session) {
       return NextResponse.json({ success: false, error: "Not authenticated" }, { status: 401 })
     }
@@ -16,8 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ success: false, error: "Unauthorized - Admin access required" }, { status: 403 })
     }
 
-    const { id } = params
-
+    const { id } = await params
     if (!id) {
       return NextResponse.json({ success: false, error: "Order ID is required" }, { status: 400 })
     }
@@ -37,7 +35,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }>}) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -49,7 +47,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ success: false, error: "Unauthorized - Admin access required" }, { status: 403 })
     }
 
-    const { id } = params
+    const { id } = await params
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Order ID is required" }, { status: 400 })

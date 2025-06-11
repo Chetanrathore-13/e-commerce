@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -31,12 +31,7 @@ export default function HomepageSectionsPage() {
   const [sections, setSections] = useState<HomepageSection[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-
-  useEffect(() => {
-    fetchSections();
-  }, [ ]);
-
-  const fetchSections = async () => {
+const fetchSections =useCallback( async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/admin/homepage-sections");
@@ -59,7 +54,12 @@ export default function HomepageSectionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+  useEffect(() => {
+    fetchSections();
+  }, [fetchSections ]);
+
+  
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this section?")) {

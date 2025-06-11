@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
@@ -15,7 +15,7 @@ interface AnnouncementFormData {
   textColor: string
 }
 
-export default function EditAnnouncementPage({ params }: { params: { id: string } }) {
+export default  function EditAnnouncementPage({ params }: { params: Promise<{ id: string }> }) {
   const [formData, setFormData] = useState<AnnouncementFormData>({
     text: "",
     link: "",
@@ -27,12 +27,20 @@ export default function EditAnnouncementPage({ params }: { params: { id: string 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const [id, setId] = useState<string>("")
+  useEffect(() => {
+    const fetchId = async () => {
+      const resolvedParams = await params
+      setId(resolvedParams.id)
+    }
+    fetchId()
+  }, [params])
 
   useEffect(() => {
     const fetchAnnouncement = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`/api/admin/announcements/${params.id}`)
+        const response = await fetch(`/api/admin/announcements/${id}`)
 
         if (!response.ok) {
           throw new Error("Failed to fetch announcement")
@@ -55,7 +63,7 @@ export default function EditAnnouncementPage({ params }: { params: { id: string 
     }
 
     fetchAnnouncement()
-  }, [params.id])
+  }, [id])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -86,7 +94,7 @@ export default function EditAnnouncementPage({ params }: { params: { id: string 
       setSaving(true)
       setError("")
 
-      const response = await fetch(`/api/admin/announcements/${params.id}`, {
+      const response = await fetch(`/api/admin/announcements/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

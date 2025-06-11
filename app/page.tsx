@@ -33,6 +33,14 @@ export default async function Home() {
     getProductsData({ sort: "createdAt", limit: 8 }),
     getProductsData({ isBestSeller: true, limit: 6 }),
   ]);
+
+  interface Section {
+    type: string;
+    image?: string;
+    title?: string;
+    subtitle?: string;
+    isActive?: boolean;
+  }
   // Extract the data from the responses, handling potential rejections
   const sections =
     sectionsData.status === "fulfilled"
@@ -57,11 +65,11 @@ export default async function Home() {
 
   // Filter banner sections from homepage sections
   const bannerSections = sections.filter(
-    (section) => section.type === "banner" && section.isActive
+    (section: Section) => section.type === "banner" && section.isActive
   );
 
   // Sort banner sections by position
-  bannerSections.sort((a, b) => a.position - b.position);
+  bannerSections.sort((a: Section & { position: number }, b: Section & { position: number }) => a.position - b.position);
 
   // Define the interface for section
   interface Section {

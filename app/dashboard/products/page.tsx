@@ -14,21 +14,24 @@ export const metadata: Metadata = {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
     per_page?: string;
     name?: string;
     brand_id?: string;
     category_id?: string;
     date?: string;
-  };
+  }>;
 }) {
-  const page = Number(searchParams.page) || 1;
-  const per_page = Number(searchParams.per_page) || 10;
-  const name = searchParams.name || "";
-  const brand_id = searchParams.brand_id || "";
-  const category_id = searchParams.category_id || "";
-  const date = searchParams.date || "";
+  // Await the searchParams promise
+  const searchParamsObj = await searchParams;
+  const searchParam = searchParamsObj || {};
+  const page = Number(searchParam.page) || 1;
+  const per_page = Number(searchParam.per_page) || 10;
+  const name = searchParam.name || "";
+  const brand_id = searchParam.brand_id || "";
+  const category_id = searchParam.category_id || "";
+  const date = searchParam.date || "";
 
   const [{ products, totalPages }, { brands }, { categories }] =
     await Promise.all([

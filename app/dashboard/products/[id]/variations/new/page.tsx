@@ -12,9 +12,11 @@ export const metadata: Metadata = {
 export default async function NewVariationPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const product = await getProductById(params.id)
+  // Await the params promise
+  const param = await params
+  const product = await getProductById(param.id)
 
   if (!product) {
     notFound()
@@ -29,7 +31,7 @@ export default async function NewVariationPage({
         </div>
         <BackButton section="variations" />
       </div>
-      <VariationForm productId={params.id} />
+      <VariationForm productId={param.id} />
     </div>
   )
 }

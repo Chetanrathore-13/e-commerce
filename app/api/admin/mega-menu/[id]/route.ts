@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { MegaMenuConfig } from "@/lib/models/mega-menu-config"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-    const config = await MegaMenuConfig.findById(params.id).lean()
+    const { id } = await params
+    const config: any = await MegaMenuConfig.findById(id).lean()
 
     if (!config) {
       return NextResponse.json({ error: "Mega menu config not found" }, { status: 404 })
@@ -21,12 +22,13 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
+    const { id } = await params
     const data = await request.json()
 
-    const config = await MegaMenuConfig.findByIdAndUpdate(params.id, data, { new: true }).lean()
+    const config: any = await MegaMenuConfig.findByIdAndUpdate(id, data, { new: true }).lean()
 
     if (!config) {
       return NextResponse.json({ error: "Mega menu config not found" }, { status: 404 })
@@ -42,10 +44,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-    const config = await MegaMenuConfig.findByIdAndDelete(params.id)
+    const { id } = await params
+    const config = await MegaMenuConfig.findByIdAndDelete(id)
 
     if (!config) {
       return NextResponse.json({ error: "Mega menu config not found" }, { status: 404 })

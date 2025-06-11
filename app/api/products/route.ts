@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { Product } from "@/lib/models"
 
 export async function GET(request: Request) {
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     }
 
     // Price filter requires joining with variations
-    let priceFilter = {}
+    let priceFilter: any = {}
     if (minPrice !== undefined || maxPrice !== undefined) {
       priceFilter = {
         $and: [],
@@ -77,7 +77,7 @@ export async function GET(request: Request) {
     const totalPages = Math.ceil(total / limit)
 
     // Format response
-    const formattedProducts = products.map((product) => ({
+    const formattedProducts = products.map((product: any) => ({
       ...product,
       _id: product._id.toString(),
       brand_id: {

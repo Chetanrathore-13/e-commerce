@@ -120,14 +120,14 @@ export async function POST(req: Request) {
 
               // Add variation to product
               await Product.findByIdAndUpdate(product._id, { $push: { variations: variation._id } })
-            } catch (error) {
+            } catch (error: any) {
               results.errors.push(`Error creating variation for product ${product.name}: ${error.message}`)
             }
           }
         }
 
         results.success++
-      } catch (error) {
+      } catch (error: any) {
         results.errors.push(`Error creating product ${productData.name || "Unknown"}: ${error.message}`)
         results.failed++
       }

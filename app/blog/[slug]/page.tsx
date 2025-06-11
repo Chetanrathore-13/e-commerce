@@ -6,13 +6,13 @@ import type { Metadata } from "next"
 import { Button } from "@/components/ui/button"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = params
+  const { slug } = await params
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
@@ -85,7 +85,7 @@ async function getBlogPost(slug: string) {
 }
 
 export default async function BlogDetailPage({ params }: PageProps) {
-  const { slug } = params
+  const { slug } = await params
   console.log("Blog detail page for slug:", slug)
 
   const data = await getBlogPost(slug)

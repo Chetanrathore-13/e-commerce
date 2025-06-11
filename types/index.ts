@@ -43,6 +43,7 @@ export interface Category {
   _id: string
   name: string
   image: string | null
+  description?: string
   parent_category_id: string | null
 }
 
@@ -153,4 +154,18 @@ export interface ReviewResponse {
   averageRating: number
   ratingCounts: { rating: number; count: number }[]
   hasReviewed: boolean
+}
+
+export interface SearchResult  {
+  products: Product[]
+  totalProducts: number
+  totalPages: number
+  currentPage: number
+  totalResults: number
+}
+
+export interface WishlistItem {
+  _id: string
+  product_id: string
+  variation_id: string
 }

@@ -7,11 +7,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import AuthPopup from "./auth-popup";
+import { useMemo } from "react";
 
 interface Product {
   _id: string;
@@ -41,7 +41,9 @@ export default function NewArrivals({
   sectionSubtitle = "Check out our latest products",
 }: NewArrivalsProps) {
   // Ensure products is always an array
-  const safeProducts = Array.isArray(products) ? products : [];
+  const safeProducts = useMemo(() => {
+  return Array.isArray(products) ? products : [];
+}, [products]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);

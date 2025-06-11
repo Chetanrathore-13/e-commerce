@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import {  Product, Variation } from "@/lib/models"
 import Cart from "@/lib/models/cart"
 import { getServerSession } from "next-auth"
@@ -19,7 +19,7 @@ export async function GET() {
     const userId = session.user.id
 
     // Find or create cart
-    let cart = await Cart.findOne({ user_id: userId }).lean()
+    let cart: any = await Cart.findOne({ user_id: userId }).lean()
 
     if (!cart) {
       cart = { user_id: userId, items: [], total: 0 }
@@ -30,8 +30,8 @@ export async function GET() {
 
     for (const item of cart.items) {
       try {
-        const product = await Product.findById(item.product_id).lean()
-        const variation = await Variation.findById(item.variation_id).lean()
+        const product: any = await Product.findById(item.product_id).lean()
+        const variation: any  = await Variation.findById(item.variation_id).lean()
 
         if (product && variation) {
           populatedItems.push({
@@ -75,6 +75,7 @@ export async function GET() {
 
 // Add item to cart
 export async function POST(request: Request) {
+
   try {
     await connectToDatabase()
 
@@ -85,7 +86,7 @@ export async function POST(request: Request) {
 
     const userId = session.user.id
     const { product_id, variation_id, quantity = 1 } = await request.json()
-
+   
     if (!product_id || !variation_id) {
       return NextResponse.json({ error: "Product ID and Variation ID are required" }, { status: 400 })
     }
@@ -120,7 +121,7 @@ export async function POST(request: Request) {
 
     // Check if item already exists in cart
     const existingItemIndex = cart.items.findIndex(
-      (item) => item.product_id.toString() === product_id && item.variation_id.toString() === variation_id,
+      (item: any) => item.product_id.toString() === product_id && item.variation_id.toString() === variation_id,
     )
 
     const price = variation.salePrice || variation.price
@@ -146,7 +147,7 @@ export async function POST(request: Request) {
     }
 
     // Recalculate total
-    cart.total = cart.items.reduce((total, item) => total + item.price * item.quantity, 0)
+    cart.total = cart.items.reduce((total: number, item: any) => total + item.price * item.quantity, 0)
 
     await cart.save()
 

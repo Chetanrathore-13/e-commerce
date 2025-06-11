@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { Category } from "@/lib/models"
 
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
     await connectToDatabase()
 
     // Convert slug to a potential category name
-    const slug = params.slug
+    const {slug} = await params
 
     // Try multiple approaches to find the category
-    let category = null
+    let category: any = null
 
     // 1. Try direct match with the slug (for categories that might have been added with slugs)
     category = await Category.findOne({ slug }).lean()

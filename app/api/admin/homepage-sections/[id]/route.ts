@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { HomepageSection } from "@/lib/models/homepage-section"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
+
     await connectToDatabase()
-    const section = await HomepageSection.findById(params.id).lean()
+    const { id } = await params
+    const section: any = await HomepageSection.findById(id).lean()
 
     if (!section) {
       return NextResponse.json({ error: "Homepage section not found" }, { status: 404 })
@@ -21,12 +23,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
     const data = await request.json()
-
-    const section = await HomepageSection.findByIdAndUpdate(params.id, data, { new: true }).lean()
+    const { id } = await params
+    const section: any = await HomepageSection.findByIdAndUpdate(id, data, { new: true }).lean()
 
     if (!section) {
       return NextResponse.json({ error: "Homepage section not found" }, { status: 404 })
@@ -42,10 +44,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }>}) {
   try {
     await connectToDatabase()
-    const section = await HomepageSection.findByIdAndDelete(params.id)
+    const { id } = await params
+    const section: any = await HomepageSection.findByIdAndDelete(id)
 
     if (!section) {
       return NextResponse.json({ error: "Homepage section not found" }, { status: 404 })

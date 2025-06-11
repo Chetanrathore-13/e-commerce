@@ -5,9 +5,10 @@ import ProductList from "@/components/product-list";
 import { getProductsData } from "@/lib/api";
 
 type Props = {
-  params: { category: string }
-  searchParams?: { [key: string]: string | string[] | undefined }
+  params: Promise<{ category: string }>
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }
+
 async function getCategory(slug: string) {
   try {
     const res = await fetch(
@@ -41,8 +42,12 @@ async function getProductsByCategory(categoryId: string) {
   }
 }
 
-export default async function CategoryPage({ params }: Props) {
-  const category = await getCategory(params.category);
+export default async function CategoryPage({ params, searchParams }: Props) {
+  // Await the params promise
+  const resolvedParams = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  
+  const category = await getCategory(resolvedParams.category);
 
   if (!category) {
     notFound();
@@ -51,7 +56,7 @@ export default async function CategoryPage({ params }: Props) {
   const { products = [] } = await getProductsByCategory(category._id);
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-14  mb-14">
+    <div className="container mx-auto px-4 py-8 mt-14 mb-14">
       <h1 className="text-3xl font-bold mb-8">{category.name}</h1>
 
       {category.description && (

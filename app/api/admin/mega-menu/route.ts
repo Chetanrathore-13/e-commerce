@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { MegaMenuConfig } from "@/lib/models/mega-menu-config"
 
 export async function GET() {
@@ -8,7 +8,7 @@ export async function GET() {
     const configs = await MegaMenuConfig.find().lean()
 
     return NextResponse.json(
-      configs.map((config) => ({
+      configs.map((config: any) => ({
         ...config,
         _id: config._id.toString(),
       })),

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, type FormEvent } from "react"
+import { useState, useEffect, type FormEvent, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Upload, X, ImageIcon } from "lucide-react"
 import Image from "next/image"
@@ -39,7 +39,7 @@ const sectionTypes = [
   { value: "custom", label: "Custom Section" },
 ]
 
-export default function HomepageSectionEditPage({ params }: { params: { id: string } | Promise<{ id: string }> }) {
+export default function HomepageSectionEditPage({ params }: { params: Promise<{ id: string }>| Promise<{ id: string }> }) {
   // Unwrap params using React.use()
   const unwrappedParams = "then" in params ? use(params) : params
   const id = unwrappedParams.id
@@ -70,6 +70,36 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
   const addLog = (message: string) => {
     setDebugLogs((prev) => [...prev, message])
   }
+  const fetchSection =useCallback( async () => {
+    try {
+      setLoading(true)
+      addLog(`Fetching section with ID: ${id}`)
+      const response = await fetch(`/api/admin/homepage-sections/${id}`)
+      if (!response.ok) {
+        addLog(`Error response: ${response.status}`)
+        throw new Error("Failed to fetch section")
+      }
+      const data = await response.json()
+      setSection(data)
+      addLog(`Section loaded: ${data.name}`)
+
+      // Set image preview if image exists
+      if (data.image) {
+        setImagePreview(data.image)
+        addLog(`Image preview set: ${data.image}`)
+      }
+    } catch (error) {
+      console.error("Error fetching section:", error)
+      addLog(`Error: ${error instanceof Error ? error.message : String(error)}`)
+      toast({
+        title: "Error",
+        description: "Failed to load section",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }, [id, toast])
 
   useEffect(() => {
     const fetchExistingSections = async () => {
@@ -100,40 +130,11 @@ export default function HomepageSectionEditPage({ params }: { params: { id: stri
     if (!isNew) {
       fetchSection()
     }
-  }, [id, isNew])
+  }, [id, isNew,fetchSection])
 
   
 
-  const fetchSection = async () => {
-    try {
-      setLoading(true)
-      addLog(`Fetching section with ID: ${id}`)
-      const response = await fetch(`/api/admin/homepage-sections/${id}`)
-      if (!response.ok) {
-        addLog(`Error response: ${response.status}`)
-        throw new Error("Failed to fetch section")
-      }
-      const data = await response.json()
-      setSection(data)
-      addLog(`Section loaded: ${data.name}`)
-
-      // Set image preview if image exists
-      if (data.image) {
-        setImagePreview(data.image)
-        addLog(`Image preview set: ${data.image}`)
-      }
-    } catch (error) {
-      console.error("Error fetching section:", error)
-      addLog(`Error: ${error instanceof Error ? error.message : String(error)}`)
-      toast({
-        title: "Error",
-        description: "Failed to load section",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
+  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

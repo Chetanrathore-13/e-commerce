@@ -27,11 +27,9 @@ interface Review {
   }
 }
 
-export default function AdminReviewDetailPage({ params }: { params: { id: string } }) {
+export default  function AdminReviewDetailPage({ params }: { params: Promise<{ id: string }>}) {
   const router = useRouter()
   const { toast } = useToast()
-  const { id } = params
-
   const [review, setReview] = useState<Review | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -43,6 +41,14 @@ export default function AdminReviewDetailPage({ params }: { params: { id: string
   const [status, setStatus] = useState<"pending" | "approved" | "rejected">("pending")
   const [pros, setPros] = useState<string[]>([])
   const [cons, setCons] = useState<string[]>([])
+  const [id, setId] = useState("")
+  useEffect(() => {
+    const fetchId = async () => {
+      const param = await params
+      setId(param.id)
+    }
+    fetchId()
+  }, [params])
 
   // Fetch review
   useEffect(() => {

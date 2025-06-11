@@ -12,10 +12,12 @@ export const metadata: Metadata = {
 export default async function EditCategoryPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  // Await the params promise
+  const param = await params
   const [category, { categories }] = await Promise.all([
-    getCategoryById(params.id),
+    getCategoryById(param.id),
     getCategories({ page: 1, per_page: 100 }),
   ])
 
@@ -24,7 +26,7 @@ export default async function EditCategoryPage({
   }
 
   // Filter out the current category and its children to prevent circular references
-  const filteredCategories = categories.filter((c) => c._id.toString() !== params.id)
+  const filteredCategories = categories.filter((c: any) => c._id.toString() !== param.id)
 
   return (
     <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">

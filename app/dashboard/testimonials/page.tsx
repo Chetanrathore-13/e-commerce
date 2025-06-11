@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Plus, Edit, Trash2, Star, AlertCircle } from "lucide-react"
@@ -37,11 +37,7 @@ export default function TestimonialsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
-  useEffect(() => {
-    fetchTestimonials()
-  }, [fetchTestimonials])
-
-  const fetchTestimonials = async () => {
+  const fetchTestimonials = useCallback( async () => {
     try {
       setLoading(true)
       const response = await fetch("/api/admin/testimonials")
@@ -60,7 +56,12 @@ export default function TestimonialsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
+  useEffect(() => {
+    fetchTestimonials()
+  }, [fetchTestimonials])
+
+  
 
   const handleDelete = async () => {
     if (!deleteId) return

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import { HomepageSection } from "@/lib/models/homepage-section"
 
 export async function GET() {
@@ -8,7 +8,7 @@ export async function GET() {
     const sections = await HomepageSection.find().sort({ position: 1 }).lean()
 
     return NextResponse.json(
-      sections.map((section) => ({
+      sections.map((section: any) => ({
         ...section,
         _id: section._id.toString(),
       })),

@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     await connectToDatabase()
 
     const body = await request.json()
-    console.log("PhonePe callback received:", body)
+    
 
     const { response, checksum } = body
 

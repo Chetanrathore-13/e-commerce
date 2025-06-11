@@ -6,9 +6,9 @@ import { authOptions } from "@/lib/auth"
 import { OrderDetail } from "./order-detail"
 
 interface OrderDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 async function getOrderById(id: string) {
@@ -24,7 +24,7 @@ async function getOrderById(id: string) {
 }
 
 export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
-  const { id } = params
+  const { id } = await params
   const session = await getServerSession(authOptions)
 
   if (!session || session.user.role !== "admin") {

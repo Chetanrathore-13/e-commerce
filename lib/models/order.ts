@@ -1,11 +1,11 @@
 import mongoose, { Schema, type Document } from "mongoose"
 
-interface OrderDocument extends Document {
-  user_id: mongoose.Schema.Types.ObjectId
+export interface OrderDocument extends Document {
+  user_id: mongoose.Types.ObjectId
   order_number: string
   items: {
-    product_id: mongoose.Schema.Types.ObjectId
-    variation_id: mongoose.Schema.Types.ObjectId
+    product_id: mongoose.Types.ObjectId
+    variation_id: mongoose.Types.ObjectId
     quantity: number
     price: number
     name: string
@@ -17,7 +17,7 @@ interface OrderDocument extends Document {
   subtotal: number
   discount: number
   coupon_code?: string
-  status: string
+  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "returned"
   shipping_address: {
     full_name: string
     address_line1: string
@@ -38,8 +38,8 @@ interface OrderDocument extends Document {
     country: string
     phone: string
   }
-  payment_method: string
-  payment_status: string
+  payment_method: "cod" | "phonepe" | "credit-card" | "paypal" | "bank-transfer"
+  payment_status: "pending" | "processing" | "completed" | "failed" | "refunded"
   tracking_number?: string
   shipping_carrier?: string
   estimated_delivery?: Date
@@ -47,7 +47,7 @@ interface OrderDocument extends Document {
   updatedAt: Date
 }
 
-const OrderSchema: Schema = new Schema(
+const OrderSchema: Schema<OrderDocument> = new Schema(
   {
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     order_number: { type: String, required: true, unique: true },
@@ -108,16 +108,15 @@ const OrderSchema: Schema = new Schema(
   },
   {
     timestamps: true,
-  },
+  }
 )
 
 // Create indexes
 OrderSchema.index({ user_id: 1 })
-OrderSchema.index({ order_number: 1 })
 OrderSchema.index({ status: 1 })
 OrderSchema.index({ payment_status: 1 })
 OrderSchema.index({ createdAt: -1 })
 
 const Order = mongoose.models.Order || mongoose.model<OrderDocument>("Order", OrderSchema)
 
-export { Order, type OrderDocument }
+export { Order }

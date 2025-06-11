@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/db"
+import { connectToDatabase } from "@/lib/mongodb"
 import {  Product } from "@/lib/models"
 import Coupon from "@/lib/models/coupon"
 import Cart from "@/lib/models/cart"
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     // Find coupon
-    const coupon = await Coupon.findOne({
+    const coupon: any = await Coupon.findOne({
       code: code.toUpperCase(),
       is_active: true,
     }).lean()
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
 
     // Get user's cart to check for product/category restrictions
     if (coupon.applies_to !== "all") {
-      const cart = await Cart.findOne({ user_id: userId }).lean()
+      const cart: any = await Cart.findOne({ user_id: userId }).lean()
 
       if (!cart || !cart.items || cart.items.length === 0) {
         return NextResponse.json({ error: "Cart is empty" }, { status: 400 })
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       // If coupon applies to specific categories or products
       if (coupon.applies_to === "categories" && coupon.applicable_categories?.length) {
         // Get all products in cart
-        const productIds = cart.items.map((item) => item.product_id)
+        const productIds = cart.items.map((item: any) => item.product_id)
         const products = await Product.find({ _id: { $in: productIds } }).lean()
 
         // Check if any product belongs to applicable categories
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
 
       if (coupon.applies_to === "products" && coupon.applicable_products?.length) {
         // Check if any cart item is in the applicable products list
-        const hasApplicableProduct = cart.items.some((item) => coupon.applicable_products?.includes(item.product_id))
+        const hasApplicableProduct = cart.items.some((item: any) => coupon.applicable_products?.includes(item.product_id))
 
         if (!hasApplicableProduct) {
           return NextResponse.json(
