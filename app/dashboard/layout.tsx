@@ -9,6 +9,7 @@ import { ResizableSidebar } from "@/components/resizable-sidebar";
 import { SidebarProvider } from "@/components/sidebar-context";
 import Link from "next/link";
 import Image from "next/image";
+import Logo from "@/public/Logo/Parpra.png";
 export default async function DashboardLayout({
   children,
 }: {
@@ -28,7 +29,7 @@ export default async function DashboardLayout({
             <div className="flex items-center gap-2">
               <MobileSidebar />
               <Link href="/dashboard" className="hidden sm:inline-block">
-                <Image src="/Logo/Parpra.png" alt="Logo" width={64} // 16 * 4 (Tailwind's rem base)
+                <Image src={Logo} alt="Logo" width={64} // 16 * 4 (Tailwind's rem base)
   height={64} className="h-16 w-16" />
               </Link>
               <Link href="/dashboard">

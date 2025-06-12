@@ -37,6 +37,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Logo from "@/public/Logo/Parpra.png"
 import { useCallback } from "react";
 // Declare Razorpay global
 declare global {
@@ -1032,14 +1033,14 @@ export default function CheckoutPage() {
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
-            <Link href="/" className="flex items-center justify-center">
+            {/* <Link href="/" className="flex items-center justify-center">
               <Image
-                src="/parpra-logo.png"
+                src={Logo}
                 alt="PARPRA"
                 width={180}
                 height={60}
               />
-            </Link>
+            </Link> */}
             <div className="hidden md:flex items-center">
               <Link
                 href="/cart"

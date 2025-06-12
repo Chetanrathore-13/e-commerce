@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import Logo from "@/public/Logo/Parpra.png"
 
 interface PremiumLogoLoaderProps {
   minDisplayTime?: number
@@ -75,7 +76,7 @@ export default function PremiumLogoLoader({ minDisplayTime = 2500, className }: 
 
           {/* Logo image */}
           <div className="absolute inset-0 flex items-center justify-center p-4">
-            <Image src="/Logo/parpra.png" alt="Parpra" width={120} height={120} className="object-contain" priority />
+            <Image src={Logo} alt="Parpra" width={120} height={120} className="object-contain" priority />
           </div>
         </div>
 

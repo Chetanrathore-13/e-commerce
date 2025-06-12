@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import Logo from "@/public/Logo/Parpra.png"
 
 export default function LogoLoader() {
   const [loading, setLoading] = useState(true)
@@ -33,7 +34,7 @@ export default function LogoLoader() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
       <div className="relative flex flex-col items-center">
         <div className="relative h-24 w-24 md:h-32 md:w-32">
-          <Image src="/Logo/parpra.png" alt="Parpra" fill className="object-contain" priority />
+          <Image src={Logo} alt="Parpra" fill className="object-contain" priority />
         </div>
 
         {/* Animated dots */}
