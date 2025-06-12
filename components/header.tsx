@@ -289,8 +289,8 @@ export default function Header() {
                   side="left"
                   className="w-[300px] overflow-y-auto py-6"
                 >
-                  <div className="flex flex-col h-full space-y-4">
-                    <div className="py-6 border-b mb-3">
+                  <div className="flex flex-col h-full space-y-4 ">
+                    <div className="py-6 border-b mb-3 ">
                       <Link
                         href="/"
                         className="flex items-center justify-center"
@@ -503,7 +503,7 @@ export default function Header() {
             </div>
 
             {/* Logo - Centered on mobile, left-aligned on desktop */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none md:left-0 md:flex md:items-center">
+            <div className="absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none md:left-0 md:flex md:items-center ml-5">
               <Link href="/" className="flex items-center">
                 <Image
                   src={logo || "/placeholder.svg"}
