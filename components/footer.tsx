@@ -90,8 +90,7 @@ export default function Footer() {
   const getCategoryUrl = (name: string) => {
     return `/${name
       .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")}`;
+      .replace(/\s+/g, "-")}`;
   };
   const features = [
     {
