@@ -1,16 +1,26 @@
 "use client";
 
+import type { Metadata } from "next";
 import Image from "next/image";
 import { ChevronRight, Users, Award, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import About from "@/public/aboutpage/80.jpg";
 import Link from "next/link";
 
+
+ export  const metadata: Metadata = {
+  title: "About - Ethnic Wear for Men & Women",
+  description: "Discover the finest collection of ethnic wear for men and women at Parpra.",
+  
+}
+
 export default function AboutPageClient() {
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
   };
+
+ 
 
   return (
     <div className=" min-h-screen bg-gradient-to-b from-neutral-50 to-white w-full">

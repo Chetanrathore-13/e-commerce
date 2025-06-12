@@ -4,6 +4,8 @@ import { motion } from "framer-motion"
 import { Shield, Lock, Database, Globe, Bell, UserCheck, Clock, FileText, HelpCircle } from "lucide-react"
 import Link from "next/link"
 
+
+
 export default function PrivacyPolicyPage() {
   const sections = [
     {

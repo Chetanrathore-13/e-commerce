@@ -14,7 +14,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Parpra - Ethnic Wear for Men & Women",
-  description: "Discover the finest collection of ethnic wear for men and women at Samyakk.",
+  description: "Discover the finest collection of ethnic wear for men and women at Parpra.",
   icons: {
     icon: "/favicon.png",
   },

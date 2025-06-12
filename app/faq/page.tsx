@@ -1,10 +1,13 @@
 "use client"
 
+
 import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ChevronDown, ChevronUp, Search, HelpCircle } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+
+
 
 interface FAQItem {
   _id: string
@@ -12,6 +15,8 @@ interface FAQItem {
   answer: string
   category: string
 }
+
+
 
 const categoryIcons: Record<string, React.ReactNode> = {
   Orders: (
