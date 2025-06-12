@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <Suspense fallback={<div>Loading...</div>}>
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning={true}>
         <NextAuthSessionProvider>
           <ThemeProvider
             attribute="class"
