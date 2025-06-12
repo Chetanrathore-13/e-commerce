@@ -42,9 +42,19 @@ export default function EmailsPage() {
     setDebugInfo("")
 
     try {
+      interface EmailRequestBody {
+        to: string
+        type: string
+        data: {
+          subject: string
+          title: string
+          subtitle: string
+          body: string
+          name: string
+        }
+      }
 
-
-      const requestBody = {
+      const requestBody: EmailRequestBody = {
         to: recipient,
         type: emailType,
         data: {
@@ -56,7 +66,7 @@ export default function EmailsPage() {
         },
       }
 
-      ("Request body:", requestBody)
+      console.log("Request body:", requestBody)
 
       const response = await fetch("/api/email/send", {
         method: "POST",

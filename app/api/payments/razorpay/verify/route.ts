@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
           shippingAddress: order.shipping_address,
           _id: order._id,
         })
-        ("Order confirmation email sent")
+        console.log("Order confirmation email sent")
       } catch (emailError) {
         console.error("Error sending order confirmation email:", emailError)
         // Don't fail the payment if email fails
