@@ -3,10 +3,35 @@ import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductList from "@/components/product-list";
 import { getProductsData } from "@/lib/api";
+import { Metadata } from "next";
 
 type Props = {
   params: Promise<{ category: string }>
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
+  const category = await getCategory(resolvedParams.category);
+  return {
+    title: `${category.name} - Parpra`,
+    description: category.description,
+    keywords: category.keywords?.join(", ") || "e-commerce, online shopping, products",
+    authors: [{ name: "Parpra Team", url: "https://parpra.com" }],
+    openGraph: {
+      title: `${category.name} - Parpra`,
+      description: category.description,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/category/${resolvedParams.category}`,
+      images: [
+        {
+          url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${encodeURIComponent(category.name)}&description=${encodeURIComponent(category.description)}`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+      siteName: "Parpra E-commerce",
+      type: "website",},
+  };
 }
 
 async function getCategory(slug: string) {

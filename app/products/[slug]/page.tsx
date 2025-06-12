@@ -4,6 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductDetailClient from "./product-detail-client";
+import { Metadata } from "next";
+
+
 
 async function getProduct(slug: string) {
   try {
@@ -28,6 +31,30 @@ async function getProduct(slug: string) {
     return null;
   }
 }
+
+export const generateMetadata = async ({ params }: any): Promise<Metadata> => {
+  const product = await getProduct(params.slug);
+  return {
+    title: `${product?.name} - Parpra`,
+    keywords: product?.tags?.join(", ") || "e-commerce, online shopping, products",
+    authors: [{ name: "Parpra Team", url: "https://parpra.com" }],
+    description: product?.description,
+    openGraph: {
+      title: product?.name,
+      description: product?.description,
+      url: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${params.slug}`,
+      images: [
+        {
+          url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${encodeURIComponent(product.name)}&description=${encodeURIComponent(product.description)}`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+      siteName: "Parpra E-commerce",
+      type: "website",
+    },
+  };
+};
 
 async function getRelatedProducts(categoryId: string, productId: string) {
   try {

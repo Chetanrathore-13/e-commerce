@@ -1,25 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Filter, Search, X } from "lucide-react";
+import {  X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import {
   Accordion,
   AccordionContent,
@@ -30,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import { getProducts, getCategories, getBrands } from "@/lib/api";
 import type { Category, Brand, ProductListResponse } from "@/types";
+import { Metadata } from "next";
+
 
 export default function ProductsPage() {
   // State for products and filters
@@ -54,6 +41,8 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState("featured");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+
+  
 
   // Fetch initial data
   useEffect(() => {
