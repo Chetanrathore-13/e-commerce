@@ -503,7 +503,7 @@ export default function Header() {
             </div>
 
             {/* Logo - Centered on mobile, left-aligned on desktop */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none md:left-0 md:flex md:items-center ml-5">
+            <div className="absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none md:left-0 md:flex md:items-center ">
               <Link href="/" className="flex items-center">
                 <Image
                   src={logo || "/placeholder.svg"}
