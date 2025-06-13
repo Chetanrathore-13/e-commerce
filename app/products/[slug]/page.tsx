@@ -32,23 +32,44 @@ async function getProduct(slug: string) {
   }
 }
 
-export const generateMetadata = async ({ params }: any): Promise<Metadata> => {
-  const product = await getProduct(params.slug);
+
+// Use typed route params
+interface ProductParams {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+export const generateMetadata = async ({ params }: ProductParams): Promise<Metadata> => {
+  const {slug} = await params;
+  const product = await getProduct(slug);
+
+  if (!product) {
+    return {
+      title: "Product Not Found - Parpra",
+      description: "This product could not be found.",
+    };
+  }
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
   return {
-    title: `${product?.name} - Parpra`,
-    keywords: product?.tags?.join(", ") || "e-commerce, online shopping, products",
-    authors: [{ name: "Parpra Team", url: "https://parpra.com" }],
-    description: product?.description,
+    title: `${product.name} - Parpra`,
+    description: product.description,
+    keywords: product.tags?.join(", ") || "e-commerce, online shopping, products",
+    authors: [
+      { name: "Parpra Team", url: "https://parpra.com" }
+    ],
     openGraph: {
-      title: product?.name,
-      description: product?.description,
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${params.slug}`,
+      title: product.name,
+      description: product.description,
+      url: `${siteUrl}/products/${product.slug}`,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/og?title=${encodeURIComponent(product.name)}&description=${encodeURIComponent(product.description)}`,
+          url: `${siteUrl}/api/og?title=${encodeURIComponent(product.name)}&description=${encodeURIComponent(product.description)}`,
           width: 1200,
           height: 630,
-        },
+        }
       ],
       siteName: "Parpra E-commerce",
       type: "website",
