@@ -68,6 +68,12 @@ export default async function Home() {
     (section: Section) => section.type === "banner" && section.isActive
   );
 
+  const customBannerSections = sections.filter(
+    (section: Section) => section.type === "custom" && section.isActive
+    
+  );
+  console.log("Custom Banner Sections:", customBannerSections);
+
   // Sort banner sections by position
   bannerSections.sort((a: Section & { position: number }, b: Section & { position: number }) => a.position - b.position);
 
@@ -101,7 +107,7 @@ export default async function Home() {
       {/* Hero Section */}
       <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] min-h-[300px]">
         {/* Hero Banner Slider */}
-        <HeroBannerSlider bannerSections={bannerSections} />
+        <HeroBannerSlider bannerSections={bannerSections} customSections={customBannerSections} />
       </section>
 
       {/* Featured Categories */}

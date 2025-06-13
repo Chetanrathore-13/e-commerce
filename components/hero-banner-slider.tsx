@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ban1 from "@/public/mobbanner/mob.png"
+import { custom } from "zod";
 
 
 interface BannerSection {
@@ -33,6 +34,7 @@ interface HeroBannerSliderProps {
 
 export default function HeroBannerSlider({
   bannerSections,
+  customSections = [], // Custom sections can be passed in
 }: HeroBannerSliderProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -96,21 +98,8 @@ export default function HeroBannerSlider({
     <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] min-h-[300px] overflow-hidden">
       {/* Banner Images */}
       {bannerSections.map((banner, index) => {
-        // Get config values with defaults
-        // const buttonText = banner.config?.buttonText || "Shop Now"
-        // const buttonLink = banner.config?.buttonLink || "/products"
-        // const alignment = banner.config?.alignment || "center"
-        // const textColor = banner.config?.textColor || "white"
-
-        // Determine text alignment class
-        // const alignmentClass =
-        //   alignment === "left"
-        //     ? "justify-start text-left"
-        //     : alignment === "right"
-        //       ? "justify-end text-right"
-        //       : "justify-center text-center"
-
-        return (
+       
+       return (
           <Link href="/products" key={banner._id}>
             <div
               key={banner._id}
@@ -131,20 +120,36 @@ export default function HeroBannerSlider({
               </div>
 
               {/* Mobile Image (shown below sm) */}
-              <div className="block sm:hidden absolute inset-0">
-                <Image
-                  src={ban1 || "/mobile-banner-placeholder.png"}
-                  alt={banner.title || "Banner Mobile"}
-                  fill
-                  className="object-cover"
-                  priority={index === 0}
-                />
-                <div className="absolute inset-0 bg-black/30 flex items-center p-4 md:p-8" />
-              </div>
+              
             </div>
           </Link>
         );
       })}
+
+      {/* mobile-banner */}
+      {customSections.map((custom, index) => (
+        <Link href="/products" key={custom._id}>
+          <div
+            key={custom._id}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+            }`}
+          >
+          
+            {/* Mobile Image (shown below sm) */}
+            <div className="block sm:hidden absolute inset-0">
+              <Image
+                src={custom.image || "/mobile-banner-placeholder.png"}
+                alt={custom.title || "Banner Mobile"}
+                fill
+                className="object-cover"
+                priority={index === 0}
+              />
+              <div className="absolute inset-0 bg-black/30 flex items-center p-4 md:p-8" />
+            </div>
+          </div>
+        </Link>
+      ))}
 
       {/* Navigation Arrows - Only show if there are multiple banners */}
       {bannerSections.length > 1 && (
