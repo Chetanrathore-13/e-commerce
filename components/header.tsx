@@ -15,7 +15,7 @@ import { getCategoryTree, getUserWishlist } from "@/lib/api";
 import { useSession } from "next-auth/react";
 import AnnouncementBar from "./announcement-bar";
 import { useToast } from "@/hooks/use-toast";
-import logo from "@/public/Logo/Parpra.png";
+import logo from "@/public/Logo/Parpra-resize.png";
 import AuthPopup from "./auth-popup";
 
 // Update the Header component to fetch categories from the database
@@ -508,7 +508,7 @@ export default function Header() {
                 <Image
                   src={logo || "/placeholder.svg"}
                   alt="PARPRA"
-                  width={100}
+                  width={ 80}
                   height={60}
                   priority
                 />

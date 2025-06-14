@@ -6,7 +6,7 @@ import NextAuthSessionProvider from "@/components/session-provider"
 import LayoutWrapper from "@/components/layout-wrapper"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import { LoadingProvider } from "@/components/loading-provider"
+// import { LoadingProvider } from "@/components/loading-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Suspense } from "react"
 
@@ -37,11 +37,11 @@ export default function RootLayout({
             disableTransitionOnChange
             enableColorScheme={true}
           >
-            <LoadingProvider>
+           
               <Header /> {/* Role-based logic should be inside Header */}
               <LayoutWrapper>{children}</LayoutWrapper>
               <Footer /> {/* Role-based logic should be inside Footer */}
-            </LoadingProvider>
+            
           </ThemeProvider>
         </NextAuthSessionProvider>
         <Toaster />
