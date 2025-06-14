@@ -1,12 +1,8 @@
-import type { Metadata } from "next"
+
 import { ProductForm } from "@/components/products/product-form"
 import { getBrands, getCategories } from "@/lib/data"
 import { BackButton } from "@/components/back-button"
 
-export const metadata: Metadata = {
-  title: "Add Product | E-commerce Admin",
-  description: "Add a new product to your store",
-}
 
 export default async function NewProductPage() {
   const [{ brands }, { categories }] = await Promise.all([

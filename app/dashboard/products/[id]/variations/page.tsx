@@ -1,4 +1,3 @@
-import type { Metadata } from "next"
 import { getProductById, getVariationsByProductId } from "@/lib/data"
 import { VariationsTable } from "@/components/variations/variations-table"
 import { Button } from "@/components/ui/button"
@@ -7,10 +6,6 @@ import Link from "next/link"
 import { PlusCircle } from "lucide-react"
 import { notFound } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Product Variations | E-commerce Admin",
-  description: "Manage product variations",
-}
 
 export default async function ProductVariationsPage({
   params,

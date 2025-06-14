@@ -41,7 +41,7 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
     setIsDeleting(id)
 
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/admin/products/${id}`, {
         method: "DELETE",
       })
 
@@ -73,7 +73,7 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
 
     try {
       // Use the slug-based endpoint for status updates
-      const response = await fetch(`/api/products/${product.slug}`, {
+      const response = await fetch(`/api/admin/products/${product.slug}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

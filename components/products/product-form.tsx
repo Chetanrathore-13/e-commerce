@@ -108,7 +108,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
       }
 
       if (product) {
-        const response = await fetch(`/api/products/${product._id}`, {
+        const response = await fetch(`/api/admin/products/${product._id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -127,7 +127,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
           description: "Product updated successfully",
         })
       } else {
-        const response = await fetch("/api/products", {
+        const response = await fetch("/api/admin/products", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
