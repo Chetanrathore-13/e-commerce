@@ -105,7 +105,7 @@ export default function BestSellers({
 
   return (
     <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6">
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-y-4">
           {/* Title & Subtitle */}

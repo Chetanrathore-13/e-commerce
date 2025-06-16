@@ -113,7 +113,7 @@ export default function Testimonials({
 
   return (
     <section className="py-18">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-10">
         {/* Section header */}
         {(sectionTitle || sectionSubtitle) && (
           <div className="flex flex-col md:flex-row items-center justify-between mb-12">

@@ -593,14 +593,14 @@ export default function Header() {
             </div>
 
             {/* Actions - Right aligned on both mobile and desktop */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <div className="relative hidden md:block" ref={searchRef}>
                 <button
                   className="flex items-center hover:text-teal-800"
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
                   aria-label="Search"
                 >
-                  <Search className="h-6 w-6" />
+                  <Search className="h-5 w-5" />
                 </button>
               </div>
 
@@ -642,7 +642,7 @@ export default function Header() {
                   onClick={handleOpenLoginPopup}
                   aria-label="User Account"
                 >
-                  <User className="h-6 w-6" />
+                  <User className="h-5 w-5" />
                 </button>
                 {isProfileOpen && status === "authenticated" && (
                   <ProfileDropdown />
