@@ -1021,3 +1021,25 @@ export async function getNavbarCategories() {
     return []
   }
 }
+
+// Get SEO meta data for a specific page
+export async function getSeoMeta(page: string): Promise<any> {
+  const url = `${getBaseUrl()}/api/seo-meta?page=${page}`
+
+  try {
+    const response = await fetch(url, {
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    })
+
+    if (!response.ok) {
+      console.warn(`SEO meta not found for page: ${page}`)
+      return null
+    }
+
+    const data = await response.json()
+    return data.meta || null
+  } catch (error) {
+    console.error(`Error fetching SEO meta for page ${page}:`, error)
+    return null
+  }
+}
