@@ -305,7 +305,7 @@ export default function Header() {
       {showLoginPopup && <AuthPopup onClose={handleCloseLoginPopup} />}
 
       {/* Main Header */}
-      <div className="border-b">
+      <div className="border-b pl-10">
         <div className="container mx-auto px-4 py-5 md:py-4">
           <div className="flex items-center justify-between relative">
             {/* Mobile Menu - Left */}
