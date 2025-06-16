@@ -95,12 +95,8 @@ export default async function Home() {
   const newArrivalsSection = findSectionByType("new-arrivals");
   // Get best sellers section
   const bestSellersSection = findSectionByType("best-sellers");
-  // Get featured collections section
-  const featuredCollectionsSection = findSectionByType("featured-collections");
   // Get testimonials section
   const testimonialsSection = findSectionByType("testimonials");
-  // Get instagram feed section
-  const instagramFeedSection = findSectionByType("instagram-feed");
 
   return (
     <main>

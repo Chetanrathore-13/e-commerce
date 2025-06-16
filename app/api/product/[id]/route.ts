@@ -4,9 +4,9 @@ import { Product, Variation, Brand, Category } from "@/lib/models"
 import mongoose from "mongoose"
 
 interface Params {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 // Get product by ID (used by context for guest cart/wishlist)
@@ -14,8 +14,8 @@ export async function GET(request: Request, { params }: Params) {
   try {
     await connectToDatabase()
 
-    const productId = params.id
-
+    const {id} = await  params
+    const productId = id
     // Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(productId)) {
       return NextResponse.json({ error: "Invalid product ID" }, { status: 400 })

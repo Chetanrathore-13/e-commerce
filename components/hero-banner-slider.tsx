@@ -30,6 +30,7 @@ interface BannerSection {
 
 interface HeroBannerSliderProps {
   bannerSections: BannerSection[];
+  customSections?: BannerSection[];
 }
 
 export default function HeroBannerSlider({
