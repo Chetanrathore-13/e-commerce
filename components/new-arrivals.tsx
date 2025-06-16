@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight, Heart, ShoppingCart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
-import AuthPopup from "./auth-popup";
+import { useWishlist } from "@/contexts/wishlist-context";
 import { useMemo } from "react";
 
 interface Product {
@@ -42,16 +42,15 @@ export default function NewArrivals({
 }: NewArrivalsProps) {
   // Ensure products is always an array
   const safeProducts = useMemo(() => {
-  return Array.isArray(products) ? products : [];
-}, [products]);
+    return Array.isArray(products) ? products : [];
+  }, [products]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [showAuthPopup, setShowAuthPopup] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const { data: session } = useSession();
-
+  const { toggleWishlistItem, isInWishlist } = useWishlist();
   const checkScrollButtons = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } =
@@ -59,9 +58,6 @@ export default function NewArrivals({
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10); // 10px buffer
     }
-  };
-  const handleAuthPopupClose = () => {
-    setShowAuthPopup(false);
   };
 
   useEffect(() => {
@@ -90,18 +86,7 @@ export default function NewArrivals({
     }
   };
 
-  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // Add to cart logic here
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
-  };
-
-  const handleAddToWishlist = async (
+  const handleToggleWishlist = async (
     e: React.MouseEvent,
     productId: string,
     variationId: string
@@ -109,36 +94,19 @@ export default function NewArrivals({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!session) {
-      setShowAuthPopup(true);
-      return;
-    }
-
     try {
-      const response = await fetch("/api/wishlist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          product_id: productId,
-          variation_id: variationId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to add to wishlist");
-      }
-
+      const added = await toggleWishlistItem(productId, variationId);
       toast({
-        title: "Success",
-        description: "Added to wishlist",
+        title: added ? "Added to Wishlist" : "Removed from Wishlist",
+        description: added
+          ? "Item has been added to your wishlist"
+          : "Item has been removed from your wishlist",
       });
     } catch (error) {
-      console.error("Error adding to wishlist:", error);
+      console.error("Wishlist toggle error:", error);
       toast({
         title: "Error",
-        description: "Failed to add to wishlist",
+        description: "Failed to update wishlist",
         variant: "destructive",
       });
     }
@@ -196,9 +164,6 @@ export default function NewArrivals({
           )}
         </div>
 
-        {/* Auth Popup (Optional) */}
-        {showAuthPopup && <AuthPopup onClose={handleAuthPopupClose} />}
-
         {/* Horizontal Scrollable Products */}
         <div className="relative">
           {canScrollLeft && (
@@ -244,12 +209,23 @@ export default function NewArrivals({
                       className="object-cover transition-transform group-hover:scale-105 duration-500"
                     />
                     <button
-                      className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 hover:cursor-pointer"
+                      className={`absolute top-3 right-3 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 hover:cursor-pointer ${
+                        isInWishlist(product._id, variation._id)
+                          ? "text-red-500"
+                          : "text-gray-600"
+                      }`}
                       onClick={(e) =>
-                        handleAddToWishlist(e, product._id, variation._id)
+                        handleToggleWishlist(e, product._id, variation._id)
                       }
                     >
-                      <Heart className="h-4 w-4 text-gray-600 hover:text-red-500" />
+                      <Heart
+                        className="h-4 w-4 transition-colors"
+                        fill={
+                          isInWishlist(product._id, variation._id)
+                            ? "currentColor"
+                            : "none"
+                        }
+                      />
                     </button>
                   </div>
                   <CardContent className="p-5">

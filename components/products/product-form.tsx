@@ -184,7 +184,7 @@ export function ProductForm({ product, brands, categories }: ProductFormProps) {
             render={({ field }) => (
               <FormItem className="mb-4">
                 <FormLabel className="text-lg block">Brand</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value || "undefined"}>
+                <Select onValueChange={field.onChange} value={field.value }>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a brand" />

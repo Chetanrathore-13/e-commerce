@@ -6,6 +6,17 @@ interface IUser extends Document {
   name: string
   email: string
   password: string
+  phone?: string
+  avatar?: string
+  isVerified?: boolean
+  verificationToken?: string
+  resetPasswordToken?: string
+  resetPasswordExpires?: Date
+  lastLogin?: Date
+  preferences?: {
+    newsletter?: boolean
+    notifications?: boolean
+  }
   role: "admin" | "user"
   createdAt: Date
   updatedAt: Date
@@ -70,6 +81,17 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ["admin", "user"], default: "user" },
+    phone: { type: String, default: null },
+    avatar: { type: String, default: null },
+    isVerified: { type: Boolean, default: false },
+    verificationToken: { type: String, default: null },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
+    lastLogin: { type: Date, default: null },
+    preferences: {
+      newsletter: { type: Boolean, default: true },
+      notifications: { type: Boolean, default: true },
+    }
   },
   { timestamps: true },
 )

@@ -1,107 +1,143 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Calendar, Tag, Percent, DollarSign, Info, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Calendar,
+  Tag,
+  Percent,
+  DollarSign,
+  Info,
+  Loader2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 interface Coupon {
-  _id: string
-  code: string
-  description: string
-  discount_type: "percentage" | "fixed"
-  discount_value: number
-  minimum_purchase: number
-  start_date: string
-  expiry_date: string
-  usage_limit: number
-  usage_count: number
-  is_active: boolean
-  applies_to: "all" | "categories" | "products"
-  applicable_categories?: string[]
-  applicable_products?: string[]
+  _id: string;
+  code: string;
+  description: string;
+  discount_type: "percentage" | "fixed";
+  discount_value: number;
+  minimum_purchase: number;
+  start_date: string;
+  expiry_date: string;
+  usage_limit: number;
+  usage_count: number;
+  is_active: boolean;
+  applies_to: "all" | "categories" | "products";
+  applicable_categories?: string[];
+  applicable_products?: string[];
 }
 
-export default  function EditCouponPage({ params }: { params: Promise<{ id: string }>}) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [coupon, setCoupon] = useState<Coupon | null>(null)
+export default function EditCouponPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [coupon, setCoupon] = useState<Coupon | null>(null);
   // Form state
-  const [code, setCode] = useState("")
-  const [description, setDescription] = useState("")
-  const [discountType, setDiscountType] = useState<"percentage" | "fixed">("percentage")
-  const [discountValue, setDiscountValue] = useState("")
-  const [minimumPurchase, setMinimumPurchase] = useState("")
-  const [startDate, setStartDate] = useState("")
-  const [expiryDate, setExpiryDate] = useState("")
-  const [usageLimit, setUsageLimit] = useState("")
-  const [isActive, setIsActive] = useState(true)
-  const [appliesTo, setAppliesTo] = useState<"all" | "categories" | "products">("all")
-  const [id, setId] = useState("")
+  const [code, setCode] = useState("");
+  const [description, setDescription] = useState("");
+  const [discountType, setDiscountType] = useState<"percentage" | "fixed">(
+    "percentage"
+  );
+  const [discountValue, setDiscountValue] = useState("");
+  const [minimumPurchase, setMinimumPurchase] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [usageLimit, setUsageLimit] = useState("");
+  const [isActive, setIsActive] = useState(true);
+  const [appliesTo, setAppliesTo] = useState<"all" | "categories" | "products">(
+    "all"
+  );
+  const [id, setId] = useState("");
   useEffect(() => {
     const fetchId = async () => {
-      const param = await params
-      setId(param.id)
-    }
-    fetchId()
-  }, [params])
- const fetchCoupon =useCallback( async () => {
+      const param = await params;
+      setId(param.id);
+    };
+    fetchId();
+  }, [params]);
+
+  const fetchCoupon = useCallback(async () => {
     try {
-      setIsLoading(true)
-      const response = await fetch(`/api/admin/coupons/${id}`)
+      setIsLoading(true);
+      const response = await fetch(`/api/admin/coupons/${id}`);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch coupon")
+        throw new Error("Failed to fetch coupon");
       }
 
-      const data = await response.json()
-      setCoupon(data)
+      const data = await response.json();
+      console.log("Fetched coupon data:", data);
+      setCoupon(data);
 
       // Populate form fields
-      setCode(data.code)
-      setDescription(data.description)
-      setDiscountType(data.discount_type)
-      setDiscountValue(data.discount_value.toString())
-      setMinimumPurchase(data.minimum_purchase.toString())
-      setStartDate(new Date(data.start_date).toISOString().split("T")[0])
-      setExpiryDate(new Date(data.expiry_date).toISOString().split("T")[0])
-      setUsageLimit(data.usage_limit.toString())
-      setIsActive(data.is_active)
-      setAppliesTo(data.applies_to)
+      setCode(data?.code);
+      setDescription(data?.description);
+      setDiscountType(data?.discount_type);
+      setDiscountValue(data?.discount_value?.toString());
+      setMinimumPurchase(data?.minimum_purchase?.toString());
+      setStartDate(
+        data?.start_date
+          ? new Date(data.start_date).toISOString().split("T")[0]
+          : ""
+      );
+      setExpiryDate(
+        data?.expiry_date
+          ? new Date(data.expiry_date).toISOString().split("T")[0]
+          : ""
+      );
+      setUsageLimit(data?.usage_limit?.toString());
+      setIsActive(data?.is_active);
+      setAppliesTo(data?.applies_to);
     } catch (error) {
-      console.error("Error fetching coupon:", error)
+      console.error("Error fetching coupon:", error);
       toast({
         title: "Error",
         description: "Failed to load coupon details",
         variant: "destructive",
-      })
-      router.push("/dashboard/coupons")
+      });
+      router.push("/dashboard/coupons");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [ id, router, toast ])
+  }, [id, router, toast]);
   useEffect(() => {
-    fetchCoupon()
-  }, [id, fetchCoupon])
-
- 
+    fetchCoupon();
+  }, [id, fetchCoupon]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Basic validation
     if (!code || !description || !discountValue || !expiryDate) {
@@ -109,19 +145,19 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
         title: "Error",
         description: "Please fill in all required fields",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     // Validate discount value
-    const discountValueNum = Number.parseFloat(discountValue)
+    const discountValueNum = Number.parseFloat(discountValue);
     if (isNaN(discountValueNum) || discountValueNum <= 0) {
       toast({
         title: "Error",
         description: "Discount value must be a positive number",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     // Validate percentage discount (max 100%)
@@ -130,11 +166,11 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
         title: "Error",
         description: "Percentage discount cannot exceed 100%",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const couponData = {
@@ -142,7 +178,9 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
         description,
         discount_type: discountType,
         discount_value: discountValueNum,
-        minimum_purchase: minimumPurchase ? Number.parseFloat(minimumPurchase) : 0,
+        minimum_purchase: minimumPurchase
+          ? Number.parseFloat(minimumPurchase)
+          : 0,
         start_date: startDate,
         expiry_date: expiryDate,
         usage_limit: usageLimit ? Number.parseInt(usageLimit) : 0,
@@ -151,7 +189,7 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
         // Preserve existing applicable items
         applicable_categories: coupon?.applicable_categories,
         applicable_products: coupon?.applicable_products,
-      }
+      };
 
       const response = await fetch(`/api/admin/coupons/${id}`, {
         method: "PUT",
@@ -159,36 +197,41 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
           "Content-Type": "application/json",
         },
         body: JSON.stringify(couponData),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to update coupon")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update coupon");
       }
 
       toast({
         title: "Success",
         description: "Coupon updated successfully",
-      })
+      });
 
-      router.push("/dashboard/coupons")
+      router.push("/dashboard/coupons");
     } catch (error) {
-      console.error("Error updating coupon:", error)
+      console.error("Error updating coupon:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update coupon",
+        description:
+          error instanceof Error ? error.message : "Failed to update coupon",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={() => router.push("/dashboard/coupons")} className="mr-4">
+          <Button
+            variant="ghost"
+            onClick={() => router.push("/dashboard/coupons")}
+            className="mr-4"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Coupons
           </Button>
@@ -205,13 +248,17 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="container mx-auto py-8 px-7">
       <div className="flex items-center justify-between mb-6">
-        <Button  variant="ghost" onClick={() => router.push("/dashboard/coupons")} className="mr-4 bg-teal-600 hover:bg-teal-700 text-white hover:text-white">
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/dashboard/coupons")}
+          className="mr-4 bg-teal-600 hover:bg-teal-700 text-white hover:text-white"
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Coupons
         </Button>
@@ -223,7 +270,9 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
           {/* Main coupon details */}
           <Card className="md:col-span-2">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold">Coupon Details</CardTitle>
+              <CardTitle className="text-2xl font-bold">
+                Coupon Details
+              </CardTitle>
               <CardDescription>Update your discount coupon</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -242,7 +291,9 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
                     required
                   />
                 </div>
-                <p className="text-sm text-gray-500">Customers will enter this code at checkout</p>
+                <p className="text-sm text-gray-500">
+                  Customers will enter this code at checkout
+                </p>
               </div>
 
               <div className="space-y-2 mb-4">
@@ -256,7 +307,9 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
                   onChange={(e) => setDescription(e.target.value)}
                   required
                 />
-                <p className="text-sm text-gray-500">Brief description of what this coupon is for</p>
+                <p className="text-sm text-gray-500">
+                  Brief description of what this coupon is for
+                </p>
               </div>
 
               <Separator />
@@ -267,7 +320,9 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
                 </Label>
                 <RadioGroup
                   value={discountType}
-                  onValueChange={(value) => setDiscountType(value as "percentage" | "fixed")}
+                  onValueChange={(value) =>
+                    setDiscountType(value as "percentage" | "fixed")
+                  }
                   className="flex flex-col space-y-2"
                 >
                   <div className="flex items-center space-x-2">
@@ -316,9 +371,13 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div className="space-y-2 mb-4">
-                <Label htmlFor="minimumPurchase" className="mb-2 text-lg block">Minimum Purchase Amount</Label>
+                <Label htmlFor="minimumPurchase" className="mb-2 text-lg block">
+                  Minimum Purchase Amount
+                </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1.5 text-gray-500">₹</span>
+                  <span className="absolute left-3 top-1.5 text-gray-500">
+                    ₹
+                  </span>
                   <Input
                     id="minimumPurchase"
                     type="number"
@@ -331,7 +390,8 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
                   />
                 </div>
                 <p className="text-sm text-gray-500">
-                  Minimum order amount required to use this coupon (0 for no minimum)
+                  Minimum order amount required to use this coupon (0 for no
+                  minimum)
                 </p>
               </div>
             </CardContent>
@@ -341,11 +401,15 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg font-semibold">Coupon Settings</CardTitle>
+                <CardTitle className="text-lg font-semibold">
+                  Coupon Settings
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2 mb-4">
-                  <Label htmlFor="startDate" className="mb-2 text-lg block">Start Date</Label>
+                  <Label htmlFor="startDate" className="mb-2 text-lg block">
+                    Start Date
+                  </Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
                     <Input
@@ -376,7 +440,9 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 <div className="space-y-2 mb-4">
-                  <Label htmlFor="usageLimit" className="mb-2 text-lg block">Usage Limit</Label>
+                  <Label htmlFor="usageLimit" className="mb-2 text-lg block">
+                    Usage Limit
+                  </Label>
                   <Input
                     id="usageLimit"
                     type="number"
@@ -386,33 +452,50 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
                     min="0"
                   />
                   <p className="text-sm text-gray-500">
-                    Maximum number of times this coupon can be used (0 for unlimited)
+                    Maximum number of times this coupon can be used (0 for
+                    unlimited)
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="isActive" className=" text-lg ">Active</Label>
-                  <Switch id="isActive" checked={isActive} onCheckedChange={setIsActive} />
+                  <Label htmlFor="isActive" className=" text-lg ">
+                    Active
+                  </Label>
+                  <Switch
+                    id="isActive"
+                    checked={isActive}
+                    onCheckedChange={setIsActive}
+                  />
                 </div>
 
                 <Separator />
 
                 <div className="space-y-2 mb-4">
-                  <Label htmlFor="appliesTo" className="mb-2 text-lg block">Applies To</Label>
+                  <Label htmlFor="appliesTo" className="mb-2 text-lg block">
+                    Applies To
+                  </Label>
                   <Select
                     value={appliesTo}
-                    onValueChange={(value) => setAppliesTo(value as "all" | "categories" | "products")}
+                    onValueChange={(value) =>
+                      setAppliesTo(value as "all" | "categories" | "products")
+                    }
                   >
                     <SelectTrigger id="appliesTo">
                       <SelectValue placeholder="Select scope" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Products</SelectItem>
-                      <SelectItem value="categories">Specific Categories</SelectItem>
-                      <SelectItem value="products">Specific Products</SelectItem>
+                      <SelectItem value="categories">
+                        Specific Categories
+                      </SelectItem>
+                      <SelectItem value="products">
+                        Specific Products
+                      </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-sm text-gray-500">Determine which products this coupon can be applied to</p>
+                  <p className="text-sm text-gray-500">
+                    Determine which products this coupon can be applied to
+                  </p>
                 </div>
 
                 {appliesTo !== "all" && (
@@ -437,7 +520,11 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
 
             <Card>
               <CardContent className="pt-6">
-                <Button type="submit" className="w-full text-lg py-4 bg-teal-600 font-light hover:bg-teal-700" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  className="w-full text-lg py-4 bg-teal-600 font-light hover:bg-teal-700"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -453,5 +540,5 @@ export default  function EditCouponPage({ params }: { params: Promise<{ id: stri
         </div>
       </form>
     </div>
-  )
+  );
 }

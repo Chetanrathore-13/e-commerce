@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import * as nodemailer from "nodemailer"
 
 // Create transporter for Mailtrap
 const createTransporter = () => {
@@ -11,6 +11,11 @@ const createTransporter = () => {
     },
   }
 
+  console.log("=== EMAIL TRANSPORTER CONFIG ===")
+  console.log("Host:", config.host)
+  console.log("Port:", config.port)
+  console.log("User:", config.auth.user ? "***SET***" : "NOT SET")
+  console.log("Pass:", config.auth.pass ? "***SET***" : "NOT SET")
 
   return nodemailer.createTransport(config)
 }
@@ -100,32 +105,85 @@ export const emailTemplates = {
     `,
   }),
 
-  passwordReset: (resetData: any) => ({
-    subject: "Reset Your Password",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #ef4444, #dc2626); padding: 30px; text-align: center;">
-          <h1 style="color: white; margin: 0;">Password Reset</h1>
-          <p style="color: white; margin: 10px 0 0 0;">Reset your account password</p>
-        </div>
-        
-        <div style="padding: 30px; background: #f9fafb;">
-          <h2 style="color: #1f2937; margin-bottom: 20px;">Reset Your Password</h2>
-          <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <p>You requested a password reset. Click the button below to reset your password:</p>
-            <p style="color: #6b7280; font-size: 14px;">This link will expire in 1 hour.</p>
+  passwordReset: (resetData: any) => {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    const resetUrl = resetData?.resetUrl || `${baseUrl}/reset-password?token=${resetData?.token || ""}`
+
+    console.log("=== PASSWORD RESET EMAIL TEMPLATE ===")
+    console.log("Reset URL:", resetUrl)
+    console.log("Token:", resetData?.token)
+    console.log("Name:", resetData?.name)
+
+    return {
+      subject: "Reset Your Password - PARPRA",
+      html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset Your Password</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6;">
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: white;">
+          <!-- Header -->
+          <div style="background: linear-gradient(135deg, #0f766e, #0d9488); padding: 40px 30px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: bold;">Password Reset</h1>
+            <p style="color: white; margin: 10px 0 0 0; font-size: 16px;">Reset your account password</p>
           </div>
           
-          <div style="text-align: center; margin-top: 30px;">
-            <a href="${process.env.NEXT_PUBLIC_APP_URL || ""}/reset-password?token=${resetData?.token || ""}" 
-               style="display: inline-block; background: #ef4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
-              Reset Password
-            </a>
+          <!-- Content -->
+          <div style="padding: 40px 30px; background: #f9fafb;">
+            <h2 style="color: #1f2937; margin-bottom: 20px; font-size: 24px;">Hello ${resetData?.name || "there"}!</h2>
+            
+            <div style="background: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+              <p style="margin-bottom: 20px; color: #374151; font-size: 16px; line-height: 1.6;">
+                You requested a password reset for your PARPRA account. Click the button below to create a new password:
+              </p>
+              
+              <div style="text-align: center; margin: 40px 0;">
+                <a href="${resetUrl}" 
+                   style="display: inline-block; background-color: #0f766e; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; text-align: center; min-width: 200px;">
+                  Reset My Password
+                </a>
+              </div>
+              
+              <p style="color: #6b7280; font-size: 14px; margin: 20px 0 0 0; text-align: center;">
+                ⏰ This link will expire in 1 hour for security reasons.
+              </p>
+            </div>
+            
+            <!-- Fallback Link -->
+            <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #0f766e;">
+              <p style="color: #6b7280; font-size: 14px; margin: 0 0 10px 0; font-weight: bold;">
+                Button not working? Copy and paste this link:
+              </p>
+              <p style="color: #0f766e; font-size: 14px; word-break: break-all; margin: 0; font-family: monospace;">
+                ${resetUrl}
+              </p>
+            </div>
+            
+            <!-- Security Notice -->
+            <div style="text-align: center; margin-top: 30px; padding: 20px; background: #fef3c7; border-radius: 8px; border: 1px solid #f59e0b;">
+              <p style="color: #92400e; font-size: 14px; margin: 0;">
+                🔒 If you didn't request this password reset, please ignore this email or contact our support team immediately.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div style="background: #1f2937; padding: 30px; text-align: center;">
+            <p style="color: #9ca3af; margin: 0; font-size: 16px;">Thank you for using PARPRA!</p>
+            <p style="color: #6b7280; font-size: 12px; margin: 10px 0 0 0;">
+              This email was sent from ${baseUrl}
+            </p>
           </div>
         </div>
-      </div>
+      </body>
+      </html>
     `,
-  }),
+    }
+  },
 
   newsletter: (content: any) => ({
     subject: content?.subject || "Newsletter Update",
@@ -152,27 +210,53 @@ export const emailTemplates = {
 export const emailService = {
   async sendEmail(to: string, template: { subject: string; html: string }) {
     try {
-      
+      console.log("=== SENDING EMAIL ===")
+      console.log("To:", to)
+      console.log("Subject:", template.subject)
+
       // Validate environment variables
       if (!process.env.MAILTRAP_USER || !process.env.MAILTRAP_PASS) {
-        throw new Error("Mailtrap credentials not configured")
+        const error =
+          "Mailtrap credentials not configured. Please set MAILTRAP_USER and MAILTRAP_PASS environment variables."
+        console.error("❌", error)
+        throw new Error(error)
       }
 
       const transporter = createTransporter()
 
+      const fromEmail =
+        process.env.MAILTRAP_FROM_EMAIL || process.env.NEXT_PUBLIC_MAILTRAP_FROM_EMAIL || "noreply@parpra.com"
+
       const mailOptions = {
-        from: process.env.MAILTRAP_FROM_EMAIL || "noreply@yourstore.com",
+        from: fromEmail,
         to,
         subject: template.subject,
         html: template.html,
       }
 
-      
+      console.log("Mail options:")
+      console.log("- From:", mailOptions.from)
+      console.log("- To:", mailOptions.to)
+      console.log("- Subject:", mailOptions.subject)
+      console.log("- HTML length:", template.html.length)
+
+      console.log("Attempting to send email...")
       const result = await transporter.sendMail(mailOptions)
-      
-      return { success: true, messageId: result.messageId }
+
+      console.log("✅ Email sent successfully!")
+      console.log("Message ID:", result.messageId)
+      console.log("Response:", result.response)
+
+      return { success: true, messageId: result.messageId, response: result.response }
     } catch (error) {
-      console.error("Error sending email:", error)
+      console.error("❌ Error sending email:", error)
+
+      if (error instanceof Error) {
+        console.error("Error name:", error.name)
+        console.error("Error message:", error.message)
+        console.error("Error stack:", error.stack)
+      }
+
       return {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error occurred while sending email",
@@ -181,26 +265,32 @@ export const emailService = {
   },
 
   async sendOrderConfirmation(userEmail: string, orderData: any) {
+    console.log("Sending order confirmation to:", userEmail)
     const template = emailTemplates.orderConfirmation(orderData)
     return this.sendEmail(userEmail, template)
   },
 
   async sendOrderShipped(userEmail: string, orderData: any) {
+    console.log("Sending order shipped notification to:", userEmail)
     const template = emailTemplates.orderShipped(orderData)
     return this.sendEmail(userEmail, template)
   },
 
   async sendWelcomeEmail(userEmail: string, userData: any) {
+    console.log("Sending welcome email to:", userEmail)
     const template = emailTemplates.welcomeEmail(userData)
     return this.sendEmail(userEmail, template)
   },
 
   async sendPasswordReset(userEmail: string, resetData: any) {
+    console.log("Sending password reset email to:", userEmail)
+    console.log("Reset data:", resetData)
     const template = emailTemplates.passwordReset(resetData)
     return this.sendEmail(userEmail, template)
   },
 
   async sendNewsletter(userEmail: string, content: any) {
+    console.log("Sending newsletter to:", userEmail)
     const template = emailTemplates.newsletter(content)
     return this.sendEmail(userEmail, template)
   },

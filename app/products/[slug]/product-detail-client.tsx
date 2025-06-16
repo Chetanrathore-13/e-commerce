@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect } from "react";
 import AuthPopup from "@/components/auth-popup";
 import Image from "next/image";
@@ -11,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import type { Product, Variation } from "@/types";
-import { addToCart, addToWishlist } from "@/lib/api";
+import { useCart } from "@/contexts/cart-context";
+import { useWishlist } from "@/contexts/wishlist-context";
 import ProductReviews from "@/components/product-reviews";
 
 interface ProductDetailClientProps {
@@ -36,6 +36,9 @@ export default function ProductDetailClient({
   const [addedToWishlist, setAddedToWishlist] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
+   const { addToCart } = useCart();
+  const { addToWishlist,  isInWishlist } = useWishlist();
+
   // Get unique sizes and colors from variations
   const sizes = Array.from(new Set(product.variations.map((v) => v.size)));
   const colors = Array.from(
@@ -45,6 +48,7 @@ export default function ProductDetailClient({
         .map((v) => v.color)
     )
   );
+  const isInWishlistItem = isInWishlist(product._id);
 
   // Set initial selected variation
   useEffect(() => {
@@ -100,11 +104,6 @@ export default function ProductDetailClient({
       return;
     }
 
-    if (status !== "authenticated") {
-      setShowPopup(true);
-      return;
-    }
-
     setAddingToCart(true);
 
     try {
@@ -137,10 +136,6 @@ export default function ProductDetailClient({
       return;
     }
 
-    if (status !== "authenticated") {
-      setShowPopup(true);
-      return;
-    }
 
     setAddingToWishlist(true);
 
@@ -341,7 +336,7 @@ export default function ProductDetailClient({
               className="flex-1 bg-amber-700 hover:bg-teal-600  text-white p-4 sm:p-6 md:p-8 lg:p-8"
               size="lg"
               onClick={handleAddToWishlist}
-              disabled={addingToWishlist || addedToWishlist}
+              disabled={addingToWishlist || addedToWishlist || isInWishlistItem}
             >
               {addingToWishlist ? (
                 "Adding..."

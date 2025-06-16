@@ -250,7 +250,7 @@ export function ProductsTable({ products, totalPages, page, per_page }: Products
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-destructive   bg-gray-500 text-white hover:bg-red-600 hover:text-white">
+                        <Button variant="ghost" size="icon" className="text-destructive   bg-gray-500 hover:bg-red-600 hover:text-white">
                           <Trash2 className="h-4 w-4 " />
                           <span className="sr-only">Delete</span>
                         </Button>

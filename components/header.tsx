@@ -17,6 +17,34 @@ import AnnouncementBar from "./announcement-bar";
 import { useToast } from "@/hooks/use-toast";
 import logo from "@/public/Logo/Parpra-resize.png";
 import AuthPopup from "./auth-popup";
+import { useCart } from "@/contexts/cart-context";
+import { useWishlist } from "@/contexts/wishlist-context";
+
+// Custom Heart Icon component that fills when there are items in wishlist
+const HeartIcon = ({
+  className = "",
+  filled = false,
+}: {
+  className?: string;
+  filled?: boolean;
+}) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </svg>
+  );
+};
 
 // Update the Header component to fetch categories from the database
 export default function Header() {
@@ -39,10 +67,14 @@ export default function Header() {
   const searchRef = useRef<HTMLDivElement>(null);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+  // Use context for cart and wishlist
+  const { state: cartState } = useCart();
+  const { state: wishlistState } = useWishlist();
   const { toast } = useToast();
   // we have to take role from session
   const userRole = session?.user?.role;
- 
+
   // Fetch cart item count
   useEffect(() => {
     const fetchCartCount = async () => {
@@ -261,7 +293,7 @@ export default function Header() {
     }
   };
 
-  if(userRole === "admin") return null;
+  if (userRole === "admin") return null;
 
   return (
     <header className="sticky top-0 z-40 bg-background w-full">
@@ -508,7 +540,7 @@ export default function Header() {
                 <Image
                   src={logo || "/placeholder.svg"}
                   alt="PARPRA"
-                  width={ 80}
+                  width={80}
                   height={60}
                   priority
                 />
@@ -572,7 +604,7 @@ export default function Header() {
                 </button>
               </div>
 
-              <div className="relative hidden md:block">
+              {/* <div className="relative hidden md:block">
                 <Heart
                   className="h-6 w-6 hover:text-red-500 cursor-pointer"
                   onClick={gotowishlist}
@@ -583,7 +615,26 @@ export default function Header() {
                     {wishlistCount}
                   </span>
                 )}
-              </div>
+              </div> */}
+
+              {/* Wishlist */}
+              <Link href="/wishlist" className="relative">
+                <Button variant="ghost" size="icon" className="relative">
+                  <HeartIcon
+                    className={`h-5 w-5 ${
+                      wishlistState.totalItems > 0
+                        ? "text-red-500"
+                        : "text-gray-700 hover:text-red-500"
+                    }`}
+                    filled={wishlistState.totalItems > 0}
+                  />
+                  {wishlistState.totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                      {wishlistState.totalItems}
+                    </span>
+                  )}
+                </Button>
+              </Link>
 
               <div className="relative" ref={profileRef}>
                 <button
@@ -598,18 +649,20 @@ export default function Header() {
                 )}
               </div>
 
-              <button
-                className="flex items-center hover:text-teal-800 relative"
+              {/* Cart */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
                 onClick={() => setIsCartOpen(true)}
-                aria-label="Shopping Cart"
               >
-                <ShoppingBag className="h-6 w-6" />
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-teal-800 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartItemCount}
+                <ShoppingBag className="h-5 w-5" />
+                {cartState.totalQuantity > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                    {cartState.totalQuantity}
                   </span>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -642,14 +695,19 @@ export default function Header() {
               </div>
 
               {showSearchResults && searchResults.length > 0 && (
-                <div className="mt-3">
-                  <ul className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="mt-3" aria-expanded={showSearchResults}>
+                  <ul
+                    className="space-y-2 max-h-60 overflow-y-auto overflow-x-hidden px-1"
+                    aria-label="Search results"
+                  >
                     {searchResults.map((product) => (
                       <li key={product._id}>
                         <Link
                           href={`/products/${product.slug}`}
                           className="flex items-center p-2 hover:bg-gray-50 rounded"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault(); // Prevent default link behavior
+                            e.stopPropagation(); // Stop event bubbling
                             setShowSearchResults(false);
                             setIsSearchOpen(false);
                             toast({
@@ -661,13 +719,14 @@ export default function Header() {
                           <div className="relative w-10 h-10 mr-3">
                             <Image
                               src={
-                                product.variations[0]?.image ||
-                                "/placeholder.svg" ||
+                                product.variations?.[0]?.image ||
                                 "/placeholder.svg"
                               }
-                              alt={product.name}
+                              alt={product.name || "Product image"}
                               fill
                               className="object-cover rounded"
+                              sizes="40px"
+                              priority={false}
                             />
                           </div>
                           <div className="flex-1">
@@ -676,8 +735,9 @@ export default function Header() {
                             </p>
                             <p className="text-xs text-gray-500">
                               ₹
-                              {product.variations[0]?.salePrice ||
-                                product.variations[0]?.price}
+                              {product.variations?.[0]?.salePrice ||
+                                product.variations?.[0]?.price ||
+                                "N/A"}
                             </p>
                           </div>
                         </Link>

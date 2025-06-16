@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {  X } from "lucide-react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
@@ -15,8 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import ProductCard from "@/components/product-card";
 import { getProducts, getCategories, getBrands } from "@/lib/api";
 import type { Category, Brand, ProductListResponse } from "@/types";
-import { Metadata } from "next";
-
+import { useWishlist } from "@/contexts/wishlist-context";
 
 export default function ProductsPage() {
   // State for products and filters
@@ -29,7 +28,6 @@ export default function ProductsPage() {
   const [colors, setColors] = useState<string[]>([]);
   const [sizes] = useState<string[]>(["XS", "S", "M", "L", "XL", "XXL"]);
   const [loading, setLoading] = useState(true);
-
   // Filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -41,8 +39,6 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState("featured");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-
-  
 
   // Fetch initial data
   useEffect(() => {
@@ -56,9 +52,9 @@ export default function ProductsPage() {
 
         // Fetch brands
         const brandsData: any = await getBrands();
-        
-         setBrands(brandsData?.brands  || []);
-       
+
+        setBrands(brandsData?.brands || []);
+
         // Extract unique materials and colors from products
         const productsResponse = await getProducts({ limit: 100 });
 
@@ -291,83 +287,6 @@ export default function ProductsPage() {
   return (
     <div className="container mx-auto px-4 py-8  mb-16">
       <h1 className="text-3xl font-bold mb-8">Products</h1>
-
-      {/* Search and Sort Bar */}
-        {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <div className="relative w-full md:w-1/3">
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600"
-              size={20}
-            />
-            <Input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          <div className="flex items-center gap-4 w-full md:w-auto">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" className="md:hidden">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filters
-                </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="left"
-                className="w-[300px] sm:w-[350px] overflow-y-auto"
-              >
-                <SheetHeader>
-                  <SheetTitle>Filters</SheetTitle>
-                </SheetHeader>
-                <div className="py-4">
-                  <MobileFilters
-                    categories={categories || []}
-                    brands={brands || []}
-                    materials={materials || []}
-                    colors={colors || []}
-                    sizes={sizes || []}
-                    selectedCategories={selectedCategories}
-                    selectedBrands={selectedBrands}
-                    selectedMaterials={selectedMaterials}
-                    selectedColors={selectedColors}
-                    selectedSizes={selectedSizes}
-                    priceRange={priceRange}
-                    toggleCategory={toggleCategory}
-                    toggleBrand={toggleBrand}
-                    toggleMaterial={toggleMaterial}
-                    toggleColor={toggleColor}
-                    toggleSize={toggleSize}
-                    setPriceRange={setPriceRange}
-                    clearAllFilters={clearAllFilters}
-                  />
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            <div className="flex-1 md:flex-none">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="bestseller">Best Seller</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="price-low-high">
-                    Price: Low to High
-                  </SelectItem>
-                  <SelectItem value="price-high-low">
-                    Price: High to Low
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div> */}
 
       {/* Active Filters */}
       {activeFilters.length > 0 && (
@@ -606,7 +525,7 @@ function DesktopFilters({
         <AccordionItem value="brands">
           <AccordionTrigger>Brands</AccordionTrigger>
           <AccordionContent>
-            <div className="space-y-2">           
+            <div className="space-y-2">
               {brands && brands.length > 0 ? (
                 brands.map((brand) => {
                   return (
