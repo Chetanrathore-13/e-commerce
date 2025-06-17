@@ -5,17 +5,17 @@ import { connectToDatabase } from "@/lib/mongodb"
 import { SeoMeta } from "@/lib/models/seo-meta"
 
 // GET /api/admin/seo-meta/[id] - Get single SEO meta data
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-
+    const { id } = await params
     if (!session || session.user?.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     await connectToDatabase()
 
-    const seoMeta = await SeoMeta.findById(params.id)
+    const seoMeta = await SeoMeta.findById(id)
 
     if (!seoMeta) {
       return NextResponse.json({ error: "SEO meta data not found" }, { status: 404 })
@@ -29,14 +29,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT /api/admin/seo-meta/[id] - Update SEO meta data
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
 
     if (!session || session.user?.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-
+    const { id } = await params
     await connectToDatabase()
 
     const body = await request.json()
@@ -64,7 +64,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Page, title, and description are required" }, { status: 400 })
     }
 
-    const seoMeta = await SeoMeta.findById(params.id)
+    const seoMeta = await SeoMeta.findById(id)
 
     if (!seoMeta) {
       return NextResponse.json({ error: "SEO meta data not found" }, { status: 404 })
@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     // Check if page name is being changed and if it conflicts with existing
     if (seoMeta.page !== page) {
-      const existingSeoMeta = await SeoMeta.findOne({ page, _id: { $ne: params.id } })
+      const existingSeoMeta = await SeoMeta.findOne({ page, _id: { $ne: id } })
       if (existingSeoMeta) {
         return NextResponse.json({ error: "SEO meta data for this page already exists" }, { status: 400 })
       }
@@ -109,7 +109,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE /api/admin/seo-meta/[id] - Delete SEO meta data
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -119,13 +119,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     await connectToDatabase()
 
-    const seoMeta = await SeoMeta.findById(params.id)
+    const { id } = await params
+    const seoMeta = await SeoMeta.findById(id)
 
     if (!seoMeta) {
       return NextResponse.json({ error: "SEO meta data not found" }, { status: 404 })
     }
 
-    await SeoMeta.findByIdAndDelete(params.id)
+    await SeoMeta.findByIdAndDelete(id)
 
     return NextResponse.json({
       message: "SEO meta data deleted successfully",

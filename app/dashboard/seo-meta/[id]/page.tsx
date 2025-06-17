@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Save, Eye, EyeOff } from "lucide-react"
@@ -36,26 +36,29 @@ interface SeoMeta {
   is_active: boolean
 }
 
-export default function EditSeoMetaPage({ params }: { params: { id: string } }) {
+export default function EditSeoMetaPage({ params }: { params: Promise<{ id: string }> }) {
   const [seoMeta, setSeoMeta] = useState<SeoMeta | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [keywordInput, setKeywordInput] = useState("")
+  const [seoMetaId, setSeoMetaId] = useState<string | null>(null)
   const { toast } = useToast()
   const router = useRouter()
-
+  useEffect(() => {
+    const fetchParams = async () => {
+      const resolvedParams = await params
+      setSeoMetaId(resolvedParams.id)
+    }
+    fetchParams()
+  }, [params])
   const pageTypes = ["homepage", "products", "categories", "about", "contact", "blog", "cart", "checkout"]
 
   const twitterCardTypes = ["summary", "summary_large_image", "app", "player"]
 
-  useEffect(() => {
-    fetchSeoMeta()
-  }, [params.id])
-
-  const fetchSeoMeta = async () => {
+  const fetchSeoMeta = useCallback( async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/admin/seo-meta/${params.id}`)
+      const response = await fetch(`/api/admin/seo-meta/${seoMetaId}`)
       const data = await response.json()
 
       if (!response.ok) {
@@ -74,7 +77,11 @@ export default function EditSeoMetaPage({ params }: { params: { id: string } }) 
     } finally {
       setLoading(false)
     }
-  }
+  }, [seoMetaId, toast, router])
+
+  useEffect(() => {
+    fetchSeoMeta()
+  }, [seoMetaId, toast, router, fetchSeoMeta])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -82,7 +89,7 @@ export default function EditSeoMetaPage({ params }: { params: { id: string } }) 
 
     try {
       setSaving(true)
-      const response = await fetch(`/api/admin/seo-meta/${params.id}`, {
+      const response = await fetch(`/api/admin/seo-meta/${seoMetaId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

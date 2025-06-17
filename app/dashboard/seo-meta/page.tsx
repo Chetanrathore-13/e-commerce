@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Search, Plus, Edit, Trash2, Eye, EyeOff, Filter, ChevronLeft, ChevronRight } from "lucide-react"
@@ -45,9 +45,8 @@ export default function SeoMetaPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const { toast } = useToast()
-  const router = useRouter()
 
-  const fetchSeoMetas = async () => {
+  const fetchSeoMetas =useCallback( async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -77,12 +76,7 @@ export default function SeoMetaPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    fetchSeoMetas()
-  }, [currentPage, searchTerm, pageFilter])
-
+  }, [currentPage, searchTerm, pageFilter, toast])
   const handleDelete = async (id: string) => {
     try {
       setDeletingId(id)
@@ -153,6 +147,14 @@ export default function SeoMetaPage() {
       })
     }
   }
+
+  useEffect(() => {
+    fetchSeoMetas()
+  }, [currentPage, searchTerm, pageFilter, toast, fetchSeoMetas])
+
+  
+
+  
 
   const pageTypes = ["homepage", "products", "categories", "about", "contact", "blog", "cart", "checkout"]
 
