@@ -66,7 +66,7 @@ export default function EmailsPage() {
         },
       }
 
-      console.log("Request body:", requestBody)
+     
 
       const response = await fetch("/api/email/send", {
         method: "POST",

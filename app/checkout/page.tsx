@@ -275,7 +275,7 @@ export default function CheckoutPage() {
         },
         modal: {
           ondismiss: () => {
-            console.log("Razorpay modal dismissed")
+          
             setProcessingOrder(false)
           },
         },
@@ -362,7 +362,7 @@ export default function CheckoutPage() {
         guest_checkout: status !== "authenticated",
       }
 
-      console.log("Sending order data:", JSON.stringify(orderData, null, 2))
+      
 
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -378,7 +378,7 @@ export default function CheckoutPage() {
       }
 
       const data = await response.json()
-      console.log("Order created successfully:", data)
+    
 
       // Handle Razorpay payment
       if (paymentMethod === "razorpay") {
@@ -449,7 +449,7 @@ export default function CheckoutPage() {
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
         onLoad={() => {
-          console.log("Razorpay script loaded")
+         
           setRazorpayLoaded(true)
         }}
         onError={() => {

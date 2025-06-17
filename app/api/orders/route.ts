@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions)
     const data = await request.json()
 
-    console.log("Received order data:", JSON.stringify(data, null, 2))
+   
 
     // Validate required fields
     if (!data.shipping_address || !data.billing_address || !data.payment_method) {
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
         userId = existingUser._id.toString()
         user = existingUser
 
-        console.log("Found existing user:", userId)
+       
 
         // Send order confirmation email (user already has account)
         try {
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
           user = newUser
           accountCreated = true
 
-          console.log("Created new user account:", userId)
+         
 
           // Send welcome email with credentials
           try {
@@ -216,7 +216,7 @@ export async function POST(request: Request) {
         }
       } else {
         // Guest checkout without account creation
-        console.log("Processing guest order without account creation")
+       
         userId = undefined // No user ID for guest checkout
 
         // Send guest order confirmation email
@@ -353,7 +353,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No valid items in order" }, { status: 400 })
     }
 
-    console.log("Order items prepared:", orderItems.length)
+    
 
     // Apply discount if coupon is provided
     let discountAmount = 0
@@ -368,7 +368,7 @@ export async function POST(request: Request) {
     const orderCount = await Order.countDocuments()
     const orderNumber = `ORD${new Date().getFullYear()}${(orderCount + 1).toString().padStart(6, "0")}`
 
-    console.log("Creating order with number:", orderNumber)
+   
 
     // Create order
     const orderData = {
@@ -397,12 +397,11 @@ export async function POST(request: Request) {
       guest_phone: !userId ? data.customer?.phone : null,
     }
 
-    console.log("Order data to save:", JSON.stringify(orderData, null, 2))
-
+   
     const order = new Order(orderData)
     await order.save()
 
-    console.log("Order saved successfully:", order._id)
+   
 
     return NextResponse.json({
       success: true,

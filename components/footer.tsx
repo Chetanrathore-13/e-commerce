@@ -84,7 +84,7 @@ export default function Footer() {
 
   
   const address = contactInfo.find((item) => item.type === "address");
-  console.log("Contact Info:", contactInfo);
+ 
   const phone = contactInfo.find((item) => item.type === "phone");
   const email = contactInfo.find((item) => item.type === "email");
   // Function to convert category name to URL-friendly format

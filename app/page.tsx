@@ -72,7 +72,7 @@ export default async function Home() {
     (section: Section) => section.type === "custom" && section.isActive
     
   );
-  console.log("Custom Banner Sections:", customBannerSections);
+ 
 
   // Sort banner sections by position
   bannerSections.sort((a: Section & { position: number }, b: Section & { position: number }) => a.position - b.position);
