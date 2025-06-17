@@ -11,12 +11,7 @@ const createTransporter = () => {
     },
   }
 
-  console.log("=== EMAIL TRANSPORTER CONFIG ===")
-  console.log("Host:", config.host)
-  console.log("Port:", config.port)
-  console.log("User:", config.auth.user ? "***SET***" : "NOT SET")
-  console.log("Pass:", config.auth.pass ? "***SET***" : "NOT SET")
-
+ 
   return nodemailer.createTransport(config)
 }
 
@@ -109,11 +104,7 @@ export const emailTemplates = {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
     const resetUrl = resetData?.resetUrl || `${baseUrl}/reset-password?token=${resetData?.token || ""}`
 
-    console.log("=== PASSWORD RESET EMAIL TEMPLATE ===")
-    console.log("Reset URL:", resetUrl)
-    console.log("Token:", resetData?.token)
-    console.log("Name:", resetData?.name)
-
+    
     return {
       subject: "Reset Your Password - PARPRA",
       html: `
@@ -210,9 +201,7 @@ export const emailTemplates = {
 export const emailService = {
   async sendEmail(to: string, template: { subject: string; html: string }) {
     try {
-      console.log("=== SENDING EMAIL ===")
-      console.log("To:", to)
-      console.log("Subject:", template.subject)
+     
 
       // Validate environment variables
       if (!process.env.MAILTRAP_USER || !process.env.MAILTRAP_PASS) {
@@ -234,19 +223,11 @@ export const emailService = {
         html: template.html,
       }
 
-      console.log("Mail options:")
-      console.log("- From:", mailOptions.from)
-      console.log("- To:", mailOptions.to)
-      console.log("- Subject:", mailOptions.subject)
-      console.log("- HTML length:", template.html.length)
+     
 
-      console.log("Attempting to send email...")
       const result = await transporter.sendMail(mailOptions)
 
-      console.log("✅ Email sent successfully!")
-      console.log("Message ID:", result.messageId)
-      console.log("Response:", result.response)
-
+     
       return { success: true, messageId: result.messageId, response: result.response }
     } catch (error) {
       console.error("❌ Error sending email:", error)
@@ -265,32 +246,31 @@ export const emailService = {
   },
 
   async sendOrderConfirmation(userEmail: string, orderData: any) {
-    console.log("Sending order confirmation to:", userEmail)
+   
     const template = emailTemplates.orderConfirmation(orderData)
     return this.sendEmail(userEmail, template)
   },
 
   async sendOrderShipped(userEmail: string, orderData: any) {
-    console.log("Sending order shipped notification to:", userEmail)
+
     const template = emailTemplates.orderShipped(orderData)
     return this.sendEmail(userEmail, template)
   },
 
   async sendWelcomeEmail(userEmail: string, userData: any) {
-    console.log("Sending welcome email to:", userEmail)
+  
     const template = emailTemplates.welcomeEmail(userData)
     return this.sendEmail(userEmail, template)
   },
 
   async sendPasswordReset(userEmail: string, resetData: any) {
-    console.log("Sending password reset email to:", userEmail)
-    console.log("Reset data:", resetData)
+    
     const template = emailTemplates.passwordReset(resetData)
     return this.sendEmail(userEmail, template)
   },
 
   async sendNewsletter(userEmail: string, content: any) {
-    console.log("Sending newsletter to:", userEmail)
+   
     const template = emailTemplates.newsletter(content)
     return this.sendEmail(userEmail, template)
   },

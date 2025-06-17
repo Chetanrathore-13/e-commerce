@@ -82,12 +82,11 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     await connectToDatabase();
-    console.log("✅ Connected to database");
+   
 
-    console.log("🔁 Processing cart addition request...");
+    
     const session = await getServerSession(authOptions);
-    console.log("🔐 Session:", session);
-
+    
     if (!session || !session.user) {
       console.warn("⛔ Unauthorized access attempt");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -95,7 +94,7 @@ export async function POST(request: Request) {
 
     const userId = session.user.id;
     const { product_id, variation_id, quantity = 1 } = await request.json();
-    console.log("📦 Request body:", { product_id, variation_id, quantity });
+   
 
     if (!product_id || !variation_id) {
       console.warn("⚠️ Missing product_id or variation_id");
@@ -108,12 +107,7 @@ export async function POST(request: Request) {
     // Validate product and variation exist
     const product = await Product.findById(product_id);
     const variation = await Variation.findById(variation_id);
-    console.log(
-      "🔍 Product found:",
-      !!product,
-      "| Variation found:",
-      !!variation
-    );
+   
 
     if (!product || !variation) {
       console.warn("❌ Product or variation not found");
@@ -142,10 +136,9 @@ export async function POST(request: Request) {
 
     // Find or create cart
     let cart = await Cart.findOne({ user_id: userId });
-    console.log("🛒 Existing cart found:", !!cart);
-
+    
     if (!cart) {
-      console.log("🧾 Creating new cart");
+    
       cart = new Cart({
         user_id: new mongoose.Types.ObjectId(userId),
         items: [],
@@ -161,11 +154,9 @@ export async function POST(request: Request) {
     );
 
     const price = variation.salePrice || variation.price;
-    console.log("💰 Price to add:", price);
-
+   
     if (existingItemIndex !== -1) {
-      console.log("🔁 Updating existing cart item");
-      cart.items[existingItemIndex].quantity += quantity;
+      
       cart.items[existingItemIndex].price = price;
 
       // Check if new quantity exceeds stock
@@ -177,7 +168,7 @@ export async function POST(request: Request) {
         );
       }
     } else {
-      console.log("🆕 Adding new item to cart");
+     
       cart.items.push({
         product_id: new mongoose.Types.ObjectId(product_id),
         variation_id: new mongoose.Types.ObjectId(variation_id),
@@ -193,10 +184,10 @@ export async function POST(request: Request) {
       0
     );
 
-    console.log("📊 Cart total recalculated:", cart.total);
+    
 
     await cart.save();
-    console.log("✅ Cart saved successfully");
+    
 
     return NextResponse.json({ message: "Item added to cart" });
   } catch (error: any) {

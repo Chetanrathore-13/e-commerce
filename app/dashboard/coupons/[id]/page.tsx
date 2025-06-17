@@ -98,7 +98,7 @@ export default function EditCouponPage({
       }
 
       const data = await response.json();
-      console.log("Fetched coupon data:", data);
+    
       setCoupon(data);
 
       // Populate form fields
