@@ -83,6 +83,12 @@ const items = [
     icon: TruckElectric  ,
   },
   {
+    title:"SEO",
+    href: "/dashboard/seo-meta",
+    icon: TruckElectric  ,
+  },
+
+  {
     title:"Reviews",
     href: "/dashboard/reviews",
     icon: Star   ,

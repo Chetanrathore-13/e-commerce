@@ -3,7 +3,6 @@ import Link from "next/link";
 import FeaturedCategories from "@/components/featured-categories";
 import NewArrivals from "@/components/new-arrivals";
 import BestSellers from "@/components/best-sellers";
-import FeaturedCollections from "@/components/featured-collections";
 import Testimonials from "@/components/testimonials";
 import HeroBannerSlider from "@/components/hero-banner-slider";
 import Art from "../public/Banners/art.png";
@@ -14,6 +13,93 @@ import {
   getProductsData,
 } from "@/lib/api";
 import ban4 from "@/public/mobbanner/mob4.png";
+import type { Metadata } from "next";
+
+// Generate dynamic metadata from database
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+    const response = await fetch(`${baseUrl}/api/seo-meta?page=homepage`, {
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch meta data")
+    }
+
+    const data = await response.json()
+    const meta = data.meta
+
+    if (!meta) {
+      // Fallback metadata if no database entry found
+      return {
+        title: "Parpra - Premium Indian Ethnic Wear | Sarees, Lehengas & More",
+        description:
+          "Discover exquisite Indian ethnic wear at Parpra. Shop premium sarees, lehengas, salwar suits, and traditional clothing with authentic craftsmanship.",
+        keywords: [
+          "indian ethnic wear",
+          "sarees",
+          "lehengas",
+          "salwar suits",
+          "traditional clothing",
+          "indian fashion",
+        ],
+      }
+    }
+
+    // Build metadata object from database
+    const metadata: Metadata = {
+      title: meta.title,
+      description: meta.description,
+      keywords: meta.keywords,
+    }
+
+    // Add Open Graph data if available
+    if (meta.og_title || meta.og_description || meta.og_image) {
+      metadata.openGraph = {
+        title: meta.og_title || meta.title,
+        description: meta.og_description || meta.description,
+        images: meta.og_image ? [{ url: meta.og_image }] : undefined,
+        url: meta.og_url,
+      }
+    }
+
+    // Add Twitter data if available
+    if (meta.twitter_title || meta.twitter_description || meta.twitter_image) {
+      metadata.twitter = {
+        card: meta.twitter_card || "summary_large_image",
+        title: meta.twitter_title || meta.title,
+        description: meta.twitter_description || meta.description,
+        images: meta.twitter_image ? [meta.twitter_image] : undefined,
+      }
+    }
+
+    // Add robots directive
+    if (meta.robots) {
+      metadata.robots = meta.robots
+    }
+
+    // Add canonical URL
+    if (meta.canonical_url) {
+      metadata.alternates = {
+        canonical: meta.canonical_url,
+      }
+    }
+
+    return metadata
+  } catch (error) {
+    console.error("Error generating metadata:", error)
+
+    // Return fallback metadata on error
+    return {
+      title: "Parpra - Premium Indian Ethnic Wear | Sarees, Lehengas & More",
+      description:
+        "Discover exquisite Indian ethnic wear at Parpra. Shop premium sarees, lehengas, salwar suits, and traditional clothing with authentic craftsmanship.",
+      keywords: ["indian ethnic wear", "sarees", "lehengas", "salwar suits", "traditional clothing", "indian fashion"],
+    }
+  }
+}
+
 
 // This function runs at build time and when revalidated
 export const revalidate = 3600; // Revalidate every hour
